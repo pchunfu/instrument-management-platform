@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>添加牌号库</title>
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/element.js?v=318"></script>
+    <style>
+        .layui-form-item .layui-input-inline {
+            width: 150px;
+        }
+        
+        .layui-form-label {
+            text-align: left;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        .layui-form-item {
+            display: inline-block;
+            margin-left: 20px;
+            width: 250px;
+        }
+        
+        #sampleForm {
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        
+        #brandForm {
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .text-right {
+            position: absolute;
+            bottom: 10px;
+            right: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="brandForm" lay-filter="brandForm" class="layui-form model-form" action="">
+        <div class="layui-form-item" style="display: inline-block; margin: 0 0 0 100px; padding: 0;">
+            <label class="layui-form-label layui-form-required">国标编号</label>
+            <div class="layui-input-inline">
+                <select name="countryStandardId" lay-reqText="请选择国标编号" lay-verType="tips" lay-verify="required|countryStandardId" id="countryStandardId">
+      <option value="">请选择</option>
+    </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: inline-block; margin: 0 0 0 100px; padding: 0;">
+            <label class="layui-form-label layui-form-required">牌号名称</label>
+            <div class="layui-input-inline">
+                <input type="text" id="brandName" name="brandName" oninput="if(value.length>21)value=value.slice(0,21)" lay-reqText="请输入牌号名称" lay-verType="tips" lay-verify="required|brandName" placeholder="请输入牌号名称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 元素表 -->
+        <div class="list-container" id="list-container" style="margin:0；">
+        </div>
+        <div class="layui-form-item text-right" style="width: 96%;">
+            <button class="layui-btn" lay-filter="brandSubmit" lay-submit>添加</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+        <!-- 是否关键 -->
+        <script type="text/html" id="userTbState">
+            <input type="checkbox" name="isEssential" mid={{d.LAY_TABLE_INDEX}} lay-filter="isEssential" value="{{d.isEssential}}" lay-skin="switch" lay-text="是|否" {{d.isEssential=='true' ? 'checked' : '' }}>
+        </script>
+    </form>
+    <script>
+        function child(d) {
+            var elements = getElements();
+            var storage = window.localStorage;
+            var updateModel = storage.getItem('elemData');
+            updateModel = JSON.parse(updateModel);
+            var url = getUrl();
+            layui.use(['layer', 'form', 'util', 'admin', 'laytpl', 'zTree', 'layedit', 'laydate', 'table'], function() {
+                var form = layui.form,
+                    layer = layui.layer,
+                    laytpl = layui.laytpl,
+                    layedit = layui.layedit,
+                    laydate = layui.laydate,
+                    util = layui.util,
+                    admin = layui.admin,
+                    table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+
+                // 正则验证
+                form.verify({
+                        brandName: function(value, item) { //value：表单的值、item：表单的DOM对象
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '牌号名称不能有特殊字符';
+                            }
+                            if (!/^[a-zA-Z0-9\/\-_\#\u4E00-\u9FA5]{2,20}$/.test(value)) {
+                                return "牌号名称为:汉字、数字、字母以及 _ - / #";
+                            }
+                            if (/^\d+\d+\d$/.test(value)) {
+                                return '牌号名称不能全为数字';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多20位哦!';
+                            }
+                        },
+                    })
+                    // 元素表
+                var tableData = table.render({
+                    elem: '#list-container',
+                    MinWidth: 20,
+                    height: 200,
+                    limit: Number.MAX_VALUE,
+                    page: true,
+                    cols: [
+                        [ //表头
+                            {
+                                field: 'elem',
+                                title: '元素名称',
+                                align: 'center',
+                                unresize: true,
+                            }, {
+                                field: 'min',
+                                title: '下限(%)',
+                                align: 'center',
+                                edit: 'text',
+                                unresize: true,
+                            }, {
+                                field: 'max',
+                                title: '上限(%)',
+                                align: 'center',
+                                edit: 'text',
+                                unresize: true,
+                            }, {
+                                field: 'isEssential',
+                                title: '是否关键',
+                                templet: '#userTbState',
+                                align: 'center',
+                                unresize: true,
+                            }
+                        ]
+                    ],
+                    data: [{
+                        "elem": "Fe",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Cd",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Zn",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Al",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Sn",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Mo",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Co",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Ag",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Si",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Mn",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Au",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Sb",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Pb",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Ti",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Ni",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "S",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "P",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Bi",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "V",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "W",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Mg",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "N",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Se",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "B",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "C",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Cu",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Zr",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "La",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Sr",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Nb",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "As",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Ga",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Te",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Cr",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Be",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Ce",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }, {
+                        "elem": "Ca",
+                        "min": "0.000",
+                        "max": "0.000",
+                        "isEssential": "false"
+                    }],
+                    even: true,
+                    done: function(res, curr, count) {}
+                });
+                //初始化国标编号
+                $.ajax({
+                        url: initCountryStandardUrl(),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function(result) {
+                            $.each(result.data, function(index, item) {
+                                $('#countryStandardId').append(new Option(item.countryName, item.countryId)); //往下拉菜单里添加元素
+                            });
+                            // 关键
+                            form.render();
+                        }
+                    })
+                    //开关事件(status是lay-filter中的status，注意区别)
+                form.on('switch(isEssential)', function(obj) {
+                    // 通过属性获取绑定的id值
+                    var id = $(this).attr('mid');
+                    // 判断开关的状态
+                    var status = obj.elem.checked ? "true" : "false";
+                    for (var i = 0; i < tableData.config.data.length; i++) {
+                        var item = tableData.config.data[i];
+                        if (id == item.LAY_TABLE_INDEX) {
+                            item.isEssential = status;
+                        }
+                    }
+                });
+                var myIndex = 0;
+                // 表单提交
+                form.on('submit(brandSubmit)', function(data) {
+                    var brandData = tableData.config.data;
+                    let integer = /^(\d{1,2}(\.\d{1,3})?|100)$/;
+
+                    if (integer.test(brandData[0].min) == false) {
+                        layer.msg("Fe下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[0].max) == false) {
+                        layer.msg("Fe上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (Number(brandData[0].min) > Number(brandData[0].max)) {
+                        layer.msg("Fe下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[1].min) == false) {
+                        layer.msg("Cd下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[1].max) == false) {
+                        layer.msg("Cd上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[1].min > brandData[1].max) {
+                        layer.msg("Cd下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[2].min) == false) {
+                        layer.msg("Zn下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[2].max) == false) {
+                        layer.msg("Zn上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[2].min > brandData[2].max) {
+                        layer.msg("Zn下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[3].min) == false) {
+                        layer.msg("Al下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[3].max) == false) {
+                        layer.msg("Al上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[3].min > brandData[3].max) {
+                        layer.msg("Al下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[4].min) == false) {
+                        layer.msg("Sn下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[4].max) == false) {
+                        layer.msg("Sn上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[4].min > brandData[4].max) {
+                        layer.msg("Sn下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[5].min) == false) {
+                        layer.msg("Mo下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[5].max) == false) {
+                        layer.msg("Mo上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[5].min > brandData[5].max) {
+                        layer.msg("Mo下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[6].min) == false) {
+                        layer.msg("Co下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[6].max) == false) {
+                        layer.msg("Co上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[6].min > brandData[6].max) {
+                        layer.msg("Co下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[7].min) == false) {
+                        layer.msg("Ag下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[7].max) == false) {
+                        layer.msg("Ag上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (brandData[7].min > brandData[7].max) {
+                        layer.msg("Ag下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[8].min) == false) {
+                        layer.msg("Si下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[8].max) == false) {
+                        layer.msg("Si上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (Number(brandData[8].min) > Number(brandData[8].max)) {
+                        layer.msg("Si下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    if (integer.test(brandData[9].min) == false) {
+                        layer.msg("Mn下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[9].max) == false) {
+                        layer.msg("Mn上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[9].min > brandData[9].max) {
+                        layer.msg("Mn下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[10].min) == false) {
+                        layer.msg("Au下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[10].max) == false) {
+                        layer.msg("Au上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[10].min > brandData[10].max) {
+                        layer.msg("Au下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[11].min) == false) {
+                        layer.msg("Sb下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[11].max) == false) {
+                        layer.msg("Sb上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[11].min > brandData[11].max) {
+                        layer.msg("Sb下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[12].min) == false) {
+                        layer.msg("Pb下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[12].max) == false) {
+                        layer.msg("Pb上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[12].min > brandData[12].max) {
+                        layer.msg("Pb下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[13].min) == false) {
+                        layer.msg("Ti下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[13].max) == false) {
+                        layer.msg("Ti上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[13].min > brandData[13].max) {
+                        layer.msg("Ti下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[14].min) == false) {
+                        layer.msg("Ni下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[14].max) == false) {
+                        layer.msg("Ni上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[14].min > brandData[14].max) {
+                        layer.msg("Ni下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[15].min) == false) {
+                        layer.msg("S下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[15].max) == false) {
+                        layer.msg("S上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[15].min > brandData[15].max) {
+                        layer.msg("S下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[16].min) == false) {
+                        layer.msg("P下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[16].max) == false) {
+                        layer.msg("P上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[16].min > brandData[16].max) {
+                        layer.msg("P下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    if (integer.test(brandData[17].min) == false) {
+                        layer.msg("Bi下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[17].max) == false) {
+                        layer.msg("Bi上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[17].min > brandData[17].max) {
+                        layer.msg("Bi下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[18].min) == false) {
+                        layer.msg("V下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[18].max) == false) {
+                        layer.msg("V上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[18].min > brandData[18].max) {
+                        layer.msg("V下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[19].min) == false) {
+                        layer.msg("W下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[19].max) == false) {
+                        layer.msg("W上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[19].min > brandData[19].max) {
+                        layer.msg("W下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[20].min) == false) {
+                        layer.msg("Mg下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[20].max) == false) {
+                        layer.msg("Mg上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[20].min > brandData[20].max) {
+                        layer.msg("Mg下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[21].min) == false) {
+                        layer.msg("N下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[21].max) == false) {
+                        layer.msg("N上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[21].min > brandData[21].max) {
+                        layer.msg("N下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+
+                    if (integer.test(brandData[22].min) == false) {
+                        layer.msg("Se下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[22].max) == false) {
+                        layer.msg("Se上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[22].min > brandData[22].max) {
+                        layer.msg("Se下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    if (integer.test(brandData[23].min) == false) {
+                        layer.msg("B下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[23].max) == false) {
+                        layer.msg("B上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[23].min > brandData[23].max) {
+                        layer.msg("B下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[24].min) == false) {
+                        layer.msg("C下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[24].max) == false) {
+                        layer.msg("C上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[24].min > brandData[24].max) {
+                        layer.msg("C下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[25].min) == false) {
+                        layer.msg("Cu下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[25].max) == false) {
+                        layer.msg("Cu上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    if (brandData[25].min > brandData[25].max) {
+                        layer.msg("Cu下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    if (integer.test(brandData[26].min) == false) {
+                        layer.msg("Zr下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[26].max) == false) {
+                        layer.msg("Zr上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[26].min > brandData[26].max) {
+                        layer.msg("Zr下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[27].min) == false) {
+                        layer.msg("La下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[27].max) == false) {
+                        layer.msg("La上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[27].min > brandData[27].max) {
+                        layer.msg("La下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[28].min) == false) {
+                        layer.msg("Sr下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[28].max) == false) {
+                        layer.msg("Sr上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[28].min > brandData[28].max) {
+                        layer.msg("Sr下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[29].min) == false) {
+                        layer.msg("Nb下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[29].max) == false) {
+                        layer.msg("Nb上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    if (brandData[29].min > brandData[29].max) {
+                        layer.msg("Nb下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[30].min) == false) {
+                        layer.msg("As下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[30].max) == false) {
+                        layer.msg("As上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[30].min > brandData[30].max) {
+                        layer.msg("As下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[31].min) == false) {
+                        layer.msg("Ga下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[31].max) == false) {
+                        layer.msg("Ga上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[31].min > brandData[31].max) {
+                        layer.msg("Ga下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[32].min) == false) {
+                        layer.msg("Te下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[32].max) == false) {
+                        layer.msg("Te上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[32].min > brandData[32].max) {
+                        layer.msg("Te下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[33].min) == false) {
+                        layer.msg("Cr下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[33].max) == false) {
+                        layer.msg("Cr上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[33].min > brandData[33].max) {
+                        layer.msg("Cr下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[34].min) == false) {
+                        layer.msg("Be下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[34].max) == false) {
+                        layer.msg("Be上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[34].min > brandData[34].max) {
+                        layer.msg("Be下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[35].min) == false) {
+                        layer.msg("Ce下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[35].max) == false) {
+                        layer.msg("Ce上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[35].min > brandData[35].max) {
+                        layer.msg("Ce下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[36].min) == false) {
+                        layer.msg("Ca下限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[36].max) == false) {
+                        layer.msg("Ca上限为0-100的数，最多3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (brandData[36].min > brandData[36].max) {
+                        layer.msg("Ce下限小于上限哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    // var brandData = tableData.config.data;
+                    // $.each(brandData, function(index, item) {
+                    //     brandData[index] = table.clearCacheKey(item)
+                    // });
+                    // $.each(brandData, function(index, item) {
+                    //     var checkFormat = /^(0)$|^100$|^[1-9][0-9]?$/.test('100');;
+                    //     if (brandData[index].min > 100 || brandData[index].max > 100) {
+                    //         alert("请输入正确的数字格式(小于100)");
+                    //         myIndex = 1;
+                    //         return;
+                    //     }
+                    //     if (brandData[index].max < brandData[index].min) {
+                    //         myIndex = 1;
+                    //         alert("上限要大于下限");
+                    //         return false;
+                    //     }
+                    // });
+                    // if (myIndex == 1) {
+                    //     return false;
+                    // }
+                    $.ajax({
+                        url: addBrandUrl(),
+                        type: "post", // 采用post方法
+                        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        // form表单中的参数
+                        data: JSON.stringify({
+                            "countryStandardId": data.field.countryStandardId,
+                            "brandName": data.field.brandName,
+                            "elementModes": brandData,
+                            "index": myIndex
+                        }),
+                        // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+
+
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>修改版本号</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-form-item {
+            margin-right: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .layui-textarea {
+            resize: none;
+        }
+        
+        .layui-form-label {
+            width: 100px;
+        }
+        
+        .layui-form-select dl {
+            max-height: 250px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="productLineEditForm" lay-filter="productLineEditForm" class="layui-form model-form" style="padding: 0;">
+        <div class="layui-form-item" style="margin-top: 5px;">
+            <label class="layui-form-label layui-form-required">产品系列</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                <select id="productSeriesName" lay-verType="tips" lay-verify="required|productSeriesName" lay-reqText="请选择产品系列" name="productSeriesName" lay-search="" lay-filter="productSeriesName" disabled>
+                   <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">版本代号</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                <select id="majorMinorVersion" lay-verType="tips" lay-verify="required|majorMinorVersion" lay-reqText="请选择版本代号" name="majorMinorVersion" lay-search="" lay-filter="majorMinorVersion" disabled>
+                  <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">负责人</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                <select id="principal" lay-verType="tips" lay-verify="required|principal" lay-reqText="请选择负责人" name="principal" lay-search="" lay-filter="principal">
+                    <option value="">请选择</option>
+                  </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">参与人</label>
+            <div class="layui-input-block" style="width:295px; margin-left: 0px;display: inline-block;">
+                <div id="participant"></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">软件名称</label>
+            <div class="layui-input-block" style="width: 297px; margin-left: 130px;">
+                <input type="text" style="width: 297px;" autocomplete="off" id="softwareName" name="softwareName" placeholder="请输入软件名称" class="layui-input" lay-verType="tips" lay-reqText="请输入软件名称" lay-verify="required|softwareName" required lay-filter="softwareName">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">功能说明</label>
+            <div class="layui-input-block" style="width: 297px; margin-left: 130px;">
+                <input type="text" style="width: 297px;" autocomplete="off" id="description" name="description" placeholder="请输入软件功能" class="layui-input" lay-verType="tips" lay-reqText="请输入软件功能" lay-verify="required|description" required lay-filter="description">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">适用范围</label>
+            <div class="layui-input-block" style="width: 297px; margin-left: 130px;">
+                <input type="text" style="width: 297px;" autocomplete="off" id="scope" name="scope" placeholder="请输入仪器型号" class="layui-input" lay-verType="tips" lay-reqText="请输入仪器型号" lay-verify="required|scope" required lay-filter="scope">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">源代码路径</label>
+            <div class="layui-input-block" style="width: 297px; margin-left: 130px;">
+                <input type="text" style="width: 297px;" autocomplete="off" id="path" name="path" placeholder="请输入git路径" class="layui-input" lay-verType="tips" lay-reqText="请输入git路径" lay-verify="required|path" required lay-filter="path">
+            </div>
+        </div>
+        <div class="text-right">
+            <button class="layui-btn" lay-filter="productSubmit" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog" style="margin-right: 10px;">取消</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            layui.use(['layer', 'element', 'admin', 'form', 'xmSelect'], function() {
+                var element = layui.element;
+                var admin = layui.admin;
+                var layer = layui.layer;
+                var form = layui.form;
+                var xmSelect = layui.xmSelect;
+                $ = layui.jquery;
+                $form = $('form');
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                var userId = userData.userId;
+                let operatorId = userId;
+                version();
+                //版本号
+                function version() {
+                    var arr1 = new Array(10);
+                    for (var i = 1; i < arr1.length; i += 0.1) {
+                        arr1[i] = i;
+                        var item = arr1[i].toFixed(1);
+                        $("#majorMinorVersion").append("<option value=" + item + ">" + item + "</option>");
+                        form.render();
+                        $("#majorMinorVersion").each(function() {
+                            $(this).children("option").each(function() {
+                                if (this.text == d.majorMinorVersion) {
+                                    // 进行回显
+                                    $(this).attr("selected", "selected");
+                                }
+                            });
+                            form.render();
+                        })
+                    }
+                }
+                // 正则验证
+                form.verify({
+                        softwareName: function(value, item) {
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '不能有特殊字符';
+                            }
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多输入20位';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                        },
+                        description: function(value, item) {
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '产品名称不能有特殊字符';
+                            }
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '产品名称不能输入空格哦!';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '产品名称最多20位哦!';
+                            }
+                        },
+                        scope: function(value, item) {
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (/^\d+\d+\d$/.test(value)) {
+                                return '不能全为数字';
+                            }
+                            if (!/^.{1,50}$/.test(value)) {
+                                return '最多输入50位！';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '不能有特殊字符哦';
+                            }
+                        }
+                    })
+                    // 初始化产品系列
+                $.ajax({
+                        url: getAllProductSeriesUrl(),
+                        type: "get",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({
+                            isPage: false
+                        }),
+                        success: function(res) {
+                            if (res.code == 0) {
+                                var arr = res.data;
+                                if (arr.length > 0) {
+                                    for (var i = 0; i < arr.length; i++) {
+                                        var item = arr[i];
+                                        $("#productSeriesName").append("<option value=" + item.id + ">" + item.name + "</option>");
+                                    }
+                                    $("#productSeriesName").each(function() {
+                                        // this代表的是<option></option>，对option再进行遍历
+                                        $(this).children("option").each(function() {
+                                            // 判断需要对那个选项进行回显
+                                            if (this.value == d.productSeriesId) {
+                                                // 进行回显
+                                                $(this).attr("selected", "selected");
+                                            }
+                                        });
+                                        form.render();
+                                    })
+                                } else {
+                                    $("#productSeriesName").empty();
+                                    $("#productSeriesName").append("<option value=''>请先创建产品系列</option>");
+                                }
+                                form.render();
+                            }
+
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    })
+                    //负责人初始化
+                $.ajax({
+                    url: getAllUserUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        isPage: false
+                    }),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            var arr = result.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#principal").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                                }
+                                $("#principal").each(function() {
+                                    // this代表的是<option></option>，对option再进行遍历
+                                    $(this).children("option").each(function() {
+                                        // 判断需要对那个选项进行回显
+                                        if (this.value == d.personInCharge) {
+                                            // 进行回显
+                                            $(this).attr("selected", "selected");
+                                        }
+                                    });
+                                    form.render();
+                                })
+                            }
+                        } else {
+                            $("#principal").empty();
+                            $("#principal").append("<option value=''>没有选项</option>");
+                        }
+                        form.render();
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                //参与人初始化
+                $.ajax({
+                    url: getAllUserUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        isPage: false
+                    }),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            var arr = result.data;
+                            var TreeData = [];
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    TreeData.push({
+                                            "name": item.userName,
+                                            "value": item.userId,
+                                        }) //将对象push到数组中
+                                }
+                                // 渲染多选下拉框
+                                var insRoleSel = xmSelect.render({
+                                    el: '#participant',
+                                    name: 'participant',
+                                    layVerify: 'required',
+                                    layVerType: 'tips',
+                                    data: TreeData,
+                                });
+                                var arr = d.participantsIds;
+                                insRoleSel.setValue(arr);
+                            }
+                        } else {
+                            $("#participant").empty();
+                            $("#participant").append("<option value=''>没有选项</option>");
+                        }
+                        form.render();
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                // 表单提交
+                form.on('submit(productSubmit)', function(data) {
+                    var participants = [];
+                    var participants = data.field.participant
+                    var stringResult = participants.split(',');
+                    var participantsArr = stringResult.map(Number)
+                    let operatorId = userId;
+                    $.ajax({
+                        url: updateSoftwareVersionAncillaryInformationUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "productSeriesId": data.field.productSeriesName,
+                            "majorMinorVersion": data.field.majorMinorVersion,
+                            'personInCharge': data.field.principal,
+                            'participantsIds': participantsArr,
+                            'softwareName': data.field.softwareName,
+                            'functionDescription': data.field.description,
+                            'scopeOfApplication': data.field.scope,
+                            'sourceCodePath': data.field.path,
+                            'id': d.id,
+                            'operatorId': operatorId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+
+
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

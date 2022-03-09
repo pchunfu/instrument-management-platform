@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>升级软件的版本号</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        
+        #EditForm {
+            height: 100%;
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        
+        .layui-upload-choose {
+            position: absolute;
+            right: 0;
+            bottom: 40px;
+            font-size: 16px;
+            width: 200px;
+            height: 40px;
+            margin-left: 20px;
+            overflow: hidden;
+        }
+        
+        .text-right {
+            position: absolute;
+            top: 255px;
+            right: 0;
+        }
+        
+        .layui-form-selected dl {
+            max-height: 130px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="EditForm" lay-filter="EditForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+        <div class="layui-form-item" style="margin-top: 20px;">
+            <label class="layui-form-label layui-form-required" style="width: 90px;">通用版</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                <input type="checkbox" lay-filter="switch" id="switch" name="switch" title="通用版">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 90px;">小版本</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                <input type="checkbox" lay-filter="switchTest" id="switchTest" name="switchTest" title="小版本">
+            </div>
+        </div>
+        <div class="layui-form-item" id="kehu">
+            <label class="layui-form-label layui-form-required" style="width: 90px;">客户定制版</label>
+            <div class="layui-input-block" style="width: 110px; margin-left: 0px;display: inline-block;">
+                <select id="client" name="client" lay-search="" lay-filter="client">
+                  <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="Submit" lay-submit>确定</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            layui.use(['layer', 'table', 'element', 'admin', 'form', 'upload'], function() {
+                var table = layui.table,
+                    element = layui.element,
+                    upload = layui.upload;
+                var admin = layui.admin;
+                var layer = layui.layer;
+                var form = layui.form;
+                $ = layui.jquery;
+                $form = $('form');
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                var userId = userData.userId;
+                let operatorId = userId;
+                // if ($('#switch').prop('checked') == true) {
+                //     $('#switchTest').attr("disabled", true);
+                // }
+                form.on('checkbox(switch)', function(data) {
+                    if (data.elem.checked == true) {
+                        $("#kehu").css('opacity', '0');
+                        $('#switchTest').attr("disabled", true);
+                        form.render("checkbox");
+                    } else {
+                        $("#kehu").css('opacity', '1');
+                        $('#switchTest').attr("disabled", false);
+                        $("#switchTest").prop("checked", false);
+                        form.render("checkbox");
+
+                    }
+
+                });
+                form.on('checkbox(switchTest)', function(data) {
+                    if (data.elem.checked == true) {
+                        $('#switch').attr("disabled", true);
+                        form.render("checkbox");
+                    } else {
+                        $('#switch').attr("disabled", false);
+                        $("#switch").prop("checked", false);
+                        form.render("checkbox");
+
+                    }
+                });
+                //客户初始化
+                $.ajax({
+                    url: getAllUserUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        isPage: false
+                    }),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            var arr = result.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#client").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                                }
+                            }
+                        } else {
+                            $("#client").empty();
+                            $("#client").append("<option value=''>没有选项</option>");
+                        }
+                        form.render();
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+
+                // 版本号升级
+                form.on('submit(Submit)', function(data) {
+                    var isLargeVersion = data.field.switch;
+                    var isSmallVersion = data.field.switchTest;
+                    if (isLargeVersion == 'on') {
+                        isLargeVersion = true;
+                    } else {
+                        isLargeVersion = false;
+                    }
+                    if (isSmallVersion == 'on') {
+                        isSmallVersion = true;
+                    } else {
+                        isSmallVersion = false;
+                    }
+                    let operatorId = userId;
+                    $.ajax({
+                        url: upgradeSoftwareVersionUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "customerId": data.field.client,
+                            "isLargeVersion": isLargeVersion,
+                            'isSmallVersion': isSmallVersion,
+                            'id': d.id,
+                            'operatorId': operatorId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() {
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+
+
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

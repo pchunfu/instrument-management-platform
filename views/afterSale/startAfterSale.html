@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>开始售后服务</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        .layui-form-label {
+            padding: 0;
+            margin-top: 9px;
+            margin-right: 9px;
+        }
+        
+        .layui-textarea {
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:100%">
+        <form id="afterSaleForm1" lay-filter="afterSaleForm1" class="layui-form model-form">
+            <div>
+                <div class="layui-form-item" style="display: inline-block; width: 200px;">
+                    <label class="layui-form-label">服务主题</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="afterSaleServiceTopic" id="afterSaleServiceTopic" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 200px;">
+                    <label class="layui-form-label">服务分类</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="afterSaleServiceCategory" id="afterSaleServiceCategory" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 300px;">
+                    <label class="layui-form-label" id='Model'>服务产品</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="productName" id="productName" disabled class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="layui-form-item" style="display: inline-block; width: 200px;">
+                    <label class="layui-form-label">客户</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="customerName" id="customerName" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block;width: 200px;">
+                    <label class="layui-form-label">联系人</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="contacts" id="contacts" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 300px;">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="contactNum" style="width: 100px;" id="contactNum" disabled class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="layui-form-item" style="display: inline-block; width: 200px;">
+                    <label class="layui-form-label" id='Model'>处理人员</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="userName" id="userName" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 200px;">
+                    <label class="layui-form-label">归属部门</label>
+                    <div class="layui-input-block">
+                        <input type="text" style="background-color: rgb(174, 192, 192);" name="departmentName" id="departmentName" disabled class="layui-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分隔符 -->
+            <hr>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-required">开始时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" lay-reqText="请输入服务开始时间" lay-verType="tips" lay-verify="required|serviceStartTime" autocomplete="off" id="serviceStartTime" name="serviceStartTime" lay-filter="serviceStartTime" placeholder="yyyy年MM月dd日">
+                </div>
+            </div>
+            <div class="layui-form-item text-right">
+                <button class="layui-btn" lay-filter="startSubmit" lay-submit>保存</button>
+                <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        //重新设置页面大小
+        // resize();
+        function child(d) {
+            layui.use(['form', 'layedit', 'laydate', 'layer', 'table', 'element', 'admin', 'upload'], function() {
+                var form = layui.form;
+                var element = layui.element;
+                var layer = layui.layer;
+                var layedit = layui.layedit;
+                var laydate = layui.laydate;
+                var table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+                var admin = layui.admin;
+                // 获取本地缓存
+                var storage = window.localStorage;
+                var userData = storage.getItem('userData');
+                userData = JSON.parse(userData);
+                var userId = userData.userId;
+                let operatorId = userId;
+                //日期   
+                var nowTime = new Date();
+                var startTime = laydate.render({
+                        elem: '#serviceStartTime',
+                        // type:'datetime',
+                        format: 'yyyy-MM-dd',
+                        trigger: 'click',
+                        max: 'nowTime', //默认最大值为当前日期
+                    })
+                    // 表单提交
+                form.on('submit(startSubmit)', function(data) {
+                    $.ajax({
+                        url: startAfterSales(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: true,
+                        data: JSON.stringify({
+                            "operatorId": operatorId,
+                            "serviceStartTime": data.field.serviceStartTime,
+                            "id": d.id,
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                    // layer.close(layer.index); //关闭窗口
+                                    // window.parent.location.reload(); //刷新父级窗口
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

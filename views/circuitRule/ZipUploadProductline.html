@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>上传电路编号规则压缩包</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        #EditForm {
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        
+        .layui-upload-choose {
+            position: absolute;
+            right: 15px;
+            bottom: 84px;
+            font-size: 16px;
+            width: 200px;
+            height: 40px;
+            margin-left: 20px;
+            overflow: hidden;
+        }
+        
+        .text-right {
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="EditForm" lay-filter="EditForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+        <div class="layui-form-item" style="margin-top: 5px;">
+            <label class="layui-form-label">编号规则</label>
+            <div class="layui-input-inline">
+                <input id="drawingCode" type="text" style="font-weight: 700; font-size: 20px;" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">创建时间</label>
+            <div class="layui-input-inline">
+                <input id="createTime" type="text" disabled class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-bottom: 0;">
+            <label class="layui-form-label">上传文件</label>
+            <div class="layui-btn-container" id="ept">
+                <button type="button" class="layui-btn layui-btn-normal" id="test8">选择文件</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">上传进度</label>
+            <div class="layui-input-inline" style="display: inline-block; width: 330px;height: 10px;margin: 0;margin-top: 15px;">
+                <div class="layui-progress" lay-filter="demo">
+                    <div class="layui-progress-bar layui-bg-red" lay-percent="0%"></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="layui-form-item text-right">
+            <button type="button" class="layui-btn" id="test9">上传</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            layui.use(['layer', 'table', 'element', 'admin', 'form', 'upload'], function() {
+                var table = layui.table,
+                    element = layui.element,
+                    upload = layui.upload;
+                var admin = layui.admin;
+                var layer = layui.layer;
+                var form = layui.form;
+                $ = layui.jquery;
+                $form = $('form');
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                var userId = userData.userId;
+                let operatorId = userId;
+                //选完文件后不自动上传
+                upload.render({
+                    elem: '#test8',
+                    url: auploadHardwareCircuitBoardFileUrl(),
+                    auto: false,
+                    accept: 'file',
+                    exts: 'zip|rar|7z',
+                    acceptMime: '.zip,.rar,.7z',
+                    // multiple: true,
+                    bindAction: '#test9',
+                    progress: function(n, elem, e) {
+                        element.progress('demo', n + '%'); //可配合 layui 进度条元素使用
+                    },
+                    data: {
+                        'id': d.id,
+                        'operatorId': operatorId
+                    },
+                    done: function(res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, {
+                                icon: 1,
+                                time: 1000
+                            }, function() {
+                                var index = parent.layer.getFrameIndex(Window.name);
+                                parent.layer.closeAll();
+                            });
+                        } else {
+                            layer.msg(res.msg, {
+                                icon: 2
+                            });
+                            element.progress('demo', '0%');
+                        }
+                    },
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

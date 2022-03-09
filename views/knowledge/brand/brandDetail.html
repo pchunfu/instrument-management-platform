@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>牌号库查看详情</title>
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/element.js?v=318"></script>
+    <style>
+        .layui-form-item {
+            display: inline-block;
+            width: 30%;
+        }
+        
+        .layui-form-label {
+            padding: 0;
+            margin-top: 9px;
+            margin-right: 9px;
+        }
+        
+        .text-right {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        #afterSaleForm2 {
+            padding: 10px 15px 0 0;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:100%">
+        <form id="afterSaleForm2" lay-filter="afterSaleForm2" class="layui-form model-form">
+            <div class="layui-form-item" style="width: 25%;">
+                <label class="layui-form-label">牌号ID</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="brandNameId" id="brandNameId" disabled class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">国标编号</label>
+                <div class="layui-input-inline" style="width: 150px;">
+                    <input type="text" name="countryStandardName" id="countryStandardName" disabled class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">牌号名称</label>
+                <div class="layui-input-inline" style="width: 150px;">
+                    <input type="text" name="brandNames" id="brandNames" disabled class="layui-input">
+                </div>
+            </div>
+            <!-- 元素表 -->
+            <div class="list-container" id="list-container" style="margin:10px 60px 0 30px; margin-bottom: auto;">
+            </div>
+            <div class="layui-form-item text-right">
+                <button class="layui-btn" type="button" style="margin-right: 10px;" ew-event="closeDialog">关闭</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function child(d) {
+            var elements = getElements();
+            var storage = window.localStorage;
+            var updateModel = storage.getItem('elemData');
+            updateModel = JSON.parse(updateModel);
+            var url = getUrl();
+            layui.use(['layer', 'form', 'util', 'admin', 'laytpl', 'zTree', 'layedit', 'laydate', 'table'], function() {
+                var form = layui.form,
+                    layer = layui.layer,
+                    laytpl = layui.laytpl,
+                    layedit = layui.layedit,
+                    laydate = layui.laydate,
+                    util = layui.util,
+                    admin = layui.admin,
+                    table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+                // 正则验证
+                form.verify({
+                    sampleCon: function(value, item) { //value：表单的值、item：表单的DOM对象
+                        // if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                        //     return '浓度为正整数、不能有空格、最多保留两位小数';
+                        // }
+                        // if (!/^[^\s]*$/.test(value)) {
+                        //     return '不能输入空格哦!';
+                        // }
+                    },
+                    sampleSpec: function(value, item) { //value：表单的值、item：表单的DOM对象
+                        // if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                        //     return '规格正整数、不能有空格、最多保留两位小数';
+                        // }
+                    },
+                    sampleCode: function(value) { //value：表单的值、item：表单的DOM对象
+                        // if (!/^[^\s]*$/.test(value)) {
+                        //     return '不能输入空格哦!';
+                        // }
+                        if (!/^.{1,20}$/.test(value)) {
+                            return '最多20位哦!';
+                        }
+                    },
+                    samplePrice: function(value) { //value：表单的值、item：表单的DOM对象
+                        if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                            return '价格为正整数、不能有空格、最多保留两位小数';
+                        }
+                    }
+                })
+                var arr = d.elementModes;
+                var obj = {};
+                for (var key in arr) {
+                    obj[key] = arr[key];
+
+                    let datas = obj[key];
+                    var arr1 = Array(datas); //对象转化为数组	
+                    console.log('==========d', arr1);
+                    // 元素表
+                    table.render({
+                        elem: '#list-container',
+                        MinWidth: 20,
+                        height: 200,
+                        limit: Number.MAX_VALUE,
+                        cols: [
+                            [ //表头
+                                {
+                                    field: 'elem',
+                                    title: '元素名称',
+                                    align: 'center',
+                                    unresize: true,
+                                }, {
+                                    field: 'min',
+                                    title: '下限(%)',
+                                    align: 'center',
+                                    unresize: true,
+                                }, {
+                                    field: 'max',
+                                    title: '上限(%)',
+                                    align: 'center',
+                                    unresize: true,
+                                }
+                            ]
+                        ],
+                        data: [{
+                            "elem": arr[0].elem,
+                            "min": arr[0].min,
+                            "max": arr[0].max,
+                        }, {
+                            "elem": arr[1].elem,
+                            "min": arr[1].min,
+                            "max": arr[1].max,
+                        }, {
+                            "elem": arr[2].elem,
+                            "min": arr[2].min,
+                            "max": arr[2].max,
+                        }, {
+                            "elem": arr[3].elem,
+                            "min": arr[3].min,
+                            "max": arr[3].max,
+                        }, {
+                            "elem": arr[4].elem,
+                            "min": arr[4].min,
+                            "max": arr[4].max,
+                        }, {
+                            "elem": arr[5].elem,
+                            "min": arr[5].min,
+                            "max": arr[5].max,
+                        }, {
+                            "elem": arr[6].elem,
+                            "min": arr[6].min,
+                            "max": arr[6].max,
+                        }, ],
+                        even: true,
+                        // parseData: function(res) {
+                        //     console.log('==========d', d);
+                        // },
+                        // done: function(data, curr, count) {
+                        //     res.data.forEach(function(item, index) {
+                        //         // console.log('==========item', item);
+                        //         var tr = $(".layui-table").find("tbody tr[data-index='" + index + "']");
+                        //         if (item.LAY_TABLE_INDEX == true) {
+                        //             tr.css("background-color", "white");
+                        //             // 给1-0-9列添加样式
+                        //             tr.find(".laytable-cell-1-0-9").css("color", "red");
+                        //         } else {
+                        //             tr.css("background-color", "rgb(141, 232, 248)");
+                        //         }
+                        //     });
+                        // }
+                    });
+
+                }
+
+
+            })
+        }
+    </script>
+</body>
+
+</html>

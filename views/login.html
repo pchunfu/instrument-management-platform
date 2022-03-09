@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>创想仪器</title>
+
+    <link rel="stylesheet" href="../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../assets/module/admin.css?v=318" />
+    <!-- <link rel="stylesheet" href="../assets/css/login.css?v=318" /> -->
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/vector.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/login.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/config.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/jsencrypt.min.js?v=318"></script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            font-size: 16px;
+            height: 100%;
+            font-family: sans-serif;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        .login-bg {
+            background: url(../assets/images/bg.png) no-repeat center;
+            background-size: cover;
+            overflow: hidden;
+            width: 100%;
+            min-height: 100%;
+            /* margin: 500px; */
+        }
+        
+        #loginform {
+            position: relative;
+        }
+        
+        #loginform .layui-icon-username {
+            position: absolute;
+            top: 5px;
+            left: 0px;
+            width: 46px;
+            height: 46px;
+            line-height: 46px;
+            font-size: 25px;
+            color: #909399;
+            text-align: center;
+        }
+        
+        #loginform .layui-icon-password {
+            position: absolute;
+            top: 80px;
+            left: 0px;
+            width: 46px;
+            height: 46px;
+            line-height: 46px;
+            font-size: 25px;
+            color: #909399;
+            text-align: center;
+        }
+        
+        .login {
+            margin: 120px auto 0 auto;
+            min-height: 420px;
+            max-width: 420px;
+            padding: 40px;
+            background-color: #ffffff;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 4px;
+            /* overflow-x: hidden; */
+            box-sizing: border-box;
+        }
+        
+        .login .message {
+            margin: 10px 0 0 -58px;
+            padding: 18px 10px 18px 60px;
+            background: #189F92;
+            position: relative;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .login #darkbannerwrap {
+            background: url(../assets/images/aiwrap.png);
+            width: 18px;
+            height: 10px;
+            margin: 0 0 20px -58px;
+            position: relative;
+        }
+        
+        input {
+            font: 14px Verdana, Helvetica, Arial, sans-serif;
+        }
+        
+        .login input[type=text],
+        .login input[type=file],
+        .login input[type=password],
+        .login input[type=email] {
+            border: 1px solid #DCDEE0;
+            vertical-align: middle;
+            /* border-radius: 3px; */
+            height: 50px;
+            padding: 0px 16px;
+            font-size: 14px;
+            color: #0f0303ec;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .login hr.hr15 {
+            height: 15px;
+            border: none;
+            background-color: white;
+            margin: 0px;
+            padding: 0px;
+            width: 100%;
+        }
+        
+        .login input[type=submit],
+        .login input[type=button] {
+            display: inline-block;
+            vertical-align: middle;
+            padding: 12px 24px;
+            margin: 0px;
+            font-size: 18px;
+            line-height: 24px;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            color: #110202;
+            background-color: #189F92;
+            border-radius: 3px;
+            border: none;
+            -webkit-appearance: none;
+            outline: none;
+            width: 100%;
+        }
+        
+        #loginform .layui-input-icon-group input {
+            padding-left: 46px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-bg">
+        <div class="login layui-anim layui-anim-up" style="margin-top: 10%;">
+            <div class="message">
+                <img id="loginPic" src="../assets/images/logo.png" style="width: 100px;height: 40px;"> 创想仪器系统管理平台V1.16.0
+            </div>
+            <div id="darkbannerwrap"></div>
+            <form class="layui-form" lay-verify="loginform" id="loginform">
+                <div class="layui-form-item layui-input-icon-group">
+                    <i class="layui-icon layui-icon-username"></i>
+                    <input id="username" name="username" placeholder="用户名" type="text" lay-verType="tips" lay-verify="required|username" oninput="if(value.length>20)value=value.slice(0,20)" lay-reqText="请输入用户名" required class="layui-input">
+                </div>
+                <hr class="hr15">
+                <div class="layui-form-item layui-input-icon-group" style="height: 75PX;">
+                    <i class="layui-icon layui-icon-password"></i>
+                    <input readonly onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly',true);" type="password" id="password" name="password" lay-verType="tips" lay-verify="required|password" lay-reqText="请输入密码" placeholder="请输入登录密码" oninput="if(value.length>12)value=value.slice(0,12)"
+                        class="layui-input">
+                    <span id="spans" style="display:none;color: red;">大写锁定键被按下，请注意大小写</span>
+                </div>
+                <hr class="hr15">
+                <input value="登录" lay-submit lay-filter="login" style="float: right; color: rgb(245, 237, 237);" type="button">
+                <hr class="hr20">
+                <div style="color: #666666; text-align: center;">推荐使用Firefox、Chrome浏览器</div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" charset="utf-8">
+        layui.use(['jquery', 'form', 'layer', 'element', 'admin'], function() {
+            var element = layui.element;
+            var form = layui.form;
+            var layer = layui.layer;
+            var admin = layui.admin;
+            var url = getUrl();
+            // 正则验证
+            form.verify({
+                username: function(value, item) { //value：表单的值、item：表单的DOM对象
+                    if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                        return '不能有特殊字符';
+                    }
+                    if (!/^[^\s]*$/.test(value)) {
+                        return '不能输入空格哦!';
+                    }
+                },
+                password: function(value, item) { //value：表单的值、item：表单的DOM对象
+                    if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                        return '不能有特殊字符';
+                    }
+                    if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                        return '首尾不能出现下划线\'_\'';
+                    }
+                    if (!/^[\S]{6,12}$/.test(value)) {
+                        return '密码为6-12位，且不能出现空格哦!';
+                    }
+                }
+            })
+            $('#password').keydown(function(e) {
+                if (e.keyCode == 20) {
+                    $('#spans').css('display', 'block');
+                }
+
+            });
+
+            function detectCapsLock(event) {
+                var e = event || window.event;
+                var keyCode = e.keyCode || e.which; // 按键的keyCode 
+                var isShift = e.shiftKey || (keyCode == 16) || false; // shift键是否按住
+                if (
+                    ((keyCode >= 65 && keyCode <= 90) && !isShift) // Caps Lock 打开，且没有按住shift键 
+                    ||
+                    ((keyCode >= 97 && keyCode <= 122) && isShift) // Caps Lock 打开，且按住shift键
+                ) {
+                    $('#spans').css('display', 'block');
+                } else {
+                    $('#spans').css('display', 'none');
+                }
+                var password = $('#password').val();
+                var username = $('#username').val();
+                if (keyCode == 13) {
+                    //请求公钥
+                    var newPassword;
+                    var password = $('#password').val();
+                    var getPublicKeyUrl = url + "user/getPublicKey";
+                    var xhr = $.ajax({
+                        url: getPublicKeyUrl,
+                        dataType: 'json',
+                        timeout: 5000,
+                        type: 'get',
+                        //async:false 可以让ajsx顺序执行
+                        async: true,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function(result) {
+                            var encrypt = new JSEncrypt();
+                            encrypt.setPublicKey(result.data);
+                            newPassword = encrypt.encrypt(password);
+                            login();
+                            // alert(newPassword);
+                        },
+                        error: function(err) {
+                            layer.msg('服务器错误');
+                        },
+                        complete: function(XMLHttpRequest, status) {
+                            if (status == 'timeout') {
+                                xhr.abort() // 超时后中断请求
+                                layer.msg('请求超时，请重试')
+                            }
+                        }
+                    })
+
+                    function login() {
+                        var loginURL = url + "user/login"; //Tomcat中服务的地址和接口
+                        var username = $('#username').val();
+                        $.ajax({
+                            url: loginURL,
+                            type: "post", // 采用post方法
+                            dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                            contentType: 'application/json; charset=utf-8',
+                            async: false,
+                            // 获取id=loginForm的form表单中的参数
+                            data: JSON.stringify({
+                                "userName": username,
+                                "userPassword": newPassword
+                            }),
+                            // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    manageCookie.setCookie("token", result.data.token)
+                                    if (window.localStorage) {
+                                        var storage = window.localStorage;
+                                        storage.setItem('userData', JSON.stringify(result.data));
+                                        layer.msg('登陆成功！', {
+                                            icon: 1,
+                                            time: 1000
+                                        }, function() { //延时跳转并提示
+                                            window.location.href = "../index.html";
+                                        });
+                                    } else {
+                                        alert("浏览器不支持localStorage,请选择其他浏览器！");
+                                    }
+
+                                } else {
+                                    layer.msg('用户名或密码错误，登录失败！');
+                                }
+
+                            },
+                            error: function() {
+                                alert("服务器忙……请稍后重试！");
+                            }
+                        });
+                    }
+                }
+            }
+            document.getElementById('password').onkeypress = detectCapsLock;
+
+            //监听提交
+            form.on('submit(login)', function(data) {
+                //初始化下拉框
+                //请求公钥
+                var newPassword;
+                var getPublicKeyUrl = url + "user/getPublicKey";
+                var xhr = $.ajax({
+                    url: getPublicKeyUrl,
+                    dataType: 'json',
+                    timeout: 5000,
+                    type: 'get',
+                    //async:false 可以让ajsx顺序执行
+                    async: true,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function(result) {
+                        var encrypt = new JSEncrypt();
+                        encrypt.setPublicKey(result.data);
+                        newPassword = encrypt.encrypt(data.field.password);
+                        login();
+                        // alert(newPassword);
+                    },
+                    error: function(err) {
+                        layer.msg('服务器错误');
+                    },
+                    complete: function(XMLHttpRequest, status) {
+                        if (status == 'timeout') {
+                            xhr.abort() // 超时后中断请求
+                            layer.msg('请求超时，请重试')
+                        }
+                    }
+                })
+
+                function login() {
+                    var loginURL = url + "user/login"; //Tomcat中服务的地址和接口
+                    $.ajax({
+                        url: loginURL,
+                        type: "post", // 采用post方法
+                        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        // 获取id=loginForm的form表单中的参数
+                        data: JSON.stringify({
+                            "userName": data.field.username,
+                            "userPassword": newPassword
+                        }),
+                        // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                        success: function(result) {
+                            if (result.code == 0) {
+                                manageCookie.setCookie("token", result.data.token)
+                                if (window.localStorage) {
+                                    var storage = window.localStorage;
+                                    storage.setItem('userData', JSON.stringify(result.data));
+                                    layer.msg('登陆成功！', {
+                                        icon: 1,
+                                        time: 1000
+                                    }, function() { //延时跳转并提示
+                                        window.location.href = "../index.html";
+                                    });
+                                } else {
+                                    alert("浏览器不支持localStorage,请选择其他浏览器！");
+                                }
+
+                            } else {
+                                layer.msg(result.msg);
+                            }
+
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                }
+
+            });
+
+
+
+        })
+
+        //一般直接写在一个js文件中
+        // layui.config({
+        //     base: 'dist/sliderVerify/'
+        // }).use(['sliderVerify', 'jquery', 'form'], function() {
+        //     var sliderVerify = layui.sliderVerify,
+        //         form = layui.form;
+
+        //     var slider = sliderVerify.render({
+        //         elem: '#slider',
+        //         onOk: function() {
+        //             //当验证通过回调
+        //             // layer.msg("滑块验证通过");
+        //         },
+        //     })
+
+        //     //监听提交
+        //     form.on('submit(login)', function(data) {
+        //         yz = slider.isOk();
+        //         if (yz == false) {
+        //             layer.msg("请先通过滑块验证");
+        //             return false;
+        //         }
+
+
+        //     });
+        // })
+    </script>
+    <!-- <div id="container">
+        <div id="output">
+            <img id="logo" src="../assets/images/logo.png" width="210" height="110">
+            <div class="containerT">
+                <form class="form" id="entry_form">
+                    <div class="layui-form-item">
+                        <img id="loginPic" src="../assets/images/pic.gif">
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="text-align: center;">
+                            <input type="text" placeholder="用户名" id="userName" name="userName" onFocus="tips()">
+                        </div>
+                        <div class="layui-input-inline" id="tips" style="color: #f51c40; position: absolute; left: 635px; top: 25px; z-index: 9999; font-size: 18px;">
+                            请输入用户名
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="text-align: center;">
+                            <input type="password" placeholder="密码" id="userPassword" name="userPassword" onClick="pswtips()">
+                        </div>
+                        <div class="layui-input-inline" id="Capitalized" style="color: #f51c40; position: absolute; left: 635px; top: 75px; z-index: 9999; font-size: 18px;">
+                            大写锁定键被按下，请注意大小写
+                        </div>
+                        <div class="layui-input-inline" id="pswtips" style="color: #f51c40; position: absolute; left: 635px; top: 75px; z-index: 9999; font-size: 18px;">
+                            密码不能为空
+                        </div>
+                    </div>
+                    <button class="button" type="button" id="sub">登 录</button>
+                </form>
+            </div>
+        </div>
+    </div> -->
+    <!-- <script type="text/javascript">
+        $('#tips').hide();
+        $('#pswtips').hide();
+        $('#Capitalized').hide();
+
+        function tips() {
+            $('#tips').hide();
+        }
+
+        function pswtips() {
+            $('#pswtips').hide();
+            $('#Capitalized').hide();
+        }
+        $(function() {
+            Victor("container", "output"); //登陆背景函数
+            $("#userName").focus();
+            // $(document).keydown(function(event){
+            //     if(event.keyCode == 13){
+            //         $("#entry_btn").click();
+            //     }
+            // });
+        });
+        // location.reload();
+    </script>
+    <script type="text/javascript">
+        var inputPWD = document.getElementById('userPassword');
+        inputPWD.onfocus = function() {
+                isCapsLock();
+            }
+            /* 检测输入框的大小写是否开启 */
+        function isCapsLock() {
+            var inputPWD = document.getElementById('userPassword');
+            var capital = false;
+            var capitalTip = {
+                elem: document.getElementById('Capitalized'),
+                toggle: function(s) {
+                    var sy = this.elem.style;
+                    var d = sy.display;
+                    if (s) {
+                        sy.display = s;
+                    } else {
+                        sy.display = d == 'none' ? '' : 'none';
+                    }
+                }
+            }
+            var detectCapsLock = function(event) {
+                    console.log('==========event', event);
+                    if (event.keyCode == 13) //回车键的键值为13
+                        document.getElementById("sub").click(); //调用登录按钮的登录事件
+                    if (capital) {
+                        return
+                    };
+                    var e = event || window.event;
+                    var keyCode = e.keyCode || e.which;
+                    var isShift = e.shiftKey || (keyCode == 16) || false;
+                    if (((keyCode >= 65 && keyCode <= 90) && !isShift) || ((keyCode >= 97 && keyCode <= 122) && isShift)) {
+                        capitalTip.toggle('block');
+                        capital = true
+                    } else {
+                        capitalTip.toggle('none');
+                    }
+                }
+                //判断是否是IE浏览器(解决自带的和自写的重复出现问题)
+            function isIE() {
+                if (!!window.ActiveXObject || "ActiveXObject" in window) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            //如果不是IE则进行手动提示
+            if (!isIE()) {
+                inputPWD.onkeypress = detectCapsLock;
+                inputPWD.onkeyup = function(event) {
+                    var e = event || window.event;
+                    if (e.keyCode == 20 && capital) {
+                        capitalTip.toggle();
+                        return false;
+                    }
+                }
+            }
+        }
+    </script> -->
+
+</body>
+
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>知识库管理</title>
+    <!-- 引入css部分 -->
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <!-- 引入js部分 -->
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-input {
+            width: 100px;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 100px;
+            margin-right: 40px;
+        }
+        
+        .layui-form-label {
+            text-align: center;
+        }
+        
+        .layui-form-item {
+            margin-left: 50px;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" class="layui-form" action="">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend>样品管理</legend>
+        </fieldset>
+        <div class="layui-form-item">
+            <div>
+                <button type="submit" class="layui-btn layui-btn-radius layui-btn-normal" lay-submit lay-filter="addSample" id="addSample" style="margin-top: 30px;">添加样品</button>
+                <button type="button" class="layui-btn layui-btn-radius" id="sampleUploadExcel" style="margin-top: 30px;"><i class="layui-icon"></i>样品上传(Excel)</button>
+                <button type="button" class="layui-btn layui-btn-radius" id="sampleUploadText" style="margin-top: 30px;"><i class="layui-icon"></i>样品上传(TXT)</button>
+
+
+            </div>
+        </div>
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 150px;">
+            <legend>牌号管理</legend>
+        </fieldset>
+        <div class="layui-form-item">
+            <div>
+                <button type="submit" class="layui-btn layui-btn-radius layui-btn-normal" lay-submit lay-filter="addBrand" id="addBrand" style="margin-top: 30px;">添加牌号</button>
+                <button type="button" class="layui-btn layui-btn-radius" id="brandUploadExcel" style="margin-top: 30px;"><i class="layui-icon"></i>牌号上传(Excel)</button>
+                <button type="button" class="layui-btn layui-btn-radius" id="brandUploadText" style="margin-top: 30px;"><i class="layui-icon"></i>牌号上传(TXT)</button>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var json = storage.getItem('auth');
+        var authData = JSON.parse(json);
+        //用户权限判断
+        $('#addSample').hide();
+        $('#addBrand').hide();
+        $('#sampleUploadExcel').hide();
+        $('#sampleUploadText').hide();
+        $('#brandUploadExcel').hide();
+        $('#brandUploadText').hide();
+
+        var l_ist = userData.permissionId;
+        for (var i = 0; i < l_ist.length; i++) {
+            var item = l_ist[i];
+            if (l_ist[i] == 126) {
+                $('#addSample').show();
+            }
+            if (l_ist[i] == 127) {
+                $('#sampleUploadExcel').show();
+                $('#sampleUploadText').show();
+            }
+            if (l_ist[i] == 128) {
+                $('#brandUploadExcel').show();
+                $('#brandUploadText').show();
+            }
+            if (l_ist[i] == 129) {
+                $('#addBrand').show();
+            }
+        }
+        layui.use(['layer', 'upload', 'admin', 'laytpl', 'form', 'table', 'element'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                admin = layui.admin,
+                laytpl = layui.laytpl,
+                table = layui.table,
+                upload = layui.upload,
+                element = layui.element;
+            $ = layui.jquery;
+            $form = $('form');
+            upload.render({
+                elem: '#brandUploadExcel',
+                url: uploadUrl(),
+                accept: 'file',
+                exts: 'xls|excel|xlsx',
+                done: function(res) {
+                    layer.msg(res.msg, {
+                        icon: 2
+                    });
+                }
+            });
+            upload.render({
+                elem: '#brandUploadText',
+                url: brandUploadTextUrl(),
+                accept: 'file',
+                exts: 'text|txt',
+                done: function(res) {
+                    layer.msg(res.msg, {
+                        icon: 2
+                    });
+                }
+            });
+
+            upload.render({
+                elem: '#sampleUploadExcel',
+                url: sampleUploadUrl(),
+                accept: 'file',
+                exts: 'xls|excel|xlsx',
+                done: function(res) {
+                    layer.msg(res.msg, {
+                        icon: 2
+                    });
+                }
+            });
+            upload.render({
+                elem: '#sampleUploadText',
+                url: sampleUploadTextUrl(),
+                accept: 'file',
+                exts: 'text|txt',
+                done: function(res) {
+                    layer.msg(res.msg, {
+                        icon: 2
+                    });
+                }
+            });
+            //添加牌号
+            form.on('submit(addBrand)', function(data) {
+                layer.open({
+                    type: 2,
+                    title: "添加牌号库",
+                    skin: 'layui-layer-rim',
+                    area: area,
+                    offset: 'auto',
+                    skin: 'layerdemo',
+                    resize: false,
+                    content: "./addbrand.html",
+                    success: function(layero, index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        iframe.child(data);
+                    },
+                });
+                return false;
+            });
+            var area = [];
+            if (window.screen.width > 1360 && window.screen.width < 1920) {
+                area = ['900px', '440px'];
+            } else if (window.screen.width >= 1920) {
+                area = ['900px', '570px'];
+            }
+            // 添加样品
+            form.on('submit(addSample)', function(data) {
+                layer.open({
+                    type: 2,
+                    title: "添加样品表",
+                    skin: 'layui-layer-rim',
+                    area: area,
+                    offset: 'auto',
+                    skin: 'layerdemo',
+                    resize: false,
+                    content: "./addsample.html",
+                    success: function(layero, index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        iframe.child(data);
+                    },
+                });
+                return false;
+            });
+
+        });
+    </script>
+</body>
+
+</html>

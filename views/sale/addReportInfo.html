@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>添加报备</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=M6Fxdp0BDnVRF6lh55IpTzH3mg18tU45"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/area.js?v=318"></script>
+
+    <style>
+        .layui-form-item {
+            display: inline-block;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" lay-filter="productLineEditForm" class="layui-form model-form" style="padding: 0;">
+        <div class="layui-form-item" style="margin-top: 5px;">
+            <label class="layui-form-label" style="width:60px;">单位编号</label>
+            <div class="layui-input-inline">
+                <input id="provinceId" type="hidden" class="id" name="provinceId">
+                <input id="cityId" type="hidden" class="id" name="cityId">
+                <input id="districtId" type="hidden" class="id" name="districtId">
+                <input id="jing" type="hidden" name="jing" required lay-verify="" autocomplete="off" class="layui-input">
+                <input id="wei" type="hidden" name="wei" required lay-verify="" autocomplete="off" class="layui-input">
+                <input type="text" name="companyCode" lay-verify="title" autocomplete="off" placeholder="请输入单位编号" class="layui-input" style="width: 150px;">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">客户名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="customerName" lay-verify="title" autocomplete="off" placeholder="请输入客户名称" class="layui-input" style="width: 150px;">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">电话</label>
+            <div class="layui-input-inline">
+                <input type="text" name="tel" lay-verify="title" autocomplete="off" placeholder="请输入电话" class="layui-input" style="width: 150px;">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">来源备注</label>
+            <div class="layui-input-inline">
+                <input type="text" name="source" id="source" lay-verify="title" autocomplete="off" placeholder="请输入来源备注" class="layui-input" style="width: 150px;">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 90px;">报备产品类型</label>
+            <div class="layui-input-inline">
+                <select name="productType" lay-filter="productType" id="productType" lay-search="" style="width: 150px;">
+          <option value="">请选择</option>
+        </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 90px;">报备产品型号</label>
+            <div class="layui-input-inline">
+                <select name="product" lay-filter="product" id="product" lay-search="" style="width: 150px;">
+
+        </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 90px;">客户公司名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="HandoverCompany" id="HandoverCompany" placeholder="请输入或选择公司名称" class="layui-input" style="position:absolute;z-index:2;width:83%;" lay-verify="required" value="" onkeyup="search()" autocomplete="off">
+                <select name="customerCompanyName" lay-filter="customerCompanyName" id="customerCompanyName" lay-search="" style="width: 150px;">
+        </select>
+            </div>
+        </div>
+        <div id="allmap" type="hidden"></div>
+        <div class="layui-form-item" id="suggestIdDiv">
+            <label class="layui-form-label" style="width: 90px;">客户公司位置</label>
+            <div class="layui-input-inline">
+                <input type="text" id="suggestId" name="suggestId" value="" lay-verify="title" autocomplete="off" placeholder="请输入位置" style="width: 150px;" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">销售员</label>
+            <div class="layui-input-inline">
+                <select name="salesPerson" id="salesPerson">
+        </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">客户来源</label>
+            <div class="layui-input-inline">
+                <select name="customerSource" id="customerSource">
+        </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">地区</label>
+            <div class="layui-input-inline">
+                <select name="area" id="area" lay-search="">
+          <option value="">搜索选择</option>
+        </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 60px;">归属部门</label>
+            <div class="layui-input-inline">
+                <select name="department" id="department">
+        </select>
+            </div>
+        </div>
+
+        <script type="text/html" id="brandName">
+            <a class="layui-text" id="name" lay-event="brandName"></a>
+        </script>
+        <div class="layui-form-item text-right" style="width: 98%;">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+
+    <script>
+        var url = getUrl();
+        var initCustomerName = url + "sale/initCustomerName";
+        var areaData = Area;
+        var form;
+        layui.use(['form', 'layedit', 'laydate', 'table'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                table = layui.table,
+                $ = layui.$;
+
+            $('#suggestIdDiv').hide();
+
+            $("HandoverCompany").blur(function() {
+
+            })
+            lay('#HandoverCompany').on('blur', function(e) {
+                var companyName = new Array();
+                $.ajax({
+                    url: initCustomerName,
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        for (var i = 0; i < result.data.length; i++) {
+                            companyName[i] = result.data[i].customerName;
+                        }
+                        var handoverCompanyName = $("#HandoverCompany").val();
+                        if (handoverCompanyName == "") {
+
+                        } else {
+                            index = companyName.length;
+                            for (var j = 0; j < companyName.length; j++) {
+
+                                if (companyName[j] != handoverCompanyName) {
+                                    index--;
+                                }
+                            }
+
+                            if (index == 0) {
+                                $("#suggestIdDiv").show();
+                                alert("当前客户公司为新客户，请录入客户公司地理位置并上传。");
+                            } else {
+                                $('#suggestIdDiv').hide();
+                            }
+                        }
+
+                    }
+                })
+            })
+            form.on('select(customerCompanyName)', function(data) {
+                $("#HandoverCompany").focus();
+                $("#HandoverCompany").val(data.value);
+
+                $("#customerCompanyName").next().find("dl").css({
+                    "display": "none"
+                });
+                form.render();
+
+            });
+
+            window.search = function() {
+                var value = $("#HandoverCompany").val();
+                $("#customerCompanyName").val(value);
+                form.render();
+                $("#customerCompanyName").next().find("dl").css({
+                    "display": "block"
+                });
+                var dl = $("#customerCompanyName").next().find("dl").children();
+                var j = -1;
+                for (var i = 0; i < dl.length; i++) {
+                    if (dl[i].innerHTML.indexOf(value) <= -1) {
+                        dl[i].style.display = "none";
+                        j++;
+                    }
+                    if (j == dl.length - 1) {
+                        $("#customerCompanyName").next().find("dl").css({
+                            "display": "none"
+                        });
+                    }
+                }
+
+            }
+
+            var storage = window.localStorage;
+            var userData = storage.getItem('userData');
+            userData = JSON.parse(userData);
+            var index;
+            form.on('submit(demo1)', function(data) {
+
+                if ($("#suggestIdDiv").is(":hidden")) {
+
+                } else {
+                    var locationUrl = url + "customer/location/msg/autoInput";
+                    let customerName = data.field.customerName;
+                    let customerCode = data.field.companyCode;
+                    let salesMan = data.field.salesPerson;
+                    let location = data.field.suggestId;
+                    let longitude = data.field.jing;
+                    let latitude = data.field.wei;
+                    let equipmentId = data.field.productType;
+                    var provinceCode, cityCode, areaCode;
+                    for (var i = 0; i < areaData.length; i++) {
+                        if (areaData[i].provinceName == data.field.provinceId) {
+                            provinceCode = areaData[i].provinceCode;
+                            var cityList = areaData[i].mallCityList;
+                            for (var j = 0; j < cityList.length; j++) {
+                                if (cityList[j].cityName == data.field.cityId) {
+                                    cityCode = cityList[j].cityCode;
+                                    var areaList = cityList[j].mallAreaList;
+                                    for (var k = 0; k < areaList.length; k++) {
+                                        if (areaList[k].areaName == data.field.districtId) {
+                                            areaCode = areaList[k].areaCode;
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    var storage = window.localStorage;
+                    var json = storage.getItem('userData');
+                    var dataid = JSON.parse(json);
+                    let operatorId = dataid.userId;
+                    $.ajax({
+                        url: locationUrl,
+                        type: "post", // 采用post方法
+                        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        // 获取id=loginForm的form表单中的参数
+                        data: JSON.stringify({
+                            "customerName": customerName,
+                            "customerCode": customerCode,
+                            "location": location,
+                            "longitude": longitude,
+                            "latitude": latitude,
+                            "operatorId": operatorId,
+                            "provinceCode": provinceCode,
+                            "cityCode": cityCode,
+                            "areaCode": areaCode,
+                            "salesMan": salesMan,
+                            "equipmentId": equipmentId,
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                alert(result.msg);
+                                var index = parent.layer.getFrameIndex(Window.name);
+                                parent.layer.closeAll();
+                            } else {
+                                alert(result.msg);
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                }
+
+                var addReport = url + "sale/addReport";
+                $.ajax({
+                    url: addReport,
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    data: JSON.stringify({
+                        "companyCode": data.field.companyCode,
+                        "createBy": userData.userName,
+                        "salesPerson": data.field.salesPerson,
+                        "customerCompanyName": data.field.HandoverCompany,
+                        "customerName": data.field.customerName,
+                        "notContacted": "是",
+                        "reportedProductType": data.field.productType,
+                        "reportedProduct": data.field.product,
+                        "sourceRemarks": data.field.source,
+                        "telephone": data.field.tel,
+                        "unchanged": "是",
+                        "sourceId": data.field.customerSource,
+                        "provinceId": data.field.area,
+                        "departmentId": data.field.department
+                    }),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            alert(result.msg);
+                            var index = parent.layer.getFrameIndex(Window.name);
+                            parent.layer.closeAll();
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+            })
+
+            var customerSource = url + "sale/customerSource";
+            //js
+            $.ajax({
+                    url: customerSource,
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#customerSource').append(new Option(item.sourceName, item.sourceId));
+                        });
+                        form.render();
+                    }
+                })
+                //js
+            $.ajax({
+                url: initCustomerName,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#customerCompanyName').append(new Option(item.customerName, item.customerName));
+                    });
+                    form.render();
+                }
+            })
+
+            var departmenturl = url + "sale/initDepartment";
+            //js
+            $.ajax({
+                url: departmenturl,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#department').append(new Option(item.departmentName, item.departmentId));
+                    });
+                    // 关键
+                    form.render();
+                }
+            })
+            var areaurl = url + "sale/initArea";
+            //js
+            $.ajax({
+                url: areaurl,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#area').append(new Option(item.provinceName, item.provinceId));
+                    });
+                    form.render();
+                }
+            })
+
+            var initSalesMan = url + "sale/initSalesMan";
+            //js
+            $.ajax({
+                url: initSalesMan,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#salesPerson').append(new Option(item.userName, item.userId));
+                    });
+                    form.render();
+                }
+            })
+
+            var producttypeurl = url + "sale/initProductType";
+            //js
+            $.ajax({
+                url: producttypeurl,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#productType').append(new Option(item.productName, item.productId));
+                    });
+                    form.render();
+                }
+            })
+            var producturl = url + "sale/initProduct";
+            form.on('select(productType)', function(data) {
+                //js
+                $.ajax({
+                    url: producturl,
+                    dataType: 'json',
+                    data: 'productId=' + data.value,
+                    contentType: 'application/json; charset=utf-8',
+                    type: 'get',
+                    success: function(result) {
+                        $("#product").empty();
+                        $.each(result.data, function(index, item) {
+                            $('#product').append(new Option(item.productName, item.productId));
+                        });
+                        form.render();
+                    }
+                })
+            });
+        });
+    </script>
+</body>
+
+</html>

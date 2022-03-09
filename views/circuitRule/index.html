@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>电路编号规则</title>
+    <!-- <link type="text/css" rel="stylesheet" href="layui/css/layui.css" rel="external nofollow" /> -->
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/element.js?v=318"></script>
+    <style>
+        /* @media screen and (min-width:1080px) {
+            body {
+                background-color: red;
+            }
+        }
+        
+        @media screen and (min-width:1600px) {
+            body {
+                background-color: yellow;
+            }
+        } */
+    </style>
+</head>
+
+<body>
+    <!-- 选项卡 -->
+    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li data-status='' class="layui-this">初始值录入</li>
+            <li data-status='1'>电路编号规则生成器</li>
+            <li data-status='2'>历史记录查询</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                <form id="indexForm" lay-filter="indexForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 60px;">零件名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" autocomplete="off" name="DialogproductName" id="DialogproductName" placeholder="请输入产品系列名称" class="layui-input">
+                        </div>
+                    </div>
+                    <button class="layui-btn" style="margin-left: 30px;" lay-filter="userTbSearch" lay-submit data-type="reload">查询</button>
+                    <div>
+                        <table class="layui-table" id="productTable" lay-filter="productTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="TbBar">
+                        <a class="layui-btn layui-btn-xs" lay-event="del">查看详情</a>
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="add">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='153' ){ }}<a class="layui-btn layui-btn" lay-event="add">初始值</a> {{# } } }}
+                            <span style="margin-left: 50%; text-align: center;font-size: 18px;">产品系列名称和代号对应表</span>
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <form id="indexForm" lay-filter="indexForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 90px;margin-left: 0;">零件中文名称</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="partName" id="partName" placeholder="请输入零件名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 90px;margin-left: 0;">零件英文名称</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="EnglishProductname" id="EnglishProductname" placeholder="请输入零件名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 60px;margin-left: 0;">电路编号</label>
+                        <div class="layui-input-inline" style="width: 140px;">
+                            <input type="text" autocomplete="off" name="numberingRuleName" id="numberingRuleName" placeholder="请输入电路编号规则" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;">操作人</label>
+                        <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                            <select id="operatorId" name="operatorId" lay-search="" lay-filter="operatorId">
+                              <option value="">搜索选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="layui-btn layui-btn-sm" style="margin-left: 30px;" lay-filter="numberingRuleSearch" lay-submit data-type="reload">查询</button>
+                    <a class="layui-btn form-search-expand" search-expand>
+                        展开 <i class="layui-icon layui-icon-down"></i></a>
+                    <div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 90px;margin-left: 0;" id='Model'>产品系列代号</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="productLine" name="productLine" lay-search="" lay-filter="productLine">
+                                       <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">版本代号</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 30px;display: inline-block;">
+                                <select id="DialogproductCode" name="productModelId" lay-search="" lay-filter="DialogproductCode">
+                                      <option value=""></option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <table class="layui-table" id="numberingRuleTable" lay-filter="numberingRuleTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 有效无效-->
+                    <script type="text/html" id="Valid">
+                        <input type="checkbox" name="ValidisValidity" mid={{d.id}} version={{d.version}} drawingCode={{d.drawingCode}} lay-filter="ValidisValidity" value="{{d.isValidity}}" lay-skin="switch" lay-text="有效|无效" {{d.isValidity==true ? 'checked' : '' }}>
+                    </script>
+                    <script type="text/html" id="file">
+                        <button id="handout_wrap_inner" class="layui-btn layui-btn-primary layui-border-blue" onclick="openPdf('{{d.id}}','{{d.fileName}}')">{{d.fileName}} </button>
+                    </script>
+                    <script type="text/html" id="ZipFile">
+                        <button id="handout_wrap_inner" class="layui-btn layui-btn-primary layui-border-blue" onclick="openZip('{{d.id}}','{{d.zipFileName}}')">{{d.zipFileName}} </button>
+                    </script>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="numberingRuleTbBar">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var userId = userData.userId;var l_ist = userData.permissionId;}} {{# if(userId== d.operatorId ){ }} <a class="layui-btn layui-btn-xs"
+                            lay-event="edit">修改</a>{{# } }}{{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='167' ){ }}<a class="layui-btn layui-btn-xs" lay-event="upload">PDF上传</a>{{# } }} {{# if(l_ist[i]=='168' ){ }} <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="uploadZip">压缩上传</a>{{# } }} {{# } }}
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="addnumberingRule">
+                        <a class="layui-btn layui-btn" lay-event="addnumberingRule">添加</a>
+                        <span style="margin-left: 50%; text-align: center;font-size: 18px;">编号规则和代号对应表</span>
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <form id="versionsForm" lay-filter="versionsForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 90px;margin-left: 0;">零件中文名称</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="QuerypartName" id="QuerypartName" placeholder="请输入零件名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 90px;margin-left: 0;">零件英文名称</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="QueryEnglishProductname" id="QueryEnglishProductname" placeholder="请输入零件名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 60px;margin-left: 0;">电路编号</label>
+                        <div class="layui-input-inline" style="width: 140px;">
+                            <input type="text" autocomplete="off" id="historyVersions" placeholder="请输入电路编号规则" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;">操作人</label>
+                        <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                            <select id="QueryoperatorId" name="QueryoperatorId" lay-search="" lay-filter="QueryoperatorId">
+                              <option value="">搜索选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="layui-btn layui-btn-sm" style="margin-left: 30px;" lay-filter="historySearch" lay-submit data-type="reload">查询</button>
+                    <a class="layui-btn form-search-expand" search-expand>
+                        展开 <i class="layui-icon layui-icon-down"></i></a>
+                    <div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 90px;margin-left: 0;" id='Model'>产品系列代号</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="productCodeId" name="productCodeId" lay-search="" lay-filter="productCodeId">
+                                   <option value="">请选择</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">版本代号</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 30px;display: inline-block;">
+                                <select id="version" name="version" lay-search="" lay-filter="version">
+                              <option value=""></option>
+                            </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 数据表格 -->
+                    <div>
+                        <table class="layui-table" id="historyTable" lay-filter="historyTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 有效无效-->
+                    <script type="text/html" id="QueryValid">
+                        <input type="checkbox" disabled name="QueryValidisValidity" mid={{d.id}} version={{d.version}} lay-filter="QueryValidisValidity" value="{{d.isValidity}}" lay-skin="switch" lay-text="有效|无效" {{d.isValidity==true ? 'checked' : '' }}>
+                    </script>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="TbBarversions">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">查看详情</a>
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="addversions">
+                        <span style="margin-left: 50%; text-align: center;font-size: 18px;">电路编号规则表</span>
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var l_ist = userData.permissionId;
+        //文件预览下载
+        function openPdf(id, fileName) {
+            for (var i = 0; i < l_ist.length; i++) {
+                if (l_ist[i] == '165') {
+                    if (fileName == '') {
+                        layer.msg('请先上传文件');
+                        return;
+                    } else {
+                        window.open(downloadHardwareCircuitBoardFileUrl() + id);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function openZip(id, zipFileName) {
+            for (var i = 0; i < l_ist.length; i++) {
+                if (l_ist[i] == '166') {
+                    if (zipFileName == '') {
+                        layer.msg('请先上传文件');
+                        return;
+                    } else {
+                        window.open(downloadHardwareCircuitBoardZipFileUrl() + id);
+                        return;
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        layui.use(['excel', 'laypage', 'layer', 'table', 'element', 'admin', 'form'], function() {
+            var table = layui.table,
+                laypage = layui.laypage,
+                element = layui.element,
+                excel = layui.ecxel;
+            var admin = layui.admin;
+            var layer = layui.layer;
+            var form = layui.form;
+            $ = layui.jquery;
+            $form = $('form');
+            //获取用户信息
+            var storage = window.localStorage;
+            var json = storage.getItem('userData');
+            var userData = JSON.parse(json);
+            var userId = userData.userId;
+            let operatorId = userId;
+
+            element.on('tab(docDemoTabBrief)', function(data) {
+                    var status = $(this).attr('data-status');
+                    if (status == 1) {
+                        table.reload("numberingRuleTable", {
+                            page: {
+                                curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                            },
+                            url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                            method: "post",
+                            contentType: 'application/json; charset=utf-8',
+                            where: {
+                                isPage: true
+                            },
+                            done: function(res, curr, count) {}
+                        });
+                    } else if (status == 2) {
+                        table.reload("historyTable", {
+                            page: {
+                                curr: $("#historyTable .layui-laypage-em").next().html()
+                            },
+                            url: getAllHardwareCircuitBoardDrawingCodesHistoryUrl(),
+                            method: "post",
+                            contentType: 'application/json; charset=utf-8',
+                            where: {
+                                isPage: true
+                            },
+                            done: function(res, curr, count) {}
+                        });
+                    }
+                })
+                //产品系列名称和代号对应表
+            table.render({
+                elem: '#productTable',
+                id: 'productTable',
+                title: '产品系列代号和名称对应表',
+                page: true,
+                toolbar: '#add',
+                defaultToolbar: [],
+                where: {
+                    isPage: true,
+                },
+                contentType: 'application/json; charset=utf-8',
+                url: getAllMechanicsProductCodesUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'productName',
+                        title: '产品系列名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productCode',
+                        title: '产品系列代号',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '15%',
+                        align: 'center',
+                        toolbar: '#TbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function() {},
+            });
+            /* 初始值录入*/
+            table.on('toolbar(productTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'add':
+                        layer.open({
+                            type: 2,
+                            title: '初始值录入',
+                            skin: 'layui-layer-rim',
+                            area: ['400px', '220px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./originalValue.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    // 重新居中的样式
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            // end: function() {
+                            //     table.reload("productTable", {
+                            //         page: {
+                            //             curr: $("#productTable .layui-laypage-em").next().html()
+                            //         },
+                            //         url: getProductsUrl(),
+                            //         method: "post",
+                            //         contentType: 'application/json; charset=utf-8',
+                            //         where: {
+                            //             isPage: true
+                            //         },
+                            //         done: function(res, curr, count) {}
+                            //     });
+                            // }
+                        });
+                        break;
+                };
+            });
+            /* 查看详情 */
+            table.on('tool(productTable)', function(obj) {
+                if (obj.event === 'del') {
+                    layer.open({
+                        type: 2,
+                        title: '查看详情',
+                        skin: 'layui-layer-rim',
+                        area: ['600px', '380px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./detailProduct.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#productName", index);
+                            roleId.val(obj.data.productName);
+                            var roleId = layer.getChildFrame("#productCode", index);
+                            roleId.val(obj.data.productCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                            var roleId = layer.getChildFrame("#updateTime", index);
+                            roleId.val(obj.data.updateTime);
+                            var roleId = layer.getChildFrame("#description", index);
+                            roleId.val(obj.data.description);
+                        },
+                    });
+                }
+            });
+            // 搜索
+            form.on('submit(userTbSearch)', function(data) {
+                // 去空格
+                var s = $('#DialogproductName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#DialogproductName').val(result);
+                table.reload('productTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllMechanicsProductCodesUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        productName: result,
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+
+
+            /*----------------历史记录查询-----------------------*/
+            //电路编号规则对应表
+            table.render({
+                elem: '#historyTable',
+                id: 'historyTable',
+                title: '编号规则表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#addversions',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllHardwareCircuitBoardDrawingCodesHistoryUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                parseData: function(res) {
+                    var arr = res.data
+                    for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].fileName == null) {
+                            arr[i].fileName = '';
+                        }
+                        if (arr[i].zipFileName == null) {
+                            arr[i].zipFileName = '';
+                        }
+                    }
+                },
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'partChineseName',
+                        title: '中文名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'partEnglishName',
+                        title: '英文名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'drawingCode',
+                        title: '编号规则',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'fileName',
+                        title: 'PDF文件',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'zipFileName',
+                        title: 'ZIP文件',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'isValidity',
+                        title: '有效无效',
+                        templet: '#QueryValid',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'operatorName',
+                        title: '操作人',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '20%',
+                        align: 'center',
+                        toolbar: '#TbBarversions',
+                        unresize: true
+                    }]
+                ],
+                done: function(data) {},
+
+            });
+            //开关事件
+            form.on('switch(QueryValidisValidity)', function(obj) {
+                // 通过属性获取绑定的id值
+                var id = $(this).attr('mid');
+                var version = $(this).attr('version');
+                // 判断开关的状态
+                var isValidity = obj.elem.checked ? "true" : "false";
+                //ajax请求方法
+                // $.ajax({
+                //     url: updateMechanicsFormalDrawingCodesUrl(),
+                //     type: "post",
+                //     dataType: "json",
+                //     contentType: 'application/json; charset=utf-8',
+                //     async: false,
+                //     data: JSON.stringify({
+                //         'version': version,
+                //         'isValidity': isValidity,
+                //         'operatorId': operatorId,
+                //         'id': id
+                //     }),
+                //     success: function(result) {
+                //         console.log(result);
+                //         if (result.code == 0) {
+                //             layer.msg(result.msg, {
+                //                 icon: 1
+                //             });
+                //         } else {
+                //             layer.msg(result.msg, {
+                //                 icon: 2
+                //             });
+                //         }
+                //     }
+
+                // })
+            });
+            /* 查看详情 */
+            table.on('tool(historyTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '查看详情',
+                        skin: 'layui-layer-rim',
+                        area: ['600px', '420px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./detailhistoryProduct.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            // 获取子页面的iframe
+                            var iframe = window['layui-layer-iframe' + index];
+                            // 向子页面的全局函数child传参
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#productName", index);
+                            roleId.val(obj.data.productName);
+                            var roleId = layer.getChildFrame("#version", index);
+                            roleId.val(obj.data.version);
+                            var roleId = layer.getChildFrame("#partChineseName", index);
+                            roleId.val(obj.data.partChineseName);
+                            var roleId = layer.getChildFrame("#partEnglishName", index);
+                            roleId.val(obj.data.partEnglishName);
+                            var roleId = layer.getChildFrame("#description", index);
+                            roleId.val(obj.data.description);
+                        },
+                    });
+                } else if (obj.event === 'del') {
+                    doDel2(obj);
+                }
+            });
+            // 搜索
+            form.on('submit(historySearch)', function(data) {
+                // 去空格
+                var s = $('#historyVersions').val();
+                var result = s.replace(/\s+/g, "");
+                $('#historyVersions').val(result);
+                table.reload('historyTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllHardwareCircuitBoardDrawingCodesHistoryUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "productCodeId": data.field.productCodeId,
+                        'version': data.field.version,
+                        'drawingCode': result,
+                        'partChineseName': data.field.QuerypartName,
+                        'partEnglishName': data.field.QueryEnglishProductname,
+                        'operatorId': data.field.QueryoperatorId
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            historybanben();
+            // 初始化版本代号
+            function historybanben() {
+                var arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                for (var i = 0; i < arr.length; i++) {
+                    var item = arr[i];
+                    $('#version').append("<option value=" + item + ">" + item + "</option>");
+                }
+            }
+            // 初始化产品系列
+            $.ajax({
+                    url: getAllMechanicsProductCodesUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        isPage: false
+                    }),
+                    success: function(res) {
+                        if (res.code == 0) {
+                            var arr = res.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#productCodeId").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                }
+                            } else {
+                                $("#productCodeId").empty();
+                                $("#productCodeId").append("<option value=''>请先创建产品线</option>");
+                            }
+                            form.render();
+                        }
+
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                })
+                /*----------------生成编号规则-----------------------*/
+                //编号规则对应表
+            table.render({
+                elem: '#numberingRuleTable',
+                id: 'numberingRuleTable',
+                title: '电路编号规则表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#addnumberingRule',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                parseData: function(res) {
+                    var arr = res.data
+                    for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].fileName == null) {
+                            arr[i].fileName = '';
+                        }
+                        if (arr[i].zipFileName == null) {
+                            arr[i].zipFileName = '';
+                        }
+                    }
+                },
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'partChineseName',
+                        title: '中文名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'partEnglishName',
+                        title: '英文名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'drawingCode',
+                        title: '编号规则',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'fileName',
+                        title: 'PDF文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#file'
+                    }, {
+                        field: 'zipFileName',
+                        title: 'ZIP文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#ZipFile'
+                    }, {
+                        field: 'isValidity',
+                        title: '有效无效',
+                        templet: '#Valid',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'operatorName',
+                        title: '操作人',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '20%',
+                        align: 'center',
+                        toolbar: '#numberingRuleTbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function(res) {},
+
+            });
+            //开关事件
+            form.on('switch(ValidisValidity)', function(obj) {
+                // 通过属性获取绑定的id值
+                var id = $(this).attr('mid');
+                var version = $(this).attr('version');
+                var drawingCode = $(this).attr('drawingCode');
+                // 判断开关的状态
+                var isValidity = obj.elem.checked ? "true" : "false";
+                $.ajax({
+                    url: updateHardwareCircuitBoardDrawingCodeUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    data: JSON.stringify({
+                        'version': version,
+                        'isValidity': isValidity,
+                        'drawingCode': drawingCode,
+                        'operatorId': operatorId,
+                        'id': id
+                    }),
+                    success: function(result) {
+                        console.log(result);
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2
+                            });
+                        }
+                    }
+
+                })
+            });
+            /* 添加编号规则*/
+            table.on('toolbar(numberingRuleTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'addnumberingRule':
+                        layer.open({
+                            type: 2,
+                            title: '生成编号规则',
+                            skin: 'layui-layer-rim',
+                            area: ['450px', '440px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./addnumberingRule.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("numberingRuleTable", {
+                                    page: {
+                                        curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            /* 修改及上传PDf编号规则 */
+            table.on('tool(numberingRuleTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '380px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editnumberingRule.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#coding", index);
+                            roleId.val(obj.data.productCode);
+                            var roleId = layer.getChildFrame("#DialogproductName", index);
+                            roleId.val(obj.data.productName);
+                            var roleId = layer.getChildFrame("#Productname", index);
+                            roleId.val(obj.data.partChineseName);
+                            var roleId = layer.getChildFrame("#EnglishProductname", index);
+                            roleId.val(obj.data.partEnglishName);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'upload') {
+                    layer.open({
+                        type: 2,
+                        title: '上传PDF编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '280px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./uploadProductline.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'uploadZip') {
+                    layer.open({
+                        type: 2,
+                        title: '上传Zip编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '320px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./ZipUploadProductline.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                }
+            });
+            // 搜索
+            form.on('submit(numberingRuleSearch)', function(data) {
+                // 去空格
+                var s = $('#numberingRuleName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#numberingRuleName').val(result);
+                table.reload('numberingRuleTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllHardwareCircuitBoardDrawingCodesUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "productCodeId": data.field.productLine,
+                        'version': data.field.productModelId,
+                        'partChineseName': data.field.partName,
+                        'partEnglishName': data.field.EnglishProductname,
+                        'drawingCode': result,
+                        'operatorId': data.field.operatorId
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            banben();
+            // 初始化版本代号
+            function banben() {
+                var arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                for (var i = 0; i < arr.length; i++) {
+                    var item = arr[i];
+                    $('#DialogproductCode').append("<option value=" + item + ">" + item + "</option>");
+                }
+            }
+            // 初始化产品系列
+            $.ajax({
+                    url: getAllMechanicsProductCodesUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        isPage: false
+                    }),
+                    success: function(res) {
+                        if (res.code == 0) {
+                            var arr = res.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#productLine").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                }
+                            } else {
+                                $("#productLine").empty();
+                                $("#productLine").append("<option value=''>请先创建产品线</option>");
+                            }
+                            form.render();
+                        }
+
+                    }
+                })
+                //操作人初始化
+            $.ajax({
+                url: getAllUserUrl(),
+                type: "post",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    isPage: false
+                }),
+                success: function(result) {
+                    if (result.code == 0) {
+                        var arr = result.data;
+                        if (arr.length > 0) {
+                            for (var i = 0; i < arr.length; i++) {
+                                var item = arr[i];
+                                $("#operatorId").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                            }
+                        }
+                    } else {
+                        $("#operatorId").empty();
+                        $("#operatorId").append("<option value=''>没有选项</option>");
+                    }
+                    form.render();
+                }
+            });
+            //历史记录操作人初始化
+            $.ajax({
+                url: getAllUserUrl(),
+                type: "post",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    isPage: false
+                }),
+                success: function(result) {
+                    if (result.code == 0) {
+                        var arr = result.data;
+                        if (arr.length > 0) {
+                            for (var i = 0; i < arr.length; i++) {
+                                var item = arr[i];
+                                $("#QueryoperatorId").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                            }
+                        }
+                    } else {
+                        $("#QueryoperatorId").empty();
+                        $("#QueryoperatorId").append("<option value=''>没有选项</option>");
+                    }
+                    form.render();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

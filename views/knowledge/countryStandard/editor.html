@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>添加牌号库</title>
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/element.js?v=318"></script>
+    <style>
+        #EditForm {
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        
+        .layui-upload-choose {
+            font-size: 16px;
+            width: 230px;
+            height: 40px;
+            overflow: hidden;
+        }
+        
+        .text-right {
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="EditForm" lay-filter="EditForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+        <div class="layui-form-item" style="margin-top: 5px;">
+            <label class="layui-form-label">国标id</label>
+            <div class="layui-input-inline">
+                <input id="id" type="text" name="id" required lay-verify="required" autocomplete="off" placeholder="请输入国标Id" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">国标编号</label>
+            <div class="layui-input-inline">
+                <input id="countryStandardName" type="text" required lay-verify="required" autocomplete="off" name="countryStandardName" placeholder="请输入国标编号" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文件名称</label>
+            <div class="layui-input-block">
+                <input id="fileName" style="width: 190px;" type="text" name="fileName" required lay-verify="required" autocomplete="off" placeholder="" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文件地址</label>
+            <div class="layui-input-block">
+                <input id="filePath" style="width: 80%;" disabled type="text" name="filePath" required lay-verify="required" autocomplete="off" placeholder="" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-bottom: 0;">
+            <label class="layui-form-label">更新文件</label>
+            <div class="layui-btn-container" id="ept">
+                <button type="button" class="layui-btn layui-btn-normal" id="test8">选择文件</button>
+                <button type="button" class="layui-btn" id="test9">上传文件</button>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="EditSubmit" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            var elements = getElements();
+            var storage = window.localStorage;
+            var updateModel = storage.getItem('elemData');
+            updateModel = JSON.parse(updateModel);
+            var url = getUrl();
+            layui.use(['layer', 'upload', 'admin', 'laytpl', 'form', 'layedit', 'laydate', 'table', 'element'], function() {
+                var form = layui.form,
+                    layer = layui.layer,
+                    admin = layui.admin,
+                    laytpl = layui.laytpl,
+                    layedit = layui.layedit,
+                    laydate = layui.laydate,
+                    table = layui.table,
+                    upload = layui.upload,
+                    element = layui.element;
+                $ = layui.jquery;
+                $form = $('form');
+
+                // 正则验证
+                form.verify({
+                        brandName: function(value, item) { //value：表单的值、item：表单的DOM对象
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '样品编号不能有特殊字符';
+                            }
+                            if (!/^[a-zA-Z0-9\/\-_\#\u4E00-\u9FA5]{2,20}$/.test(value)) {
+                                return "牌号名称为:汉字、数字、字母以及 _ - / #";
+                            }
+                            if (/^\d+\d+\d$/.test(value)) {
+                                return '样品编号不能全为数字';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多20位哦!';
+                            }
+                        },
+                    })
+                    //选完文件后不自动上传
+                upload.render({
+                    elem: '#test8',
+                    url: uploadFileUrl(),
+                    auto: false,
+                    accept: 'file', //普通文件
+                    exts: 'pdf',
+                    acceptMime: '.pdf',
+                    // multiple: true,
+                    bindAction: '#test9',
+                    done: function(res) {
+                        layer.msg('上传成功');
+                        $('#filePath').val(res.data.filePath);
+                        $('#fileName').val(res.data.fileName);
+                    }
+
+                });
+                form.on('submit(EditSubmit)', function(data) {
+                    // 国标编号
+                    let countryStandardName = data.field.countryStandardName;
+                    var Code = /^[a-zA-Z0-9\/\-_\#\u4E00-\u9FA5]{1,50}$/;
+                    if (Code.test(countryStandardName) == false) {
+                        // alert("国标编号为:汉字、数字、字母以及 _ - / #");
+                        layer.msg("国标编号为:汉字、数字、字母以及 _ - / #", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    var Code = /^.{1,20}$/;
+                    if (Code.test(countryStandardName) == false) {
+                        // alert("国标编号最多输入20位");
+                        layer.msg("国标编号最多输入20位", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    var Code = /^[^\s]*$/;
+                    if (Code.test(countryStandardName) == false) {
+                        // alert("样品编号不允许输入空格哦");
+                        layer.msg("国标编号不允许输入空格哦", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    // 国标id
+                    let id = data.field.id;
+                    if (id <= 0) {
+                        // alert("id大于0哦");
+                        layer.msg("id大于0哦", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    var country = /^(?!0+(?:\.0+)?$)(?:[1-9]\d*|0)(?:\.\d{1,2})?$/;
+                    if (country.test(id) == false) {
+                        // alert("id为正整数、不能有空格、最多保留两位小数");
+                        layer.msg("id为正整数、不能有空格、最多保留两位小数", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    // 文件名称
+                    let fileName = data.field.fileName;
+                    var file = /^.*pdf$/;
+                    if (file.test(fileName) == false) {
+                        // alert("文件为.pdf格式");
+                        layer.msg("文件为.pdf格式", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    // 去空格
+                    var s = $('#fileName').val();
+                    var result = s.replace(/\s+/g, "");
+                    $('#fileName').val(result);
+                    $.ajax({
+                        url: updateCountryStandardUrl(),
+                        type: "post", // 采用post方法
+                        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        // form表单中的参数
+                        data: JSON.stringify({
+                            "id": d.id,
+                            "countryStandardName": HTMLEncode(data.field.countryStandardName),
+                            "fileName": HTMLEncode(result),
+                            "filePath": HTMLEncode(data.field.filePath),
+                            "operatorId": HTMLEncode(d.operatorId)
+                        }),
+                        // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+
+
+            });
+        }
+    </script>
+</body>
+
+</html>

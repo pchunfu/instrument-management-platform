@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>配置权限</title>
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        body {
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" class="layui-form" action="">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <!-- 使用隐藏域用于保存编辑项的ID值，便于提交修改 -->
+                <input id="roleId" type="hidden" class="id" name="roleId">
+            </div>
+        </div>
+
+        <div id="newTree" class="demo-tree"></div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        layui.use(['form', 'tree'], function() {
+            var form = layui.form;
+            var tree = layui.tree;
+            form.on('submit(formDemo)', function(data) {
+                var permissions = tree.getChecked('theTree');
+                let roleId = data.field.roleId;
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                let operatorId = userData.userId;
+                var _list = [];
+                for (var i = 0; i < permissions.length; i++) {
+                    var a = {};
+                    a.roleId = roleId;
+                    a.permissionId = permissions[i].id;
+                    a.operatorId = operatorId;
+                    _list.push(a);
+                    if (permissions[i].children != null) {
+                        for (var j = 0; j < permissions[i].children.length; j++) {
+                            var b = {};
+                            b.roleId = roleId;
+                            b.permissionId = permissions[i].children[j].id;
+                            b.operatorId = operatorId;
+                            _list.push(b);
+                        }
+                    }
+                }
+
+                $.ajax({
+                    url: assignPermissionsUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: true,
+                    data: JSON.stringify(_list),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            alert(result.msg);
+                            var index = parent.layer.getFrameIndex(Window.name);
+                            parent.layer.closeAll();
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                return false;
+
+            });
+        });
+        let data2 = new Array();
+        $.ajax({
+            type: "GET",
+            contentType: 'application/json; charset=utf-8',
+            url: getAllPermissionUrl(),
+            async: false,
+            dataType: "JSON",
+            success: function(result) {
+                firstMenu = result.data;
+            },
+            error: function() {}
+        });
+        var rootMenu = new Array();
+        for (var i = 0; i < firstMenu.length; i++) {
+            var firstPermission = {
+                title: firstMenu[i].permissionName,
+                id: firstMenu[i].permissionId,
+                children: second(firstMenu[i].childrenList)
+            };
+            rootMenu.push(firstPermission);
+        }
+
+        function second(secondData) {
+            var secondPermissions = new Array();
+            if (secondData == '' || secondData == undefined || secondData == null || secondData.length < 1) {
+                return;
+            }
+            for (var i = 0; i < secondData.length; i++) {
+                var sencondPermission = {
+                    title: secondData[i].permissionName,
+                    id: secondData[i].permissionId,
+                    children: third(secondData[i].childrenList)
+                };
+                secondPermissions.push(sencondPermission);
+            }
+            return secondPermissions;
+        };
+
+        function third(thirdData) {
+            var thirdPermissions = new Array();
+            if (thirdData == '' || thirdData == undefined || thirdData == null || thirdData.length < 1) {
+                return;
+            }
+            for (var i = 0; i < thirdData.length; i++) {
+                var thirdPermission = {
+                    title: thirdData[i].permissionName,
+                    id: thirdData[i].permissionId,
+                    children: forth(thirdData[i].childrenList)
+                };
+                thirdPermissions.push(thirdPermission);
+            }
+            return thirdPermissions;
+        };
+
+        function forth(forthData) {
+            var forthPermissions = new Array();
+            if (forthData == '' || forthData == undefined || forthData == null || forthData.length < 1) {
+                return;
+            }
+            return;
+        }
+        // 初始化数据
+        function init() {
+            var roleId = document.getElementById("roleId");
+            $.ajax({
+                url: getRolePremissionUrl(),
+                type: "post",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                async: true,
+                data: JSON.stringify({
+                    "roleId": roleId.value
+                }),
+                success: function(result) {
+                    if (result.code == 0) {
+                        var datas = result.data.permissionModelList;
+                        var values = result.data.values;
+                        layui.use(['tree', 'util'], function() {
+                            var tree = layui.tree,
+                                layer = layui.layer,
+                                util = layui.util;
+                            tree.render({
+                                elem: '#newTree',
+                                data: rootMenu,
+                                id: 'theTree',
+                                showCheckbox: true,
+                                height: 300
+                            });
+                            tree.setChecked('theTree', values);
+                        });
+                    } else {
+                        alert(result.msg);
+                    }
+                },
+                error: function() {
+                    alert("服务器忙……请稍后重试！");
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

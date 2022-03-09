@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>更新报备信息</title>
+
+  <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+  <style>
+    body {
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="form" class="layui-form" action="">
+
+    <div class="layui-form-item">
+      <div class="layui-inline">
+        <label class="layui-form-label" style="width: 140px;">单位编号</label>
+        <div class="layui-input-inline" id="qq">
+          <input type="text" id="companyCode" name="companyCode" lay-verify="title" autocomplete="off" class="layui-input" style="width: 190px;">
+        </div>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">客户名称</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="customerName" name="customerName" lay-verify="title" autocomplete="off" class="layui-input" style="width: 190px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">电话</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="tel" name="tel" lay-verify="title" autocomplete="off" class="layui-input" style="width: 190px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">来源备注</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="source" name="source" lay-verify="title" autocomplete="off" class="layui-input" style="width: 190px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">报备产品类型</label>
+      <div class="layui-input-inline" id="qq">
+        <select name="productType" lay-filter="productType" id="productType" lay-search="" style="width: 190px;">
+          <option value="">请选择</option>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">报备产品型号</label>
+      <div class="layui-input-inline" id="qq">
+        <select name="product" id="product" lay-search="" style="width: 190px;">
+
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">客户公司名称</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="companyName" name="companyName" lay-verify="title" autocomplete="off" class="layui-input" style="width: 190px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">销售员</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="salesPerson" name="salesPerson" lay-verify="title" autocomplete="off" class="layui-input" style="width: 190px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">客户来源</label>
+      <div class="layui-input-inline" id="qq">
+        <select name="customerSource" id="customerSource">
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">地区</label>
+      <div class="layui-input-inline" id="qq">
+        <select name="area" id="area" lay-search="">
+          <option value="">直接选择或搜索选择</option>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" style="width: 140px;">归属部门</label>
+      <div class="layui-input-inline" id="qq">
+        <select name="department" id="department">
+        </select>
+      </div>
+    </div>
+
+    <script type="text/html" id="brandName">
+      <a class="layui-text" id="name" lay-event="brandName"></a>
+  </script>
+    <div class="layui-form-item">
+      <div class="layui-input-block" style="margin: 40px 165px">
+        <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">更新</button>
+        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    var url = getUrl();
+    layui.use(['form', 'table'], function() {
+      var form = layui.form,
+        layer = layui.layer,
+        table = layui.table;
+
+      var storage = window.localStorage;
+      var updateModel = storage.getItem('elemData');
+      updateModel = JSON.parse(updateModel);
+      document.getElementById('companyCode').value = updateModel.companyCode;
+      document.getElementById('customerName').value = HTMLDecode(updateModel.customerName);
+      document.getElementById('tel').value = updateModel.telephone;
+      document.getElementById('source').value = updateModel.sourceRemarks;
+      document.getElementById('companyName').value = updateModel.customerCompanyName;
+      document.getElementById('salesPerson').value = updateModel.salesPerson;
+
+      var userData = storage.getItem('userData');
+      userData = JSON.parse(userData);
+      form.on('submit(demo1)', function(data) {
+
+        var updateReport = url + "sale/updateReport";
+        $.ajax({
+          url: updateReport,
+          type: "post", // 采用post方法
+          dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+          contentType: 'application/json; charset=utf-8',
+          async: false,
+          // 获取id=loginForm的form表单中的参数
+          data: JSON.stringify({
+            "companyCode": data.field.companyCode,
+            "createBy": userData.userName,
+            "salesPerson": data.field.salesPerson,
+            "customerCompanyName": data.field.companyName,
+            "customerName": HTMLEncode(data.field.customerName),
+            "notContacted": "是",
+            "reportedProductType": data.field.productType,
+            "reportedProduct": data.field.product,
+            "sourceRemarks": data.field.source,
+            "telephone": data.field.tel,
+            "unchanged": "否",
+            "id": updateModel.id,
+            "sourceId": data.field.customerSource,
+            "provinceId": data.field.area,
+            "departmentId": data.field.department
+          }),
+          // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+          success: function(result) {
+            if (result.code == 0) {
+              //关闭图层
+              alert(result.msg);
+              //先取到该子页面在父级页面中的name 值
+              var index = parent.layer.getFrameIndex(Window.name);
+              //然后用该方法关闭
+              parent.layer.closeAll();
+            } else {
+              alert(result.msg);
+            }
+          },
+          error: function() {
+            alert("服务器忙……请稍后重试！");
+          }
+        });
+      })
+
+      var customerSource = url + "sale/customerSource";
+      //js
+      $.ajax({
+        url: customerSource,
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#customerSource').append(new Option(item.sourceName, item.sourceId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+      var departmenturl = url + "sale/initDepartment";
+      //js
+      $.ajax({
+        url: departmenturl,
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#department').append(new Option(item.departmentName, item.departmentId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+      var areaurl = url + "sale/initArea";
+      //js
+      $.ajax({
+        url: areaurl,
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#area').append(new Option(item.provinceName, item.provinceId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+
+      //begin begin begin begin begin begin begin begin begin begin begin
+      var producttypeurl = url + "sale/initProductType";
+      //js
+      $.ajax({
+        url: producttypeurl,
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#productType').append(new Option(item.productName, item.productId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+      var producturl = url + "/sale/initProduct";
+      form.on('select(productType)', function(data) {
+
+        //js
+        $.ajax({
+          url: producturl,
+          dataType: 'json',
+          data: 'productId=' + data.value,
+          contentType: 'application/json; charset=utf-8',
+          type: 'get',
+          success: function(result) {
+            $("#product").empty();
+            $.each(result.data, function(index, item) {
+              $('#product').append(new Option(item.productName, item.productId)); //往下拉菜单里添加元素
+            });
+            // 关键
+            form.render();
+          }
+        })
+        // return false;
+      });
+    });
+  </script>
+</body>
+
+</html>

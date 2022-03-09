@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>客户地理信息录入</title>
+    <style type="text/css">
+        html {
+            height: 100%;
+            margin: 0;
+        }
+        
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            width: 100%;
+            min-width: 1200px;
+        }
+        
+        #container {
+            height: 800px;
+            width: 100%;
+        }
+        
+        .label {
+            margin-left: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .lng-lat {
+            margin: 0 0 30px 0px;
+        }
+        
+        .lng-lat .item {
+            margin: 10px;
+            display: inline;
+        }
+        
+        .customerItem {
+            margin: 10px;
+            display: inline;
+        }
+        
+        .BMap_cpyCtrl {
+            display: none;
+        }
+        
+        .anchorBL {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <link rel="stylesheet" href="../../assets/module/eleTree/eleTree.css?v=318" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=M6Fxdp0BDnVRF6lh55IpTzH3mg18tU45"></script>
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/area.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/inputCustomerLocationMsg.js?v=318"></script>
+    <style>
+        #equipmentAndProductModelTree {
+            padding: 10px 15px;
+            border: 1px solid #e6e6e6;
+            background-color: #f2f2f2;
+        }
+        
+        #equipmentAndProductModelTree {
+            border: 1px solid #e6e6e6;
+            border-top: none;
+            padding: 10px 5px;
+            overflow: auto;
+            height: 140px;
+            /* height: -webkit-calc(50vh - 125px); */
+            /*chrome safari*/
+            height: -moz-calc(50vh - 125px);
+            /*Firefox*/
+            /* height: calc(50vh - 125px); */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layui-fluid ew-console-wrapper">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+                <div class="layui-card">
+                    <div class="layui-card-body" style="height: 100vh;">
+                        <form id="form" class="layui-form" action="" style="height: 100vh;">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required" style="padding-left: 0; width: 67px;">客户名称</label>
+                                <div class="layui-input-inline" style="width: 50%;">
+                                    <!-- 使用隐藏域用于保存编辑项的ID值，便于提交修改 -->
+                                    <!-- 省市县 -->
+                                    <input id="provinceId" type="hidden" class="id" name="provinceId">
+                                    <input id="cityId" type="hidden" class="id" name="cityId">
+                                    <input id="districtId" type="hidden" class="id" name="districtId">
+                                    <input id="customerId" type="hidden" class="layui-input" name="customerId">
+                                    <input id="customerName" type="text" name="customerName" lay-verify="required" placeholder="请输入客户公司名称" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required" style="padding-left: 0; width: 67px;">客户编码</label>
+                                <div class="layui-input-inline" style="width: 50%;">
+                                    <input id="customerCode" type="text" name="customerCode" oninput="if(value.length>20)value=value.slice(0,20)" lay-verify="required" placeholder="请输入客户编码" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required" style="width: 60px; padding-left: 0;">销售员</label>
+                                <div class="layui-input-inline" style="width: 50%;">
+                                    <select id="salesman" name="salesmanId" lay-filter="salesman" lay-verify="required" title="请填写此字段" lay-search="">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required" style="width: 40px; padding-left: 0;">位置</label>
+                                <div class="layui-input-inline" style="width: 50%;">
+                                    <input type="text" id="suggestId" name="suggestId" value="百度" oninput="checkNull()" autocomplete="off" placeholder="请输入位置" class="layui-input" lay-verify="required">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required" style="width: 40px;padding-left: 0;">经度</label>
+
+                                <div class="layui-input-inline" style="width: 50%;">
+                                    <input id="jing" type="text" name="jing" autocomplete="off" class="layui-input layui-disabled" readonly="readonly" lay-verify="required">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required" style="width: 40px;padding-left: 0;">纬度</label>
+                                <div class="layui-input-inline" style="width: 50%;">
+                                    <input id="wei" type="text" name="wei" lay-verify="required" readonly="readonly" autocomplete="off" class="layui-input layui-disabled">
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="margin-bottom: 0; position: relative;height: 150px;">
+                                <label class="layui-form-label layui-form-required" style="width: 40px;padding-left: 0;">设备</label>
+                                <div class="layui-input-inline" style="position: absolute;right: 0;width: 75%;">
+                                    <div id="equipmentAndProductModelTree" class="eleTree equipmentAndProductModelTree"></div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" style="position: relative;margin-top: 20px;">
+                                <div class="layui-input-inline" style="width: 50px;position: absolute;right: 10px;">
+                                    <button id="50" class="layui-btn" lay-submit lay-filter="updateCustomerLocation">更新</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md9">
+                <div id="container"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script type="text/javascript">
+    function checkNull() {
+        var suggestId = $("#suggestId").val();
+        if (suggestId.length == 0) {
+            document.getElementById('jing').value = "";
+            document.getElementById('wei').value = "";
+        }
+    }
+
+    var rootMenu = new Array();
+
+    function second(equipmentId, secondData, equipmentAndProductModels) {
+        var productModelMenu = new Array();
+        if (secondData == '' || secondData == undefined || secondData == null || secondData.length < 1) {
+            return;
+        }
+        for (var i = 0; i < secondData.length; i++) {
+            var disabled = false;
+            var checked = false;
+            for (var j = 0; j < equipmentAndProductModels.length; j++) {
+                if (equipmentId === equipmentAndProductModels[j].equipmentId) {
+                    for (var k = 0; k < equipmentAndProductModels[j].productModelModels.length; k++) {
+                        if (equipmentAndProductModels[j].productModelModels[k].productModelId == secondData[i].productModelId) {
+                            disabled = equipmentAndProductModels[j].productModelModels[k].isDisable;
+                            checked = true;
+                        }
+                    }
+                }
+            }
+            var productModel = {
+                label: secondData[i].productModelName,
+                id: equipmentId + "_" + secondData[i].productModelId,
+                defaultExpandAll: true, //展开
+                checked: checked,
+                disabled: disabled
+            };
+            productModelMenu.push(productModel);
+        }
+        return productModelMenu;
+    };
+
+    var areaData = Area;
+    var form;
+    //搜索到的地方
+    var myValue;
+    var equipmentAndProductModelTree;
+    var map = new BMap.Map("container");
+    layui.use(['jquery', 'form', 'eleTree', 'notice', 'layer'], function() {
+        form = layui.form;
+
+        var eleTree = layui.eleTree;
+        var notice = layui.notice;
+        var layer = layui.layer;
+
+        //监听提交
+        form.on('submit(updateCustomerLocation)', function(data) {
+            let customerId = data.field.customerId;
+            let customerName = data.field.customerName;
+            let customerCode = data.field.customerCode;
+            let salesMan = data.field.salesmanId;
+            let location = data.field.suggestId;
+            let longitude = data.field.jing;
+            let latitude = data.field.wei;
+            var equipmentAndProductModel = equipmentAndProductModelTree.getChecked(false, true); //获取选中节点的数据
+            if (isEmpty(equipmentAndProductModel)) {
+                layer.msg('请先选择设备', {
+                    icon: 2
+                });
+                return false;
+            }
+            var _list = [];
+            for (var i = 0; i < equipmentAndProductModel.length; i++) {
+                var a = {};
+                //先将获取到的id值转string串，然后再使用string的方法，否则会报错
+                var id = JSON.stringify(equipmentAndProductModel[i].id);
+                if (id.search("_") == -1) {
+                    //如果不包含下划线则是equipmentId,包含则表示设备和产品系列id
+                    a.equipmentId = equipmentAndProductModel[i].id;
+                    a.productModelModels = [];
+                    _list.push(a);
+                } else {
+                    var src = equipmentAndProductModel[i].id;
+                    var equipmentId = src.split("_")[0];
+                    var productModelId = src.split("_")[1];
+                    var flag = false;
+                    for (var j = 0; j < _list.length; j++) {
+                        if (_list[j].equipmentId == equipmentId) {
+                            var b = {};
+                            b.productModelId = productModelId;
+                            _list[j].productModelModels.push(b);
+                            flag = true;
+                        }
+                    }
+                    if (!flag) {
+                        a.equipmentId = equipmentAndProductModel[i].id;
+                        a.productModelModels = [];
+                        _list.push(a);
+                    }
+                }
+            }
+
+            var provinceCode, cityCode, areaCode;
+            for (var i = 0; i < areaData.length; i++) {
+                if (areaData[i].provinceName == data.field.provinceId) {
+                    provinceCode = areaData[i].provinceCode;
+                    var cityList = areaData[i].mallCityList;
+                    for (var j = 0; j < cityList.length; j++) {
+                        if (cityList[j].cityName == data.field.cityId) {
+                            cityCode = cityList[j].cityCode;
+                            var areaList = cityList[j].mallAreaList;
+                            for (var k = 0; k < areaList.length; k++) {
+                                if (areaList[k].areaName == data.field.districtId) {
+                                    areaCode = areaList[k].areaCode;
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            //获取用户信息
+            var storage = window.localStorage;
+            var json = storage.getItem('userData');
+            var data = JSON.parse(json);
+            let operatorId = data.userId;
+
+            var checkCustomerName = /^[a-zA-Z0-9_\u4E00-\u9FA5]{2,20}$/;
+            if (checkCustomerName.test(customerName) == false) {
+                layer.msg('客户名称为2-20位的汉字、数字、字母、下划线', {
+                    icon: 2
+                });
+                return false;
+            }
+
+            var checkCustomerCode = /^[a-zA-Z0-9_]{2,20}$/;
+            if (checkCustomerCode.test(customerCode) == false) {
+                layer.msg('客户编码为2-20位的数字、字母、下划线', {
+                    icon: 2
+                });
+                return false;
+            }
+
+            $.ajax({
+                url: updateCustomerUrl(),
+                type: "post", // 采用post方法
+                dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                contentType: 'application/json; charset=utf-8',
+                async: false,
+                data: JSON.stringify({
+                    "customerId": customerId,
+                    "customerName": HTMLEncode(customerName),
+                    "customerCode": HTMLEncode(customerCode),
+                    "location": location,
+                    "longitude": longitude,
+                    "latitude": latitude,
+                    "operatorId": operatorId,
+                    "provinceCode": provinceCode,
+                    "cityCode": cityCode,
+                    "areaCode": areaCode,
+                    "salesMan": salesMan,
+                    "equipmentAndProductModels": _list
+                }),
+                // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                success: function(result) {
+                    if (result.code == 1) {
+                        alert(result.msg);
+                    } else {
+                        alert(result.msg);
+                        //先取到该子页面在父级页面中的name 值
+                        var index = parent.layer.getFrameIndex(Window.name);
+                        //然后用该方法关闭
+                        parent.layer.closeAll();
+                    }
+                },
+                error: function() {
+                    alert("服务器忙……请稍后重试！");
+                }
+            });
+        });
+    });
+
+    //加载业务员信息
+    function loadSaleMan(salesMan) {
+        $.ajax({
+            url: getUserByRoleNameUrl("销售员"),
+            type: "get", // 采用post方法
+            dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+            contentType: 'application/json; charset=utf-8',
+            // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+            success: function(result) {
+                if (result.code == 0) {
+                    var datas = result.data;
+                    if (datas.length > 0) {
+                        $("#salesman").empty(); //清空下拉框
+                        $("#salesman").append("<option value=''>请选择</option>");
+                        for (var i = 0; i < datas.length; i++) {
+                            var item = datas[i];
+                            if (item.userId != salesMan) {
+                                $("#salesman").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                            } else {
+                                $("#salesman").append("<option value=" + item.userId + " selected='selected' >" + item.userName + "</option>");
+                            }
+                        }
+                    }
+                } else {
+                    $("#salesman").empty(); //清空下拉框
+                    $("#salesman").append("<option value=''>请创建业务员角色</option>");
+                }
+                layui.use(['form'], function() {
+                    var form = layui.form;
+                    form.render();
+                });
+            },
+            error: function() {
+                alert("服务器忙……请稍后重试！");
+            }
+        });
+    }
+
+    function loadEquipment(equipmentAndProductModels) {
+        $.ajax({
+            type: "GET",
+            contentType: 'application/json; charset=utf-8',
+            url: getAllEquipmentAndProductModelUrl(),
+            async: true,
+            dataType: "JSON",
+            success: function(result) {
+                if (result.code === 0) {
+                    var equipmentMenu = result.data;
+                    var productSeries;
+                    var product;
+                    for (var i = 0; i < equipmentMenu.length; i++) {
+                        var disabled = false;
+                        for (var j = 0; j < equipmentAndProductModels.length; j++) {
+                            if (equipmentAndProductModels[j].equipmentId === equipmentMenu[i].equipmentId) {
+                                disabled = equipmentAndProductModels[j].isDisable;
+                            }
+                        }
+                        var arr = equipmentMenu[i].equipmentModels;
+                        for (var j = 0; j < arr.length; j++) {
+                            var arr1 = arr[j].productSeriesModels;
+                            for (var s = 0; s < arr1.length; s++) {
+                                let productSeries = arr1[s].productModelModelList;
+                                if (productSeries.length > 0) {
+                                    for (var m = 0; m < productSeries.length; m++) {
+                                        var equipment = {
+                                            label: equipmentMenu[i].name,
+                                            id: equipmentMenu[i].id,
+                                            children: [{
+                                                label: arr[j].equipmentName,
+                                                id: arr[j].equipmentId,
+                                                children: [{
+                                                    label: arr1[s].productSeriesName,
+                                                    id: arr1[s].productSeriesId,
+                                                    children: [{
+                                                        label: productSeries[m].productModelName,
+                                                        id: productSeries[m].productModelId,
+                                                        defaultExpandAll: true, //展开
+                                                        disabled: disabled
+                                                    }],
+                                                    defaultExpandAll: true, //展开
+                                                    disabled: disabled
+                                                }],
+                                                defaultExpandAll: true, //展开
+                                                disabled: disabled
+                                            }],
+                                            defaultExpandAll: true, //展开
+                                            disabled: disabled
+                                        };
+                                        rootMenu.push(equipment);
+
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    layui.use(['eleTree'], function() {
+                        var eleTree = layui.eleTree;
+                        //常规用法
+                        equipmentAndProductModelTree = eleTree.render({
+                            id: 'equipmentAndProductModelTreeId',
+                            elem: '#equipmentAndProductModelTree',
+                            data: rootMenu,
+                            showLine: true,
+                            highlightCurrent: true,
+                            showCheckbox: true,
+                            defaultExpandAll: true
+                        });
+                    });
+                }
+            },
+            error: function() {
+                alert('服务器忙......请稍后重试');
+            }
+        });
+    }
+
+    var lng = document.getElementById('jing');
+    var lat = document.getElementById('wei');
+    var loc = document.getElementById("suggestId");
+    var province = document.getElementById('provinceId');
+    var city = document.getElementById('cityId');
+    var district = document.getElementById('districtId');
+
+    //接收父级页面传值
+    function child(data) {
+        var salesMan = data.salesMan;
+        $("input[name='customerId']").val(data.customerId);
+        $("input[name='customerName']").val(HTMLDecode(data.customerName));
+        $("input[name='customerCode']").val(HTMLDecode(data.customerCode));
+
+        loadSaleMan(salesMan);
+        $("input[name='jing']").val(HTMLDecode(data.longitude));
+        $("input[name='jing']").addClass('layui-disabled').attr("disabled", "disabled");
+        $("input[name='wei']").val(data.latitude);
+        $("input[name='wei']").addClass('layui-disabled').attr("disabled", "disabled");
+        loadEquipment(data.equipmentAndProductModels);
+        $("input[name='suggestId']").val(HTMLDecode(data.location));
+
+        var point = new BMap.Point(data.longitude, data.latitude);
+        map.centerAndZoom(point, 13);
+        var myIcon = new BMap.Icon("http://api.map.baidu.com/img/markers.png", new BMap.Size(23, 25), {
+            offset: new BMap.Size(10, 25), // 指定定位位置
+            imageOffset: new BMap.Size(0, 0 - 10 * 25) // 设置图片偏移
+        });
+        var mk = new BMap.Marker(point, {
+            icon: myIcon
+        });
+        map.addOverlay(mk);
+        map.enableScrollWheelZoom();
+
+        var ac = new BMap.Autocomplete( //建立一个自动完成的对象
+            {
+                "input": "suggestId",
+                "location": map
+            }
+        );
+        var c = document.getElementById("suggestId").value;
+        ac.setInputValue(c);
+
+        ac.addEventListener("onhighlight", function(e) { //鼠标放在下拉列表上的事件
+
+            var str = "";
+            var _value = e.fromitem.value;
+            var value = "";
+            if (e.fromitem.index > -1) {
+                value = _value.province + _value.city + _value.district + _value.street + _value.business;
+            }
+            str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+
+            value = "";
+            if (e.toitem.index > -1) {
+                _value = e.toitem.value;
+                value = _value.province + _value.city + _value.district + _value.street + _value.business;
+            }
+            str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+        });
+
+        ac.addEventListener("onconfirm", function(e) { //鼠标点击下拉列表后的事件
+            lng.value = '';
+            lat.value = '';
+            var _value = e.item.value;
+            myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+            setPlace();
+        });
+    }
+
+    function setPlace() { // 创建地址解析器实例
+        var localSearch = new BMap.LocalSearch(map);
+        map.clearOverlays();
+        localSearch.enableAutoViewport();
+        localSearch.search(myValue);
+        localSearch.setSearchCompleteCallback(function(searchResult) {
+            if (searchResult && searchResult.getPoi(0)) {
+                var poi = searchResult.getPoi(0);
+                if (poi.point) {
+                    map.centerAndZoom(poi.point, 15);
+                    map.addOverlay(new BMap.Marker(poi.point));
+                    var opts = {
+                        position: poi.point, // 指定文本标注所在的地理位置
+                        offset: new BMap.Size(15, -30) //设置文本偏移量
+                    }
+                    var label = new BMap.Label("当前位置", opts); // 创建文本标注对象
+                    label.setStyle({
+                        color: "black",
+                        fontSize: "12px",
+                        height: "20px",
+                        lineHeight: "20px",
+                        fontFamily: "微软雅黑"
+                    });
+                    map.addOverlay(label);
+                    lng.value = poi.point.lng;
+                    lat.value = poi.point.lat;
+                    var myGeo = new BMap.Geocoder();
+                    myGeo.getLocation(poi.point, function(rs) {
+                        var addComp = rs.addressComponents;
+                        province.value = addComp.province;
+                        city.value = addComp.city;
+                        district.value = addComp.district;
+                    });
+                }
+            }
+        })
+    }
+</script>
+
+</html>

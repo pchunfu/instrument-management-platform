@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>密码修改</title>
+    <link rel="stylesheet" href="../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/config.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/jsencrypt.min.js?v=318"></script>
+    <style>
+        #pswDiv {
+            margin-top: 40px;
+        }
+        
+        div label {
+            margin-left: 60px;
+        }
+        
+        i {
+            color: red;
+        }
+        
+        #slide {
+            pointer-events: none;
+        }
+        
+        .text-right {
+            text-align: right;
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <form class="layui-form" id="form" style="height: 100%;">
+        <div class="layui-form-item" id="pswDiv">
+            <label class="layui-form-label"><i>*&nbsp</i>原密码</label>
+            <div class="layui-input-inline">
+                <input type="password" autocomplete="off" name="originalPassword" id="originalPassword" lay-verType="tips" lay-verify="required|originalPassword" lay-reqText="请输入密码" style="width: 260px;" oninput="if(value.length>21)value=value.slice(0,21)" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"><i>*&nbsp</i>新密码</label>
+            <div class="layui-input-inline">
+                <input type="password" oninput="checkPwd()" name="newPassword" id="newPassword" lay-verType="tips" lay-verify="required|newPassword" lay-reqText="请输入密码" oninput="if(value.length>21)value=value.slice(0,21)" style="width: 260px;" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码强度</label>
+            <div class="layui-input-inline" style="width: 240px;">
+                <div id="slide" class="demo-slider" style="margin: 16px 0 0 17px">
+                </div>
+            </div>
+            <span id="strang" style="line-height: 38px;"></span>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"><i>*&nbsp</i>确认密码</label>
+            <div class="layui-input-inline">
+                <input type="password" oninput="checkPwd()" lay-verType="tips" lay-verify="required|confirmPassword" lay-reqText="请输入密码" oninput="if(value.length>21)value=value.slice(0,21)" name="confirmPassword" id="confirmPassword" style="width: 260px;" class="layui-input"
+                    autocomplete="off">
+            </div>
+
+
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="formDemo" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+    <script>
+        //关闭页面方法
+        function closePage() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index); //再执行关闭
+            return true;
+        }
+        $('#originalPassword').val('').focus();
+        //检查密码的安全程度
+        function checkPwd() {
+            var newPassword = $("#newPassword").val();
+            var index = 0;
+            if (new RegExp("[0-9]").test(newPassword)) {
+                index++;
+            }
+            if (new RegExp("[A-Z]").test(newPassword)) {
+                index++;
+            }
+            if (new RegExp("[a-z]").test(newPassword)) {
+                index++;
+            }
+            if (newPassword.length == 0) {
+                $('#strang').empty();
+                myslide.setValue(0);
+            } else if (newPassword.length < 8) {
+                console.log('=========1', index);
+                $('#strang').html('弱');
+                myslide.setValue(1);
+            } else if (newPassword.length >= 8 && newPassword.length < 16) {
+                if (index == 1) {
+                    myslide.setValue(1);
+                } else if (index == 2) {
+                    console.log('=========2', index);
+                    $('#strang').html('中');
+                    myslide.setValue(2);
+                } else {
+                    myslide.setValue(3);
+                    console.log('=========3', index);
+                    $('#strang').html('强');
+                }
+            } else {
+                if (index == 1) {
+                    console.log('=========1', index);
+                    myslide.setValue(1);
+                } else if (index == 2) {
+                    console.log('=========2', index);
+                    myslide.setValue(2);
+                } else {
+                    myslide.setValue(4);
+                    console.log('=========4', index);
+                    $('#strang').html('完美');
+                }
+            }
+        }
+        //声明滑块实例
+        var myslide;
+
+        var url = getUrl();
+        layui.use(['form', 'layedit', 'laydate', 'table', 'slider', 'layer'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                table = layui.table,
+                $ = layui.$,
+                slider = layui.slider;
+
+            myslide = slider.render({
+                elem: '#slide',
+                step: 25,
+                showstep: true
+            });
+
+            var storage = window.localStorage;
+            var data = storage.getItem('userData');
+            var userData = JSON.parse(data);
+            var userId = userData.userId;
+            var userPassword = userData.userPassword;
+            // 正则验证
+            form.verify({
+                    originalPassword: function(value, item) { //value：表单的值、item：表单的DOM对象
+                        if (userPassword !== value) {
+                            return '密码输入有误！';
+                        }
+                    },
+                    newPassword: function(value, item) { //value：表单的值、item：表单的DOM对象
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '不能输入空格哦!';
+                        }
+                        if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                            return '首尾不能出现下划线\'_\'';
+                        }
+                        if (!/(?!^\d+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z]{6,23}/.test(value)) {
+                            return '密码为6-20个字母和数字区分英文大小写!';
+                        }
+                    },
+                    confirmPassword: function(value, item) { //value：表单的值、item：表单的DOM对象
+                        if (!new RegExp($("#newPassword").val()).test(value)) {
+                            return '两次输入密码不一致，请重新输入！';
+                        }
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '不能输入空格哦!';
+                        }
+                        if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                            return '首尾不能出现下划线\'_\'';
+                        }
+                        if (!/(?!^\d+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z]{6,23}/.test(value)) {
+                            return '密码为6-20个字母和数字区分英文大小写!';
+                        }
+                    }
+                })
+                //监听提交
+            form.on('submit(formDemo)', function(data) {
+
+                let originalPassword = data.field.originalPassword;
+                let newPassword = data.field.newPassword;
+                let confirmPassword = data.field.confirmPassword;
+                //更新数据库数据
+                var updatePasswordUrl = url + "user/updatePassword";
+                $.ajax({
+                    url: updatePasswordUrl,
+                    type: "post", // 采用post方法
+                    dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    // 获取id=loginForm的form表单中的参数
+                    data: JSON.stringify({
+                        "userId": userId,
+                        "userPassword": newPassword
+                    }),
+                    // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                    success: function(result) {
+                        //更新浏览器端数据
+                        var loginURL = url + "user/getUserData"; //Tomcat中服务的地址和接口
+                        var userName = userData.userName;
+                        var userPassword = userData.userPassword;
+                        $.ajax({
+                            url: loginURL,
+                            type: "post", // 采用post方法
+                            dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                            contentType: 'application/json; charset=utf-8',
+                            async: false,
+                            // 获取id=loginForm的form表单中的参数
+                            data: JSON.stringify({
+                                "userId": userId
+                            }),
+                            // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    if (window.localStorage) {
+                                        var storage = window.localStorage;
+                                        storage.setItem('userData', JSON.stringify(result.data));
+                                    } else {
+                                        alert("浏览器不支持localStorage,请选择其他浏览器！");
+                                    }
+                                } else {
+                                    alert(result.msg);
+                                }
+                            },
+                            error: function() {
+                                alert("服务器忙……请稍后重试！");
+                            }
+                        });
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1,
+                                time: 1000
+                            }, function() { //延时跳转并提示
+                                //先取到该子页面在父级页面中的name 值
+                                var index = parent.layer.getFrameIndex(Window.name);
+                                //然后用该方法关闭
+                                parent.layer.closeAll();
+                                window.parent.parent.location.href = "./login.html"
+                            });
+
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2
+                            });
+                        }
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                return false;
+            })
+        });
+    </script>
+</body>
+
+</html>

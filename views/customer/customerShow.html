@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>客户展示</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=M6Fxdp0BDnVRF6lh55IpTzH3mg18tU45"></script>
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/area.js?v=318"></script>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #container {
+            min-height: 100vh;
+            display: flex;
+            padding: 15px;
+        }
+        
+        .BMap_cpyCtrl {
+            display: none;
+        }
+        
+        .anchorBL {
+            display: none;
+        }
+        /*地图标题*/
+        
+        .BMap_bubble_title {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 5px;
+            padding-top: 5px;
+            border-bottom: 1px solid gray;
+            background-color: #5dadeb;
+        }
+        /* 消息内容 */
+        
+        .BMap_bubble_content {
+            height: 150px !important;
+            background-color: white;
+            font-size: 16px;
+            line-height: 30px;
+            padding-left: 5px;
+            padding-top: 5px;
+            padding-bottom: 10px;
+        }
+        
+        .BMap_bubble_content a {
+            cursor: pointer;
+            position: absolute;
+            left: 220px;
+            top: 150px;
+            color: rgb(20, 119, 233);
+        }
+        /* 内容 */
+        
+        .BMap_pop div:nth-child(9) {
+            top: 35px !important;
+            border-radius: 7px;
+        }
+        /* 左上角删除按键 */
+        
+        .BMap_pop img {
+            top: 43px !important;
+            left: 300px !important;
+        }
+        
+        .BMap_top {
+            display: none;
+        }
+        
+        .BMap_bottom {
+            display: none;
+        }
+        
+        .BMap_center {
+            display: none;
+        }
+        /* 隐藏边角 */
+        
+        .BMap_pop div:nth-child(1) div {
+            display: none;
+        }
+        
+        .BMap_pop div:nth-child(3) {
+            display: none;
+        }
+        
+        .BMap_pop div:nth-child(7) {
+            display: none;
+        }
+        
+        #form {
+            min-width: 1091px;
+        }
+        
+        .layui-form-label {
+            padding-left: 0;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 120px;
+        }
+        
+        .layui-form-item {
+            display: inline-block;
+        }
+        
+        .layui-card {
+            min-width: 1000px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div class="layui-fluid"> -->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form id="form" class="layui-form" action="">
+                <div class="layui-form-item" style="width: 226px;">
+                    <label class="layui-form-label">客户名称</label>
+                    <div class="layui-input-inline">
+                        <input name="customerName" type="text" oninput="if(value.length>20)value=value.slice(0,20)" autocomplete="off" placeholder="请输入客户名称" id="customerName" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="width: 226px;">
+                    <label class="layui-form-label">客户编码</label>
+                    <div class="layui-input-inline">
+                        <input name="customerCode" type="text" autocomplete="off" placeholder="请输入客户编码" id="customerCode" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择地区</label>
+                    <div class="layui-input-inline">
+                        <select name="province" id="province" lay-filter="province">
+                                <option value="">请选择省</option>
+                                </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="city" id="city" lay-filter="city">
+                  <option value="">请选择市</option>
+                </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="county" id="county" lay-filter="county">
+                  <option value="">请选择县/区</option>
+                </select>
+                    </div>
+
+                </div>
+                <div class="layui-input-inline" style="position: absolute;top: 10px;">
+                    <button id="45" class="layui-btn" style="width: 80px;" lay-submit lay-filter="queryBtn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    <a class="layui-btn form-search-expand" search-expand>
+                  展开 <i class="layui-icon layui-icon-down"></i></a>
+                </div>
+                <div>
+                    <div class="layui-form-item form-search-show-expand">
+                        <label class="layui-form-label">销售员</label>
+                        <div class="layui-input-inline">
+                            <select id="salesman" name="salesmanId" lay-filter="" lay-search="">
+                            <option value=""></option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item form-search-show-expand">
+                        <label class="layui-form-label">设备类型</label>
+                        <div class="layui-input-inline">
+                            <select id="equipment" name="equipmentId" lay-filter="equipment" lay-search="">
+                            <option value=""></option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item form-search-show-expand">
+                        <label class="layui-form-label">产品系列</label>
+                        <div class="layui-input-inline">
+                            <select id="productModel" name="productModelId" lay-filter="productModel" lay-search="">
+                        <option value=""></option>
+                    </select>
+                        </div>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+    <!-- </div> -->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div id="container"></div>
+        </div>
+    </div>
+</body>
+
+<script>
+    //初始化数据
+    //重新设置页面大小
+    // resize();
+    var storage = window.localStorage;
+    var data = storage.getItem('userData');
+    var userData = JSON.parse(data);
+    var json = storage.getItem('auth');
+    var authData = JSON.parse(json);
+    //用户权限判断
+    $('#45').hide();
+    var l_ist = userData.permissionId;
+    for (var i = 0; i < l_ist.length; i++) {
+        var item = l_ist[i];
+        if (l_ist[i] == 45) {
+            $('#45').show();
+        }
+
+    }
+    var areaData = Area;
+    var $form;
+    var form;
+    var $;
+    var map = new BMap.Map("container"); //创建map实例
+    var point = new BMap.Point(116.3964, 39.9093); // 设置中心点坐标
+    map.centerAndZoom(point, 13); // 初始化地图,设置中心点坐标和地图级别、
+    map.enableScrollWheelZoom(); // 设置地图显示的城市,此项是必须设置的
+    var isGeolocation = true;
+    var opts = {
+        width: 300, // 信息窗口宽度
+        height: 300, // 信息窗口高度
+        title: '<h4>' + "客户信息" + '</h4>', // 信息窗口标题
+        enableMessage: true, //设置允许信息窗发送短息
+        message: ""
+    }
+
+    layui.use(['element', 'jquery', 'layer', 'form'], function() {
+        $ = layui.jquery, element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块;
+        form = layui.form;
+        $form = $('form');
+        loadProvince();
+        loadSaleMan();
+        var layer = layui.layer;
+        var markers = new Array();
+        // 设备类型初始化
+        $.ajax({
+            url: getAllEquipmentAndProductModelUrl(),
+            type: "get", // 采用post方法
+            dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+            contentType: 'application/json; charset=utf-8',
+            // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+            success: function(result) {
+                if (result.code == 0) {
+                    var datas = result.data;
+                    if (datas.length > 0) {
+                        $("#equipment").empty(); //清空下拉框
+                        $("#equipment").append("<option value=''>请选择</option>");
+                        for (var i = 0; i < datas.length; i++) {
+                            var item = datas[i].equipmentModels;
+                            for (var j = 0; j < item.length; j++) {
+                                var arr = item[j];
+                                $("#equipment").append("<option value=" + arr.equipmentId + ">" + arr.equipmentName + "</option>");
+                                form.render();
+                            }
+                        }
+                    }
+                    form.on('select(equipment)', function(data) {
+                        if (!isEmpty(data.value)) {
+                            var productModelModels;
+                            for (var i = 0; i < datas.length; i++) {
+                                var item = datas[i].equipmentModels;
+                                for (var j = 0; j < item.length; j++) {
+                                    if (item[j].equipmentId == data.value) {
+                                        productModelModels = item[j].productSeriesModels;
+
+                                    }
+                                }
+                            }
+                            if (productModelModels.length > 0) {
+                                $("#productModel").empty(); //清空下拉框
+                                $("#productModel").append("<option value='' selected='selected'>请选择</option>");
+                                for (var i = 0; i < productModelModels.length; i++) {
+                                    var item = productModelModels[i];
+                                    $("#productModel").append("<option value=" + item.productSeriesId + ">" + item.productSeriesName + "</option>");
+                                }
+                            }
+                        } else {
+                            $("#productModel").empty(); //清空下拉框
+                            $("#productModel").append("<option value=''>请新建产品系列</option>");
+                        }
+                        form.render();
+                    });
+                } else {
+                    $("#equipment").empty(); //清空下拉框
+                    $("#equipment").append("<option value=''>请创建设备</option>");
+                    form.render();
+                }
+            },
+            error: function() {
+                alert("服务器忙……请稍后重试！");
+            }
+        });
+
+
+        //监听提交
+        form.on('submit(queryBtn)', function(data) {
+            let customerName = data.field.customerName;
+            let customerCode = data.field.customerCode;
+            let province = data.field.province;
+            let city = data.field.city;
+            let county = data.field.county;
+            let salesMan = data.field.salesmanId;
+            let equipmentId = data.field.equipmentId;
+            let productModelId = data.field.productModelId;
+            if (province != '') {
+                province = province.split('_')[0];
+                if (city != '') {
+                    city = city.split('_')[0];
+                } else {
+                    county = '';
+                }
+            } else {
+                city = '';
+                county = '';
+            }
+            $.ajax({
+                url: getCustomerLocationMsgUrl(),
+                type: "post", // 采用post方法
+                dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                contentType: 'application/json; charset=utf-8',
+                async: true,
+                data: JSON.stringify({
+                    "customerName": HTMLEncode(customerName),
+                    "customerCode": HTMLEncode(customerCode),
+                    "provinceCode": province,
+                    "cityCode": city,
+                    "areaCode": county,
+                    "salesMan": salesMan,
+                    "equipmentId": equipmentId,
+                    "productModelId": productModelId
+                }),
+                // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                success: function(result) {
+                    if (result.code == 0) {
+                        var datas = result.data;
+                        if (markers.length > 0) {
+                            //如果当前marker数组大于0，则清除地图上的marker，并清空该数组
+                            $.each(markers, function(index, item) {
+                                map.removeOverlay(item);
+                            });
+                            markers = [];
+                        }
+                        if (datas.length > 0) {
+                            isGeolocation = false;
+
+                            $.each(datas, function(index, item) {
+                                var marker = new BMap.Marker(new BMap.Point(item.longitude, item.latitude)); //创建标注
+                                markers[index] = marker;
+                                var content = item.location;
+                                var customerName = item.customerName;
+                                var customerId = item.customerId;
+                                map.addOverlay(marker); // 将标注添加到地图中
+                                addClickHandler(content, marker, customerId);
+                                addMouseoverHandler(content, marker, customerId, customerName);
+                            });
+                            if (province == '') {
+                                map.centerAndZoom(point, 5);
+                            } else if (province != '' && city == '') {
+                                map.centerAndZoom(point, 8);
+                            } else if (province != '' && city != '' && county == '') {
+                                map.centerAndZoom(point, 12);
+                            } else {
+                                map.centerAndZoom(point, 14);
+                            }
+                            map.panTo(new BMap.Point(datas[0].longitude, datas[0].latitude));
+                        } else {
+                            layer.msg("未查出符合条件的数据！", {
+                                icon: 2
+                            });
+                        }
+
+                    } else {
+                        layer.msg("按当前条件未查询到客户信息！", {
+                            icon: 2
+                        });
+                    }
+
+                },
+                error: function() {
+                    alert("服务器忙……请稍后重试！");
+                }
+            });
+            return false;
+        });
+
+        function addClickHandler(content, marker, customerId) {
+            marker.addEventListener("click", function(e) {
+                var id = customerId;
+                var url = "./views/customer/customerAfterSalesMapDisplay.html";
+                window.localStorage.setItem('customerId', customerId);
+                $.ajax({
+                    url: getProductsByCustomerIdUrl(customerId),
+                    type: 'get',
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function(result) {
+
+                    }
+                })
+                window.parent.layui.element.tabAdd('admin-pagetabs', {
+                    title: '客户相关' //用于演示
+                        ,
+                    content: '<iframe data-frameid="' + id + '" scrolling="auto" frameborder="0" src="' + url + '" style="width:100%;height:1200px;"></iframe>',
+                    id: id //实际使用一般是规定好的id，这里以时间戳模拟下
+                })
+                window.parent.layui.element.tabChange('admin-pagetabs', id);
+            });
+        }
+
+        function addMouseoverHandler(content, marker, customerId, customerName) {
+            marker.addEventListener("mouseover", function(e) {
+                openInfo(customerName, content, e);
+                threeFn = function() {
+                    var id = customerId;
+                    var url = "./views/customer/customerAfterSalesMapDisplay.html";
+                    window.localStorage.setItem('customerId', customerId);
+                    window.parent.layui.element.tabAdd('admin-pagetabs', {
+                        title: customerName //用于演示
+                            ,
+                        content: '<iframe data-frameid="' + id + '" scrolling="auto" frameborder="0" src="' + url + '" style="width:100%;height:100%;"></iframe>',
+                        id: id //实际使用一般是规定好的id，这里以时间戳模拟下
+                    })
+                    window.parent.layui.element.tabChange('admin-pagetabs', id);
+                }
+            });
+        }
+    });
+
+    function openInfo(customerName, content, e) {
+        var p = e.target;
+        var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+        // location.href = "./elementUpdate.html";
+        // var infoWindow = new BMap.InfoWindow("客户名称:" + data.SBTime + "<br>经度:" + gpsX + "<br>纬度:" + gpsY + "<br>客户地理位置:" + data.Speed , opts); // 创建信息窗口对象 
+        var infoWindow = new BMap.InfoWindow("客户名称:&nbsp;&nbsp;" + customerName + "<br>客户地理位置:&nbsp;&nbsp;" + content + "<br><a onclick='threeFn()'>查看详情</a>", opts); // 创建信息窗口对象
+        map.openInfoWindow(infoWindow, point); //开启信息窗口
+
+    };
+
+    //加载省的数据
+    function loadProvince() {
+        var proHtml = '';
+        for (var i = 0; i < areaData.length; i++) {
+            proHtml += '<option value="' + areaData[i].provinceCode + '_' + areaData[i].mallCityList.length + '_' + i + '">' + areaData[i].provinceName + '</option>';
+        } //初始化省数据
+        $form.find('select[name=province]').append(proHtml);
+        form.render();
+        form.on('select(province)', function(data) {
+            // $form.find('select[name=area]').html('<option value="">请选择县/区</option>').parent().hide();
+            var value = data.value;
+
+            if (value != '') {
+                var d = value.split('_');
+                var code = d[0];
+                var count = d[1];
+                var index = d[2];
+                if (count > 0) {
+                    loadCity(areaData[index].mallCityList);
+                } else {
+                    $form.find('select[name=city]').parent().hide();
+                    $form.find('select[name=county]').parent().hide();
+                }
+            } else {
+                $form.find('select[name=city]').empty();
+                $form.find('select[name=county]').empty();
+                form.render();
+            }
+        });
+    }
+
+    //加载市的数据
+    function loadCity(citys) {
+        var cityHtml = '';
+        cityHtml += '<option value="">请选择市</option>';
+        for (var i = 0; i < citys.length; i++) {
+            cityHtml += '<option value="' + citys[i].cityCode + '_' + citys[i].mallAreaList.length + '_' + i + '">' + citys[i].cityName + '</option>';
+        }
+        $form.find('select[name=city]').html(cityHtml).parent().show();
+        var areaHtml = '<option value="">请选择县/区</option>';
+        $form.find('select[name=county]').html(areaHtml).parent().show();
+        form.render();
+        form.on('select(city)', function(data) {
+            var value = data.value;
+            if (value != '') {
+                var d = value.split('_');
+                var code = d[0];
+                var count = d[1];
+                var index = d[2];
+                if (count > 0) {
+                    loadArea(citys[index].mallAreaList);
+                } else {
+                    $form.find('select[name=county]').parent().hide();
+                }
+            } else {
+                $form.find('select[name=county]').empty();
+                form.render();
+            }
+        });
+    }
+
+    //加载县的数据
+    function loadArea(areas) {
+        var areaHtml = '';
+        areaHtml += '<option value="">请选择县/区</option>';
+        for (var i = 0; i < areas.length; i++) {
+            areaHtml += '<option value="' + areas[i].areaCode + '">' + areas[i].areaName + '</option>';
+        }
+        $form.find('select[name=county]').html(areaHtml).parent().show();
+        form.render();
+        form.on('select(county)',
+            function(data) {});
+    }
+
+    //加载业务员信息
+    function loadSaleMan() {
+        $.ajax({
+            url: getUserByRoleNameUrl("销售员"),
+            type: "get", // 采用post方法
+            dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+            contentType: 'application/json; charset=utf-8',
+            // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+            success: function(result) {
+                if (result.code == 0) {
+                    var datas = result.data;
+                    if (datas.length > 0) {
+                        $("#salesman").empty(); //清空下拉框
+                        $("#salesman").append("<option value=''>请选择</option>");
+                        for (var i = 0; i < datas.length; i++) {
+                            var item = datas[i];
+                            $("#salesman").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                        }
+                    }
+                } else {
+                    $("#salesman").empty(); //清空下拉框
+                    $("#salesman").append("<option value=''>请创建销售员角色</option>");
+                }
+                form.render();
+            },
+            error: function() {
+                alert("服务器忙……请稍后重试！");
+            }
+        });
+    }
+
+    //定位到当前位置
+    var geolocation = new BMap.Geolocation();
+    var geoc = new BMap.Geocoder();
+    var pt;
+    geolocation.getCurrentPosition(function(r) {
+        if (this.getStatus() == BMAP_STATUS_SUCCESS && isGeolocation) {
+            var myIcon = new BMap.Icon("http://api.map.baidu.com/img/markers.png", new BMap.Size(23, 25), {
+                offset: new BMap.Size(10, 25), // 指定定位位置
+                imageOffset: new BMap.Size(0, 0 - 10 * 25) // 设置图片偏移
+            });
+            var mk = new BMap.Marker(r.point, {
+                icon: myIcon
+            });
+            map.addOverlay(mk);
+            var opts = {
+                position: r.point, // 指定文本标注所在的地理位置
+                offset: new BMap.Size(15, -30) //设置文本偏移量
+            }
+            var label = new BMap.Label("当前位置", opts); // 创建文本标注对象
+            label.setStyle({
+                color: "black",
+                fontSize: "12px",
+                height: "20px",
+                // lineHeight: "20px",
+                fontFamily: "微软雅黑"
+            });
+
+            map.addOverlay(label);
+            map.panTo(r.point);
+
+            pt = r.point;
+
+            geoc.getLocation(pt, function(rs) {
+                var addComp = rs.addressComponents;
+            });
+        } else {
+            // alert('failed' + this.getStatus());
+        }
+    });
+</script>
+
+
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>添加样品库</title>
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/element.js?v=318"></script>
+    <style>
+        /* .layui-input {
+            width: 0px;
+        } */
+        
+        .layui-form-item .layui-input-inline {
+            width: 100px;
+        }
+        
+        .layui-form-label {
+            text-align: left;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        .layui-form-item {
+            display: inline-block;
+            margin-left: 20px;
+            width: 190px;
+        }
+        
+        #sampleForm {
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .layui-table-view {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="sampleForm" lay-filter="sampleForm" class="layui-form model-form" action="">
+
+        <div class="layui-form-item" style="width: 165px;">
+            <label class="layui-form-label layui-form-required">国别</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <select name="countryId" lay-reqText="请选择国别" lay-verType="tips" lay-verify="required|countryId" id="country">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">国标编号</label>
+            <div class="layui-input-inline">
+                <select name="countryStandardId" lay-reqText="请选择国标编号" lay-verType="tips" lay-verify="required|countryStandardId" id="countryStandards" lay-filter="countryStandardId">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">牌号名称</label>
+            <div class="layui-input-inline">
+                <select name="brandAndName" lay-reqText="请选择牌号名称" lay-verType="tips" lay-verify="required|brandAndName" id="brandAndName" lay-filter="brandAndName">
+                    <option disabled="disabled">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 165px;">
+            <label class="layui-form-label layui-form-required">单点套标</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <select name="sampleUnitId" lay-reqText="请选择单点套标" lay-verType="tips" lay-verify="required|sampleUnitId" id="sampleUnit">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 165px;">
+            <label class="layui-form-label layui-form-required">样品类型</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <select name="sampleTypes" lay-reqText="请选择样品类型" lay-verType="tips" lay-verify="required|sampleTypes" id="sampleTypes" lay-filter="sampleTypes">
+                    <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" id="sampleTwoLevelTypeLabel">二级分类</label>
+            <div class="layui-input-inline">
+                <select name="sampleTwoLevelTypeId" lay-reqText="请选择二级分类" lay-verType="tips" lay-verify="required|sampleTwoLevelTypeId" id="sampleTwoLevelTypeId11" lay-verify="required" lay-filter="sampleTwoLevelTypeId">
+        <option disabled="disabled">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 170px;">
+            <label class="layui-form-label layui-form-required">证书</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <select name="certificateId" lay-reqText="请选择证书" lay-verType="tips" lay-verify="required|certificateId" id="certificate">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 170px;">
+            <label class="layui-form-label layui-form-required">制造商</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <select name="manufacturerId" lay-reqText="请选择制造商" lay-verType="tips" lay-verify="required|manufacturerId" id="manufacturer">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 170px;">
+            <label class="layui-form-label layui-form-required">样品状态</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <select name="sampleStatusId" lay-filter="sampleStatusId" lay-reqText="请选择样品状态" lay-verType="tips" lay-verify="required|sampleStatusId" id="sampleStatus">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">样品编号</label>
+            <div class="layui-input-inline">
+                <input type="text/number" id="sampleCode" name="sampleCode" lay-reqText="请输入样品编号" oninput="if(value.length>21)value=value.slice(0,21)" lay-verType="tips" lay-verify="required|sampleCode" placeholder="请输入样品编号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">样品规格</label>
+            <div class="layui-input-inline">
+                <input type="text" lay-reqText="请输入样品规格" oninput="if(value.length>21)value=value.slice(0,21)" lay-verType="tips" lay-verify="required|sampleSpec" name="sampleSpec" id="sampleSpec" placeholder="请输入样品规格" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" id="none" style="width: 170px;">
+            <label class="layui-form-label layui-form-required">浓度</label>
+            <div class="layui-input-inline" style="width: 75px;">
+
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 170px;">
+            <label class="layui-form-label layui-form-required">价格</label>
+            <div class="layui-input-inline" style="width: 75px;">
+                <input type="text/number" lay-reqText="请输入价格" oninput="if(value.length>21)value=value.slice(0,21)" lay-verType="tips" lay-verify="required|price" id="price" name="price" placeholder="请输入价格" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">销售说明</label>
+            <div class="layui-input-inline">
+                <select name="saleInfos" lay-verType="tips" lay-verify="required|saleInfos" lay-reqText="请选择销售说明" id="saleInfos">
+        <option value="">请选择</option>
+      </select>
+            </div>
+        </div>
+        <!-- 元素表 -->
+        <table id="table" class="layui-table" lay-size="sm">
+        </table>
+        <div class="layui-form-item text-right" style="width: 96%;">
+            <button class="layui-btn" lay-filter="sampleSubmit" lay-submit>添加</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            var elements = getElements();
+            var storage = window.localStorage;
+            var updateModel = storage.getItem('elemData');
+            updateModel = JSON.parse(updateModel);
+            var url = getUrl();
+            layui.use(['layer', 'form', 'util', 'admin', 'laytpl', 'zTree', 'layedit', 'laydate', 'table'], function() {
+                var form = layui.form,
+                    layer = layui.layer,
+                    laytpl = layui.laytpl,
+                    layedit = layui.layedit,
+                    laydate = layui.laydate,
+                    util = layui.util,
+                    admin = layui.admin,
+                    table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+
+                // 正则验证
+                form.verify({
+                        sampleCode: function(value, item) { //value：表单的值、item：表单的DOM对象
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '样品编号不能有特殊字符';
+                            }
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '样品编号首尾不能出现下划线\'_\'';
+                            }
+                            if (/^\d+\d+\d$/.test(value)) {
+                                return '样品编号不能全为数字';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多20位哦!';
+                            }
+                        },
+                        sampleSpec: function(value, item) { //value：表单的值、item：表单的DOM对象
+                            // if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                            //     return '规格正整数、不能有空格、最多保留两位小数';
+                            // }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多20位哦!';
+                            }
+                        },
+                        concentration: function(value) { //value：表单的值、item：表单的DOM对象
+                            if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                                return '浓度为正整数、不能有空格、最多保留两位小数';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多20位哦!';
+                            }
+                        },
+                        price: function(value) { //value：表单的值、item：表单的DOM对象
+                            if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                                return '价格为正整数、不能有空格、最多保留两位小数';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多20位哦!';
+                            }
+                        }
+                    })
+                    // 样品初始化
+                    //初始化国别信息
+                $.ajax({
+                        url: initCountryUrl(),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function(result) {
+                            $.each(result.data, function(index, item) {
+                                $('#country').append(new Option(item.countryName, item.countryId)); //往下拉菜单里添加元素
+                            });
+                            // 关键
+                            form.render();
+                        }
+                    })
+                    //初始化国标编号
+                $.ajax({
+                    url: initCountryStandardUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#countryStandards').append(new Option(item.countryName, item.countryId)); //往下拉菜单里添加元素
+                        });
+                        // 关键
+                        form.render();
+                    }
+                })
+                form.on("select(countryStandardId)", function(data) {
+                    $('#brandAndName').empty();
+                    $("#brandAndName").append("<option value=''>请选择</option>");
+                    if (!isEmpty(data.value)) {
+                        //初始化牌号名称
+                        $.ajax({
+                            url: initBrandUrl(),
+                            dataType: 'json',
+                            type: 'get',
+                            data: {
+                                "countryId": data.value
+                            },
+                            success: function(result) {
+                                $.each(result.data, function(index, item) {
+                                    $('#brandAndName').append(new Option(item.brandName, item.id)); //往下拉菜单里添加元素
+                                });
+                                // 关键
+                                form.render();
+                            }
+                        })
+                    } else {
+                        $("#brandAndName").empty();
+                        $("#brandAndName").append("<option value=''>请先选择编号</option>");
+                    }
+                    form.render();
+                });
+                //初始化样品类型
+                $.ajax({
+                    url: initSampleTypeUrl(),
+                    type: 'get',
+                    contentType: "application/json",
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#sampleTypes').append(new Option(item.sampleTypeName, item.sampleTypeId)); //往下拉菜单里添加元素                     
+                            form.render();
+                        });
+                        // 二级分类
+                        form.on("select(sampleTypes)", function(data) {
+                            var classify;
+                            $('#sampleTwoLevelTypeId11').empty();
+                            $("#sampleTwoLevelTypeId11").append("<option value=''>请选择</option>");
+                            if (!isEmpty(data.value)) {
+                                for (i = 0; i < result.data.length; i++) {
+                                    if (data.value == result.data[i].sampleTypeId) {
+                                        classify = result.data[i].sampleTwoLevelTypeModels
+                                        if (classify.length > 0) {
+                                            for (j = 0; j < classify.length; j++) {
+                                                var s = classify[j];
+                                                $('#sampleTwoLevelTypeId11').append(new Option(s.sampleTwoLevelTypeName, s.sampleTwoLevelTypeId));
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                $("#sampleTwoLevelTypeId11").empty();
+                                $("#sampleTwoLevelTypeId11").append("<option value=''>请先选择类型</option>");
+                            }
+                            form.render();
+                        })
+                    }
+                })
+
+                function loadTwoLevelType(sampleTwoLevelTypeModels) {
+                    var sampleTwoLevelTypeHtml = '';
+                    sampleTwoLevelTypeHtml += '<option value=""> 全部 </option>';
+                    for (var i = 0; i < sampleTwoLevelTypeModels.length; i++) {
+                        sampleTwoLevelTypeHtml += '<option value="' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeId + '">' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeName + '</option>';
+                    }
+                    $('#sampleTwoLevelTypeId11').empty(sampleTwoLevelTypeHtml);
+                    $('#sampleTwoLevelTypeId11').append(sampleTwoLevelTypeHtml);
+                    form.render();
+
+                }
+                //初始化证书信息
+                $.ajax({
+                        url: initCertificateUrl(),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function(result) {
+                            $.each(result.data, function(index, item) {
+                                $('#certificate').append(new Option(item.certificateTypeName, item.certificateTypeId)); //往下拉菜单里添加元素
+                            });
+                            // 关键
+                            form.render();
+                        }
+                    })
+                    //初始化制造商信息
+                $.ajax({
+                        url: initManufacturerUrl(),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function(result) {
+                            $.each(result.data, function(index, item) {
+                                $('#manufacturer').append(new Option(item.manufacturerName, item.manufacturerId)); //往下拉菜单里添加元素
+                            });
+                            // 关键
+                            form.render();
+                        }
+                    })
+                    //初始化样品状态信息
+                $.ajax({
+                        url: initSampleStatusUrl(),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function(result) {
+                            $.each(result.data, function(index, item) {
+                                $('#sampleStatus').append(new Option(item.sampleStatusName, item.sampleStatusId)); //往下拉菜单里添加元素
+                            });
+                            // 关键
+                            form.render();
+                        }
+                    })
+                    //初始化单点或套标信息
+                $.ajax({
+                        url: initSampleUnitUrl(),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function(result) {
+                            $.each(result.data, function(index, item) {
+                                $('#sampleUnit').append(new Option(item.sampleUnitName, item.sampleUnitId)); //往下拉菜单里添加元素
+                            });
+                            // 关键
+                            form.render();
+                        }
+                    })
+                    //初始化销售说明信息
+                $.ajax({
+                    url: initSaleInfoUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#saleInfos').append(new Option(item.saleName, item.saleId)); //往下拉菜单里添加元素
+                        });
+                        // 关键
+                        form.render();
+                    }
+                })
+
+                // 元素表
+                var tableData = table.render({
+                    elem: '#table',
+                    // page: true, 
+                    MinWidth: 20,
+                    height: 200,
+                    limit: Number.MAX_VALUE,
+                    cols: [
+                        [ //表头
+                            {
+                                field: 'elem',
+                                title: '元素名称',
+                                align: 'center',
+                                unresize: true,
+                            }, {
+                                field: 'content',
+                                title: '百分含量(%)',
+                                align: 'center',
+                                edit: 'text',
+                                unresize: true,
+                            }
+                        ]
+                    ],
+                    data: [{
+                        "elem": "Fe",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Cd",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Zn",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Al",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Sn",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Mo",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Co",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Ag",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Si",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Mn",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Au",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Sb",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Pb",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Ti",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Ni",
+                        "content": "0.000"
+                    }, {
+                        "elem": "S",
+                        "content": "0.000"
+                    }, {
+                        "elem": "P",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Bi",
+                        "content": "0.000"
+                    }, {
+                        "elem": "V",
+                        "content": "0.000"
+                    }, {
+                        "elem": "W",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Mg",
+                        "content": "0.000"
+                    }, {
+                        "elem": "N",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Se",
+                        "content": "0.000"
+                    }, {
+                        "elem": "B",
+                        "content": "0.000"
+                    }, {
+                        "elem": "C",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Cu",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Zr",
+                        "content": "0.000"
+                    }, {
+                        "elem": "La",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Sr",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Nb",
+                        "content": "0.000"
+                    }, {
+                        "elem": "As",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Ga",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Te",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Cr",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Be",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Ce",
+                        "content": "0.000"
+                    }, {
+                        "elem": "Ca",
+                        "content": "0.000"
+                    }],
+                    even: true,
+                    done: function(res, curr, count) {
+                        res.data.forEach(function(item, index) {
+                            var tr = $(".layui-table").find("tbody tr[data-index='" + index + "']");
+                            if (item.content == 0) {
+                                tr.css("background-color", "white");
+                                // 给1-0-9列添加样式
+                                tr.find(".laytable-cell-1-0-0").css("background-color", "#e6e6e6");
+
+                                tr.find(".laytable-cell-1-0-1").css("color", "red");
+                            } else {
+                                tr.css("background-color", "rgb(141, 232, 248)");
+                            }
+                        });
+                    }
+                });
+
+                $('#none').hide();
+                form.on('select(sampleStatusId)', function(data) {
+                    if (data.value == 3) {
+                        $('#none').show();
+                        $('#none .layui-input-inline').append('<input type="text" name="concentration" lay-reqText="请输入浓度" oninput="if(value.length>21)value=value.slice(0,21)" lay-verType="tips" lay-verify="required|concentration" placeholder="请输入浓度" autocomplete="off" class="layui-input">');
+                    } else {
+                        $('#none').hide();
+                        $("input[name='concentration']").remove();
+
+                    }
+                })
+
+                // 表单提交
+                form.on('submit(sampleSubmit)', function(data) {
+                    //元素表提交 
+                    var brandData = tableData.config.data;
+                    let integer = /^(\d{1,2}(\.\d{1,3})?|100)$/;
+                    if (integer.test(brandData[0].content) == false) {
+                        layer.msg("Fe元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[1].content) == false) {
+                        layer.msg("Cd元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[2].content) == false) {
+                        layer.msg("Zn元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[3].content) == false) {
+                        layer.msg("Al元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[4].content) == false) {
+                        layer.msg("Sn元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[5].content) == false) {
+                        layer.msg("Mo元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[6].content) == false) {
+                        layer.msg("Co元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[7].content) == false) {
+                        layer.msg("Ag元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[8].content) == false) {
+                        layer.msg("Si元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[9].content) == false) {
+                        layer.msg("Mn元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[10].content) == false) {
+                        layer.msg("Au元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[11].content) == false) {
+                        layer.msg("Sb元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[12].content) == false) {
+                        layer.msg("Pb元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[13].content) == false) {
+                        layer.msg("Ti元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[14].content) == false) {
+                        layer.msg("Ni元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[15].content) == false) {
+                        layer.msg("S元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[16].content) == false) {
+                        layer.msg("P元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[17].content) == false) {
+                        layer.msg("Bi元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[18].content) == false) {
+                        layer.msg("V元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[19].content) == false) {
+                        layer.msg("W元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[20].content) == false) {
+                        layer.msg("Mg元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[21].content) == false) {
+                        layer.msg("N元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[22].content) == false) {
+                        layer.msg("Se元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[23].content) == false) {
+                        layer.msg("B元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[24].content) == false) {
+                        layer.msg("C元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[25].content) == false) {
+                        layer.msg("Cu元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[26].content) == false) {
+                        layer.msg("Zr元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[27].content) == false) {
+                        layer.msg("La元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[28].content) == false) {
+                        layer.msg("Sr元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[29].content) == false) {
+                        layer.msg("Nb元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+                    if (integer.test(brandData[30].content) == false) {
+                        layer.msg("As元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[31].content) == false) {
+                        layer.msg("Ga元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[32].content) == false) {
+                        layer.msg("Te元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[33].content) == false) {
+                        layer.msg("Cr元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[34].content) == false) {
+                        layer.msg("Be元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[35].content) == false) {
+                        layer.msg("Ce元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+                    if (integer.test(brandData[36].content) == false) {
+                        layer.msg("Ca元素含量为0-100的数，最多保留3位小数哦！", {
+                            icon: 2
+                        })
+                        return false;
+                    }
+
+
+                    $.ajax({
+                        url: addSampleUrl(),
+                        type: "post", // 采用post方法
+                        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        // form表单中的参数sampleTypes
+                        data: JSON.stringify({
+                            "countryStandardId": data.field.countryStandardId,
+                            "sampleCode": HTMLEncode(data.field.sampleCode),
+                            "brandId": data.field.brandAndName,
+                            "concentration": data.field.concentration,
+                            "sampleSpec": HTMLEncode(data.field.sampleSpec),
+                            "countryId": data.field.countryId,
+                            "sampleTypeId": data.field.sampleTypes,
+                            "sampleTwoLevelTypeId": data.field.sampleTwoLevelTypeId,
+                            "certificateId": data.field.certificateId,
+                            "manufacturerId": data.field.manufacturerId,
+                            "sampleStatusId": data.field.sampleStatusId,
+                            "unitId": data.field.sampleUnitId,
+                            "price": data.field.price,
+                            "saleInfo": data.field.saleInfos,
+                            "elementModes": brandData
+                        }),
+                        // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+
+                })
+
+            });
+        }
+    </script>
+</body>
+
+</html>

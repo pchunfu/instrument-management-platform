@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>签到管理</title>
+
+  <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+  <style>
+    body {
+      margin: 10px;
+      width:99%;
+      min-width:1200px;
+    }
+    .demo-carousel {
+      height: 200px;
+      line-height: 200px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <table class="layui-hide" id="signInTable" lay-filter="test"></table>
+  <script>
+    //重新设置页面大小
+    resize();
+    layui.config({
+      version: '1560414887155' //为了更新 js 缓存，可忽略
+    });
+
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function() {
+
+      var table = layui.table //表格
+        ,
+        laypage = layui.laypage //分页
+        ,
+        element = layui.element //元素操作
+
+      //监听Tab切换
+      element.on('tab(demo)', function(data) {
+        layer.tips('切换了 ' + data.index + '：' + this.innerHTML, this, {
+          tips: 1
+        });
+      });
+
+      //执行一个 table 实例
+      table.render({
+        elem: '#signInTable',
+        title: '签到考勤表',
+        page: true, //开启分页
+        defaultToolbar: ['filter', 'print',
+          {
+            title: '导出',
+            layEvent: 'DIY_EXPORT',
+            icon: 'layui-icon-export'
+          }
+        ],
+        totalRow: false, //开启合计行
+        method:'post',
+        contentType: 'application/json; charset=utf-8',
+        url: getSignMsgUrl(), //数据接口
+        async: true,
+        dataType: "JSON",
+        loading: true,
+        cols: [
+          [ //表头
+            {
+              type: 'checkbox',
+              fixed: 'left'
+            }, {
+              field: 'relationId',
+              title: '编号',
+              width: '10%',
+              sort: true,
+              fixed: 'left',
+              unresize: true,
+              align: 'center'
+            }, {
+              //   field: 'userId',
+              //   title: '用户Id',
+              //   width: 5,
+              //   align: 'center'
+              // }, {
+              field: 'userName',
+              title: '用户名',
+              width: '10%',
+              sort: true,
+              unresize: true,
+              align: 'center'
+            }, {
+              //   field: 'customerId',
+              //   title: '客户Id',
+              //   width: 5,
+              //   sort: true,
+              //   align: 'center'
+              // }, {
+              field: 'customerName',
+              title: '客户名称',
+              width: '10%',
+              sort: true,
+              unresize: true,
+              align: 'center'
+            }, {
+              field: 'date',
+              title: '配置拜访日期',
+              width: '15%',
+              sort: true,
+              unresize: true,
+              align: 'center'
+            }, {
+              field: 'actualDate',
+              title: '实际拜访日期',
+              width: '10%',
+              sort: true,
+              unresize: true,
+              align: 'center'
+            }, {
+              field: 'signInLocation',
+              title: '签到地点',
+              width: '20%',
+              unresize: true,
+              align: 'center'
+            }, {
+              field: 'signInTime',
+              title: '签到时间',
+              width: '15%',
+              sort: true,
+              unresize: true,
+              align: 'center'
+            }, {
+              field: 'isCompleted',
+              title: '是否完成',
+              sort: true,
+              unresize: true,
+              align: 'center'
+            }
+          ]
+        ],
+        done: function() {
+          $("[data-field='userId']").css('display', 'none');
+          $("[data-field='customerId']").css('display', 'none');
+
+          $("[data-field='isCompleted']").children().each(function() {
+            if ($(this).text() == '1') {
+              $(this).text("是")
+            } else if ($(this).text() == '0') {
+              $(this).text("否")
+            }
+          });
+        },
+      });
+      //监听排序事件
+      table.on('sort(test)', function(obj) {
+        $("[data-field='userId']").css('display', 'none');
+        $("[data-field='customerId']").css('display', 'none');
+        $("[data-field='isCompleted']").children().each(function() {
+          if ($(this).text() == '1') {
+            $(this).text("是")
+          } else if ($(this).text() == '0') {
+            $(this).text("否")
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

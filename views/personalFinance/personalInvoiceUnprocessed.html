@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>个人发票未报销</title>
+  <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+</head>
+
+<body>
+
+  <table class="layui-hide" id="personalInvoice" lay-filter="test" style="margin-top: 80px;"></table>
+
+  <script type="text/html" id="bar">
+    <button class="layui-btn layui-btn-radius layui-btn-primary" lay-event="register">添加发票</button>
+    <button class="layui-btn layui-btn-radius layui-btn-primary" lay-event="processed">已报销</button>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" lay-event="unprocessed">未报销</button>
+  </script>
+  <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+  </script>
+
+  <script>
+    var url = getUrl();
+    layui.config({
+      version: '1560414887155' //为了更新 js 缓存，可忽略
+    });
+
+    layui.use(['form', 'layedit', 'laydate', 'table', 'element'], function() {
+      var form = layui.form,
+        layer = layui.layer,
+        layedit = layui.layedit,
+        laydate = layui.laydate,
+        table = layui.table,
+        element = layui.element;
+
+      var storage = window.localStorage;
+      var json = storage.getItem('userData');
+      var userData = JSON.parse(json);
+      let userId = userData.userId;
+      var unprocessedInvoice = url + "finance/unprocessedInvoice/" + userId;
+      table.render({
+        id: 'invoiceTable',
+        elem: '#personalInvoice',
+        // height: 700,
+        title: '个人发票（未报销）',
+        page: true,
+        method: "get",
+        url: unprocessedInvoice,
+        async: true,
+        dataType: "JSON",
+        defaultToolbar: ['filter', 'print',
+          {
+            title: '导出',
+            layEvent: 'DIY_EXPORT',
+            icon: 'layui-icon-export'
+          }
+        ],
+        toolbar: '#bar',
+        totalRow: false,
+        even: true,
+        // data: [],
+        loading: true,
+        cols: [
+          [ //表头
+            {
+              type: 'checkbox',
+              fixed: 'left'
+            },
+            {
+              field: 'id',
+              title: '序号',
+              width: '4%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'userName',
+              title: '姓名',
+              width: '6%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'invoiceDate',
+              title: '发票日期',
+              width: '8%',
+              align: 'center',
+              unresize: true,
+              sort: true
+            }, {
+              field: 'invoiceCode',
+              title: '发票代码',
+              width: '9%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'invoiceNum',
+              title: '发票号码',
+              width: '8%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'amount',
+              title: '报销金额',
+              width: '8%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'issuingOffice',
+              title: '发票开票单位',
+              width: '8%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'actualReimbursementAmount',
+              title: '实际报销金额',
+              width: '8%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'taxAmount',
+              title: '报销税额',
+              width: '8%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'totalAmount',
+              title: '价税合计金额',
+              width: '8%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'type',
+              title: '报销类目',
+              width: '14%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'remarks',
+              title: '备注',
+              width: '14%',
+              align: 'center',
+              unresize: true
+            }, {
+              field: 'title',
+              title: '发票图片',
+              unresize: true,
+              width: '6%',
+              align: 'center',
+              templet: '<div><img src="' + url + 'finance/fileDownload/{{d.id}}" width="100" height="100" style="width:30px;height:30px;" onclick="showBigImage(this)"/> </div>'
+            }
+            // ,{field: 'link',        title: '链接',        align:'center',unresize: true}
+            , {
+              fixed: 'right',
+              title: '操作',
+              width: '10%',
+              align: 'center',
+              toolbar: '#barDemo'
+            }
+          ]
+        ],
+        done: function(res) {
+
+        }
+      });
+
+      //监听头工具栏事件
+      table.on('toolbar(test)', function(obj) {
+        var checkStatus = table.checkStatus(obj.config.id),
+          data = checkStatus.data; //获取选中的数据
+        switch (obj.event) {
+          case 'register':
+            layer.open({
+              type: 2,
+              title: "添加发票",
+              skin: 'layui-layer-rim', //加上边框
+              area: ['100%', '100%'], //宽高
+              offset: '5px',
+              resize: false,
+              // content: "./addInvoice.html", //调到新的界面
+              content: "./addReimbursementForm.html", //调到新的界面
+              end: function() {
+                table.reload('invoiceTable', {
+                  page: {
+                    curr: 1
+                  },
+                  url: unprocessedInvoice,
+                  method: "get"
+                });
+              }
+            });
+            break;
+          case 'processed':
+            window.location.href = "./personalInvoiceProcessed.html";
+            return false;
+            break;
+          case 'unprocessed':
+            location.reload();
+            break;
+          case 'DIY_EXPORT':
+            if (data.length <= 0) {
+              alert("请选择至少一条记录进行导出");
+            } else {
+              table.exportFile(obj.config.id, data, 'xls');
+            }
+            break;
+        };
+      });
+
+      //监听行工具事件
+      table.on('tool(test)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+        var data = obj.data; //获得当前行数据
+        console.log(JSON.stringify(data)); //将对象转joson数据
+        layEvent = obj.event; //获得 lay-event 对应的值
+        if (layEvent === 'del') {
+          layer.confirm('真的删除行么', function(index) {
+            obj.del(); //删除对应行（tr）的DOM结构
+            layer.close(index);
+            //向服务端发送删除指令
+            // alert(getUrl);
+            var deleteStandardUrl = url + "finance/deleteInvoice"; //Tomcat中服务的地址和接口
+
+            let id = data.id;
+            //获取用户信息
+            var storage = window.localStorage;
+            var json = storage.getItem('userData');
+            var userData = JSON.parse(json);
+            let operatorId = userData.userId;
+
+            $.ajax({
+              url: deleteStandardUrl,
+              type: "post", // 采用post方法
+              dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+              contentType: 'application/json; charset=utf-8',
+              async: false,
+              // 获取id=loginForm的form表单中的参数
+              data: JSON.stringify({
+                "id": id,
+                "operatorId": operatorId
+              }),
+              // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+              success: function(result) {
+                if (result.code == 0) {
+                  alert(result.msg);
+                  table.reload('invoiceTable', {
+                    page: {
+                      curr: $(".layui-laypage-em").next().html()
+                    },
+                    url: unprocessedInvoice,
+                    method: "get"
+                  });
+
+                } else {
+                  alert(result.msg);
+                }
+
+              },
+              error: function() {
+                alert("服务器忙……请稍后重试！");
+              },
+
+            });
+          });
+        } else if (layEvent === 'edit') {
+          // var $this = $(this);
+          // var tr = $this.parents('tr');
+          // var trIndex = tr.data('index');
+          // let standardName = data.countryStandardName;
+          // var storage = window.localStorage;
+          // storage.setItem('standardNameData',JSON.stringify(standardName));
+          // storage.setItem('trIndex',JSON.stringify(data));
+          layer.open({
+            type: 2,
+            title: "修改发票",
+            skin: 'layui-layer-rim', //加上边框
+            area: ['450px', '630px'], //宽高
+            offset: '20px',
+            resize: false,
+            content: "./updateInvoice.html", //调到新的界面
+            success: function(layero, index) {
+              var id = layer.getChildFrame("#id", index);
+              id.val(data.id);
+
+              // var userName = layer.getChildFrame("#userName", index);
+              // userName.val(data.userName); //姓名
+
+              var invoiceDate = layer.getChildFrame("#invoiceDate", index);
+              invoiceDate.val(data.invoiceDate); //发票日期
+
+              var invoiceCode = layer.getChildFrame("#invoiceCode", index);
+              invoiceCode.val(data.invoiceCode); //发票代码
+
+              var invoiceNum = layer.getChildFrame("#invoiceNum", index);
+              invoiceNum.val(data.invoiceNum); //发票号码
+
+              var amount = layer.getChildFrame("#amount", index);
+              amount.val(data.amount); //发票金额
+
+              var issuingOffice = layer.getChildFrame("#issuingOffice", index);
+              issuingOffice.val(data.issuingOffice); //开票单位
+
+              var actualReimbursementAmount = layer.getChildFrame("#actualReimbursementAmount", index);
+              actualReimbursementAmount.val(data.actualReimbursementAmount); //实际发票金额
+
+              var taxAmount = layer.getChildFrame("#taxAmount", index);
+              taxAmount.val(data.taxAmount); //发票税额
+
+              var type = layer.getChildFrame("#type", index);
+              type.empty(); //清空下拉框
+
+              type.append("<option value=" + data.typeId + " selected='selected'>" + data.type + "</option>");
+
+              var remarks = layer.getChildFrame("#remarks", index);
+              remarks.val(data.remarks); //备注
+
+              var link = layer.getChildFrame("#filePath", index);
+              link.val(data.link); //图片路径
+              // var age = layer.getChildFrame("#age", index);
+              // age.val(data.age);
+              // if (data.sex === "男") {
+              //   var boy = layer.getChildFrame("#boy", index);
+              //   boy.attr("checked", "checked");
+              // } else {
+              //   var girl = layer.getChildFrame("#girl", index);
+              //   girl.attr("checked", "checked");
+              // }
+              // var phoneNum = layer.getChildFrame("#phoneNum", index);
+              // phoneNum.val(data.phoneNum);
+              //
+
+
+              //
+              // var post = layer.getChildFrame("#post", index);
+              // post.empty(); //清空下拉框
+              // post.append("<option value=" + data.postId + " selected='selected'>" + data.postName + "</option>");
+            },
+            end: function() {
+              table.reload('invoiceTable', {
+                page: {
+                  curr: $(".layui-laypage-em").next().html()
+                },
+                url: unprocessedInvoice,
+                method: "get"
+              });
+            }
+          });
+        }
+      });
+    });
+
+    //显示大图片
+    function showBigImage(e) {
+      layer.open({
+        type: 1,
+        title: false,
+        closeBtn: 0,
+        shadeClose: true, //点击阴影关闭
+        area: [$(e).width + 'px', $(e).height + 'px'], //宽高
+        content: "<img src=" + $(e).attr('src') + " />"
+      });
+    }
+  </script>
+</body>
+
+</html>

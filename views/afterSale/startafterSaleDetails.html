@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>查看详情</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        .layui-form-item {
+            display: inline-block;
+            width: 300px;
+        }
+        
+        .layui-input-inline {
+            width: 100px;
+        }
+        
+        .layui-form-label {
+            padding: 0;
+            margin-top: 9px;
+            margin-right: 9px;
+        }
+        
+        .layui-textarea {
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:100%">
+        <form id="afterSaleForm2" lay-filter="afterSaleForm2" class="layui-form model-form">
+            <div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">服务主题</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="afterSaleServiceTopic" id="afterSaleServiceTopic" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">服务分类</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="afterSaleServiceCategory" id="afterSaleServiceCategory" disabled class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">客户</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="customerName" id="customerName" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" id='Model'>服务产品</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="productName" id="productName" disabled class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" id='Model'>处理人员</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" id="userName" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">归属部门</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="departmentName" id="departmentName" disabled class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系人</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="contacts" id="contacts" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="contactNum" id="contactNum" disabled class="layui-input">
+                    </div>
+                </div>
+                <div>
+                    <!-- 数据表格 -->
+                    <div style="margin-left: 20px;">
+                        <table class="layui-hide" id="productTable" lay-filter="productTable"></table>
+                    </div>
+                    <div class="layui-form-item text-right" style="display: block;width: 100%;">
+                        <button class="layui-btn" type="button" ew-event="closeDialog">关闭</button>
+                    </div>
+        </form>
+        </div>
+
+        <script>
+            //重新设置页面大小
+            // resize();
+            function child(d) {
+                layui.use(['form', 'layedit', 'laydate', 'layer', 'table', 'element', 'admin', 'upload'], function() {
+                    var form = layui.form;
+                    var element = layui.element;
+                    var layer = layui.layer;
+                    var layedit = layui.layedit;
+                    var laydate = layui.laydate;
+                    var table = layui.table;
+                    $ = layui.jquery;
+                    $form = $('form');
+                    var admin = layui.admin;
+                    // 获取本地缓存
+                    var storage = window.localStorage;
+                    var userData = storage.getItem('userData');
+                    userData = JSON.parse(userData);
+                    var userId = userData.userId;
+                    let operatorId = userId;
+                    // $.ajax({
+                    //     url: getAllProductByName(),
+                    //     contentType: "application/json",
+                    //     type: 'post',
+                    //     data: JSON.stringify({
+                    //         "productName": d.productName,
+                    //         "customerId": d.customerId
+                    //     }),
+                    //     success: function(res) {
+                    //         table.render({
+                    //             elem: '#productTable',
+                    //             id: 'productTable',
+                    //             data: res.data,
+                    //             title: '产品表',
+                    //             page: true //开启分页
+                    //                 ,
+                    //             contentType: 'application/json; charset=utf-8',
+                    //             totalRow: false, //开启合计行
+                    //             loading: true,
+                    //             cols: [
+                    //                 [ //表头
+                    //                     {
+                    //                         type: 'checkbox',
+                    //                         fixed: 'left',
+                    //                         width: '5%',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'productId',
+                    //                         title: '编号',
+                    //                         width: '10%',
+                    //                         sort: true,
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'productLineName',
+                    //                         title: '产品线',
+                    //                         width: '10%',
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'equipmentName',
+                    //                         title: '设备类型',
+                    //                         width: '13%',
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'productSeriesName',
+                    //                         title: '产品系列',
+                    //                         width: '12%',
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'productModelName',
+                    //                         title: '产品型号',
+                    //                         width: '15%',
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'productCode',
+                    //                         title: '产品编码',
+                    //                         width: '15%',
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     }, {
+                    //                         field: 'productName',
+                    //                         title: '产品名称',
+                    //                         width: '21%',
+                    //                         align: 'center',
+                    //                         unresize: true
+                    //                     },
+                    //                 ]
+                    //             ],
+                    //             done: function() {}
+                    //         })
+                    //     }
+                    // })
+                });
+            }
+        </script>
+</body>
+
+</html>

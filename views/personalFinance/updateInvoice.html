@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>编辑发票信息</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        /* label > i{color: red} */
+        /* #btn_submit {
+      width: 100px;
+      height: 40px;
+      top: 95%;
+      left: 50%;
+      position: absolute;
+      transform: translate(-50%);
+    } */
+        /* #form{
+      width:100%;
+      height:100%;
+      text-align:center;
+      left: 50%;
+      position: absolute;
+      transform: translate(-50%);
+    } */
+        /* #invoice_code_num_msg{
+      width: 80%;
+      position: absolute;
+      top:5%;
+      left: 50%;
+      transform: translate(-50%);
+      text-align: center;
+    }
+    #invoice_date_issuing_office_msg{
+      width: 80%;
+      position: absolute;
+      left: 50%;
+      top:20%;
+      transform: translate(-50%);
+      text-align: center;
+    }
+    #invoice_amount_tax_msg{
+      width: 80%;
+      position: absolute;
+      left: 50%;
+      top:35%;
+      transform: translate(-50%);
+      text-align: center;
+    }
+    #invoice_actual_reimbursement_amount_type_msg{
+      width: 80%;
+      position: absolute;
+      left: 50%;
+      top:50%;
+      transform: translate(-50%);
+      text-align: center;
+      z-index:66;
+    }
+    #invoice_remarks_msg{
+      width: 80%;
+      position: absolute;
+      left: 50%;
+      top:65%;
+      transform: translate(-50%);
+      text-align: center;
+    }
+    #invoice_btn_msg{
+      width: 80%;
+      height:40px;
+      position: absolute;
+      left: 50%;
+      top:90%;
+      transform: translate(-50%);
+      text-align: center;
+    } */
+        
+        #invoice_btn_msg {
+            width: 80%;
+            height: 40px;
+            position: absolute;
+            left: 50%;
+            top: 83%;
+            transform: translate(-50%);
+            text-align: center;
+        }
+        
+        .layui-textarea {
+            min-height: 70px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">发票代码</label>
+            <div class="layui-input-inline">
+                <input id="invoiceCode" type="text/number" name="invoiceCode" required lay-verify="required" placeholder="请输入发票代码" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label layui-form-required">发票号码</label>
+            <div class="layui-input-inline">
+                <input type="text/number" id=invoiceNum name="invoiceNum" required lay-verify="required" placeholder="请输入发票号码" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">发票日期</label>
+            <div class="layui-input-inline">
+                <input type="text" name="invoiceDate" required lay-verify="required" placeholder="请输入发票日期" readonly autocomplete="off" class="layui-input" id="invoiceDate">
+            </div>
+
+            <label class="layui-form-label layui-form-required">开票单位</label>
+            <div class="layui-input-inline">
+                <input type="text/number" id=issuingOffice name="issuingOffice" required lay-verify="required" placeholder="请输入开票单位" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">发票金额</label>
+            <div class="layui-input-inline">
+                <input type="text/number" oninput="if(value.length>10)value=value.slice(0,10)" id=amount name="amount" required lay-verify="required" placeholder="请输入发票金额" autocomplete="off" class="layui-input">
+            </div>
+
+            <label class="layui-form-label layui-form-required">报销税额</label>
+            <div class="layui-input-inline">
+                <input type="text/number" oninput="if(value.length>10)value=value.slice(0,10)" id=taxAmount name="taxAmount" lay-verify="required" autocomplete="off" class="layui-input" required placeholder="请输入报销税额">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">实际报销</label>
+            <div class="layui-input-inline">
+                <input type="text/number" oninput="if(value.length>10)value=value.slice(0,10)" id=actualReimbursementAmount name="actualReimbursementAmount" required lay-verify="required" placeholder="请输入实际报销金额" autocomplete="off" class="layui-input">
+            </div>
+
+            <label class="layui-form-label layui-form-required">报销类目</label>
+            <div class="layui-input-inline">
+                <select id="type" name="typeId" lay-filter="type" lay-verify="required" required>
+      <option value=""></option>
+    </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">备注</label>
+            <div class="layui-input-block" style="width: 80%;">
+                <textarea id="remarks" name="remarks" placeholder="请输入备注" class="layui-textarea" title="请填写此字段" style="resize: none;"></textarea>
+            </div>
+        </div>
+        <div id="invoice_btn_msg" class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 110px;">发票图片上传</label>
+            <div class="layui-input-inline">
+                <button type="button" class="layui-btn layui-btn-radius" id="link"><i class="layui-icon"></i>上传图片</button>
+            </div>
+            <div class="layui-input-inline" style="width:50px;height: 50px;">
+                <div class="layui-upload-list" style="margin: 0;">
+                    <img class="layui-upload-img" width="50" height="50" id="preview_img" name="preview_img">
+                </div>
+            </div>
+            <button id="btn_submit" class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+        </div>
+
+    </form>
+    <!-- <form class="layui-form" action="">
+
+    <div id="invoice_code_num_msg" class="layui-form-item">
+
+      <label class="layui-form-label"><i>*&nbsp</i>发票代码</label>
+      <div class="layui-input-inline">
+        <input id="invoiceCode" type="text/number" name="invoiceCode" required lay-verify="required" placeholder="请输入发票代码" autocomplete="off" class="layui-input">
+      </div>
+      <label class="layui-form-label"><i>*&nbsp</i>发票号码</label>
+      <div class="layui-input-inline">
+        <input type="text/number" id=invoiceNum name="invoiceNum" required lay-verify="required" placeholder="请输入发票号码" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+
+    <div id="invoice_date_issuing_office_msg" class="layui-form-item">
+      <label class="layui-form-label"><i>*&nbsp</i>发票日期</label>
+      <div class="layui-input-inline">
+        <input type="text" name="invoiceDate" required lay-verify="required" placeholder="请输入发票日期" readonly autocomplete="off" class="layui-input" id="invoiceDate">
+      </div>
+
+      <label class="layui-form-label"><i>*&nbsp</i>开票单位</label>
+      <div class="layui-input-inline">
+        <input type="text/number" id=issuingOffice name="issuingOffice" required lay-verify="required" placeholder="请输入开票单位" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+
+    <div id="invoice_amount_tax_msg" class="layui-form-item">
+      <label class="layui-form-label"><i>*&nbsp</i>发票金额</label>
+      <div class="layui-input-inline">
+        <input type="text/number" oninput="if(value.length>10)value=value.slice(0,10)" id=amount name="amount" required lay-verify="required" placeholder="请输入发票金额" autocomplete="off" class="layui-input">
+      </div>
+
+      <label class="layui-form-label"><i>*&nbsp</i>报销税额</label>
+      <div class="layui-input-inline">
+        <input type="text/number" oninput="if(value.length>10)value=value.slice(0,10)" id=taxAmount name="taxAmount" lay-verify="required" autocomplete="off" class="layui-input" required placeholder="请输入报销税额">
+      </div>
+    </div>
+
+    <div id="invoice_actual_reimbursement_amount_type_msg" class="layui-form-item">
+      <label class="layui-form-label"><i>*&nbsp</i>实际报销</label>
+      <div class="layui-input-inline">
+        <input type="text/number" oninput="if(value.length>10)value=value.slice(0,10)" id=actualReimbursementAmount name="actualReimbursementAmount" required lay-verify="required" placeholder="请输入实际报销金额" autocomplete="off" class="layui-input">
+      </div>
+
+      <label class="layui-form-label"><i>*&nbsp</i>报销类目</label>
+      <div class="layui-input-inline">
+        <select id="type" name="typeId" lay-filter="type" lay-verify="required" required>
+          <option value=""></option>
+        </select>
+      </div>
+    </div>
+
+    <div id="invoice_remarks_msg" class="layui-form-item">
+      <label class="layui-form-label">备注</label>
+      <div class="layui-input-block">
+        <textarea id="remarks" name="remarks" placeholder="请输入备注" class="layui-textarea" title="请填写此字段" style="resize: none;"></textarea>
+      </div>
+    </div>
+
+    <div id="invoice_btn_msg" class="layui-form-item">
+      <label class="layui-form-label" style="width: 110px;"><i>*&nbsp</i>发票图片上传</label>
+      <div class="layui-input-inline">
+        <input type="hidden" id="filePath" name="filePath" class="layui-input">
+        <button type="button" class="layui-btn layui-btn-radius" id="link"><i class="layui-icon"></i>上传图片</button>
+      </div>
+      <div class="layui-input-inline">
+        <div class="layui-upload-list">
+          <img class="layui-upload-img" width="30" height="30" id="preview_img" name="preview_img">
+        </div>
+      </div>
+      <div class="layui-input-inline">
+        <button id="btn_submit" class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+      </div>
+    </div>
+
+  </form> -->
+
+    <script>
+        //重新设置页面大小
+        // resize();
+        //Demo
+        var url = getUrl();
+        //最终回调的发票信息
+        var invoiceMsg;
+        //最终回调发票图片的链接
+        var iconResult;
+        var type;
+        var typeId;
+        //图片路径，标记该条数据唯一；用于传值并更新
+        var link;
+        //跳转类型
+        var jumpType;
+        //当前发票的id
+        var invoiceId;
+        //存在报销单时，存放报销单的ID
+        var reimbursementId;
+        //更新报销单中发票的信息的URL
+        var updateInvoiceUrl = url + "finance/updateInvoices";
+        layui.use(['form', 'layedit', 'laydate', 'table', 'upload'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                table = layui.table,
+                upload = layui.upload,
+                $ = layui.$;
+
+            lay('#invoiceDate').on('click', function(e) { //假设 test1 是一个按钮
+                laydate.render({
+                    elem: '#invoiceDate',
+                    show: true //直接显示
+                        ,
+                    showBottom: false
+                        // ,min: -89
+                        // ,max: 0
+                });
+            });
+            var uploadImages = url + "knowledge/uploadFile";
+            upload.render({
+                elem: '#link',
+                url: uploadImages,
+                size: 1024 * 50,
+                accept: 'images',
+                before: function(obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result) {
+                        $('#preview_img').attr('src', result); //图片链接（base64）
+                        iconResult = result;
+                    });
+                },
+                done: function(res) {
+                    var storage = window.localStorage;
+                    storage.setItem('uploadData', JSON.stringify(res));
+                    layer.msg("图片上传成功");
+                }
+            });
+
+            //获取报销类目选中的值
+            form.on('select(type)', function(data) {
+                type = data.elem[data.elem.selectedIndex].text;
+            });
+
+            //监听提交
+            form.on('submit(formDemo)', function(data) {
+                var addInvoiceUrl = url + "finance/addInvoice"; //Tomcat中服务的地址和接口
+                let invoiceDate = data.field.invoiceDate;
+                let invoiceCode = data.field.invoiceCode;
+                var checkinvoiceCode = /^[0-9]\d*$/;
+                if (checkinvoiceCode.test(invoiceCode) == false) {
+                    alert("发票代码为只能输入数字");
+                    return false;
+                }
+                let invoiceNum = data.field.invoiceNum;
+                var checkinvoiceNum = /^[0-9]\d*$/;
+                if (checkinvoiceNum.test(invoiceNum) == false) {
+                    alert("发票号码只能输入数字");
+                    return false;
+                }
+                let amount = data.field.amount;
+                if (amount <= 0) {
+                    alert("发票金额为大于0的数值");
+                    return false;
+                }
+
+                var checkamount = /^(?!0+(?:\.0+)?$)(?:[1-9]\d*|0)(?:\.\d{1,2})?$/; // /^\d+(\.\d{0,2})?$/
+                if (checkamount.test(amount) == false) {
+                    alert("发票金额为非负数并只能输入两位小数");
+                    return false;
+                }
+                let actualReimbursementAmount = data.field.actualReimbursementAmount;
+                if (actualReimbursementAmount <= 0) {
+                    alert("实际报销金额为大于0的数值");
+                    return false;
+                }
+                var checkactualReimbursementAmount = /^(?!0+(?:\.0+)?$)(?:[1-9]\d*|0)(?:\.\d{1,2})?$/; // /^\d+(\.\d{0,2})?$/
+                if (checkactualReimbursementAmount.test(actualReimbursementAmount) == false) {
+                    alert("实际报销金额为非负数并只能输入两位小数");
+                    return false;
+                }
+                let taxAmount = data.field.taxAmount;
+                var checktaxAmount = /(^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$)/;
+                if (checktaxAmount.test(taxAmount) == false) {
+                    alert("报销税额只能输入数字或两位小数");
+                    return false;
+                }
+
+                let issuingOffice = data.field.issuingOffice;
+                if (issuingOffice.length > 20) {
+                    alert("开票输入最大数值为20位哦");
+                    return false;
+                }
+                let typeId = data.field.typeId;
+                let remarks = data.field.remarks;
+                if (remarks.length > 100) {
+                    alert("备注输入最大数值为100位哦");
+                    return false;
+                }
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                let userId = userData.userId;
+                var uploadData = storage.getItem('uploadData');
+                uploadData = JSON.parse(uploadData);
+                let filePath = uploadData.data.filePath;
+                var totalAmount = parseFloat(amount) + parseFloat(taxAmount);
+
+                if (parseFloat(actualReimbursementAmount) > parseFloat(totalAmount)) {
+                    alert("实际报销金额不能大于价税合计金额(价税合计金额=发票金额+报销税额)");
+                    return false;
+                }
+
+                var invoiceMsg = {
+                    "userId": userId,
+                    "invoiceDate": invoiceDate,
+                    "invoiceCode": invoiceCode,
+                    "invoiceNum": invoiceNum,
+                    "amount": amount,
+                    "issuingOffice": HTMLEncode(issuingOffice),
+                    "actualReimbursementAmount": actualReimbursementAmount,
+                    "taxAmount": taxAmount,
+                    "totalAmount": totalAmount,
+                    "typeId": typeId,
+                    "type": type,
+                    "remarks": HTMLEncode(remarks),
+                    "link": filePath,
+                    "reimbursementStatus": 1,
+                    "operatorId": userId,
+                    "iconResult": iconResult
+                };
+                if (jumpType == 1) {
+                    //向父页面传值，并关闭该页面
+                    parent.updateInvoiceMsg(invoiceMsg, link);
+                    parent.layer.closeAll();
+                } else {
+                    $.ajax({
+                        url: updateInvoiceUrl,
+                        type: "post", // 采用post方法
+                        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                        contentType: 'application/json; charset=utf-8',
+                        async: true,
+                        // 获取id=loginForm的form表单中的参数
+                        data: JSON.stringify({
+                            "reimbursementId": reimbursementId,
+                            "operatorId": userId,
+                            "invoiceModels": [{
+                                "id": invoiceId,
+                                "userId": userId,
+                                "invoiceDate": invoiceDate,
+                                "invoiceCode": invoiceCode,
+                                "invoiceNum": invoiceNum,
+                                "amount": amount,
+                                "issuingOffice": HTMLEncode(issuingOffice),
+                                "actualReimbursementAmount": actualReimbursementAmount,
+                                "taxAmount": taxAmount,
+                                "totalAmount": totalAmount,
+                                "typeId": typeId,
+                                "remarks": HTMLEncode(remarks),
+                                "link": filePath,
+                                "reimbursementStatus": 1,
+                                "operatorId": userId
+                            }]
+                        }),
+                        // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                        success: function(result) {
+                            if (result.code == 0) {
+                                //关闭图层
+                                alert(result.msg);
+                                //先取到该子页面在父级页面中的name 值
+                                var index = parent.layer.getFrameIndex(Window.name);
+                                //然后用该方法关闭
+                                parent.layer.closeAll();
+                            } else {
+                                alert(result.msg);
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                }
+                return false;
+            });
+
+            var typeUrl = url + "finance/type";
+            //js
+            $.ajax({
+                url: typeUrl,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        if (item.id == typeId) {
+                            $('#type').append('<option selected="selected" value="' + item.id + '">' + item.name + '</option>');
+                        } else {
+                            $('#type').append(new Option(item.name, item.id)); //往下拉菜单里添加元素
+                        }
+                    });
+                    // 关键
+                    form.render();
+                }
+            })
+        });
+
+        //接收父级页面传值
+        function child(data) {
+            jumpType = data.jumpType;
+            reimbursementId = data.reimbursementId;
+            invoiceId = data.id;
+            type = data.type;
+            typeId = data.typeId;
+            link = data.link;
+            $("input[name='invoiceDate']").val(data.invoiceDate);
+            $("input[name='invoiceCode']").val(data.invoiceCode);
+            $("input[name='invoiceNum']").val(data.invoiceNum);
+            $("input[name='amount']").val(data.amount);
+            $("input[name='issuingOffice']").val(HTMLDecode(data.issuingOffice));
+            $("input[name='actualReimbursementAmount']").val(data.actualReimbursementAmount);
+            $("input[name='taxAmount']").val(data.taxAmount);
+            $("textarea[name='remarks']").val(HTMLDecode(data.remarks));
+            $("input[name='filePath']").val(data.link);
+            if (jumpType == 1) {
+                $("img[name='preview_img']").attr('src', data.iconResult);
+                iconResult = data.iconResult;
+            } else {
+                $("img[name='preview_img']").attr('src', url + 'finance/fileDownload/' + data.id);
+            }
+        }
+    </script>
+</body>
+
+</html>

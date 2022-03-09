@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html" charset="utf-8">
+  <title>无锡创想仪器</title>
+
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=M6Fxdp0BDnVRF6lh55IpTzH3mg18tU45">
+    //v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
+    //v1.4版本及以前版本的引用方式：src="http://api.map.baidu.com/api?v=1.4&key=您的密钥&callback=initialize"
+  </script>
+
+  <!--接下来引入JQuery最小版本的库文件  -->
+  <!-- <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+  <!-- 引入自定义的css文件 -->
+  <link rel="stylesheet" href="../css/index.css" type="text/css">
+
+  <script type="text/javascript" src="../js/index.js"></script>
+
+  <script type="text/javascript">
+    $(function(){
+      var thisTime;
+      $('.nav-ul li').mouseleave(function(even){
+        thisTime = setTimeout(thisMouseOut,1000);
+      })
+
+      $('.nav-ul li').mouseenter(function() {
+        clearTimeout(thisTime);
+        var thisUB = $('.nav-ul li').index($(this));
+        if($.trim($('.nav-slide-o').eq(thisUB).html()) != ""){
+          $('.nav-slide').addClass('hover');
+          $('.nav-slide-o').hide();
+          $('.nav-slide-o').eq(thisUB).show();
+        }else{
+          $('.nav-slide').removeClass('hover');
+        }
+      })
+
+      function thisMouseOut(){
+        $('.nav-slide').removeClass('hover');
+      }
+
+      $('.nav-slide').mouseenter(function() {
+        clearTimeout(thisTime);
+        $('.nav-slide').addClass('hover');
+      })
+
+      $('.nav-slide').mouseleave(function() {
+        $('.nav-slide').removeClass('hover');
+      })
+    })
+  </script>
+
+</head>
+
+<body>
+
+  <!-- 右侧内容切换 -->
+  <div id="right" class="wrap">
+
+  </div>
+
+  <div class="nav-main">
+    <div class="nav-box">
+      <div class="nav">
+        <ul class="nav-ul">
+          <li><a href="javascript:;" class="home" onclick=""><span>首页</span></a></li>
+          <li><a href="#" class="customerManager"><span>客户管理</span></a></li>
+          <li><a href="#" class="update"><span>版本更新</span></a></li>
+          <li><a href="#" class="config"><span>配置</span></a></li>
+          <li><a href="#" class="about"><span>关于</span></a></li>
+        </ul>
+      </div>
+
+      <div class="nav-slide">
+        <div class="nav-slide-o"></div>
+        <!-- 客户管理二级菜单 -->
+        <div class="nav-slide-o">
+          <ul>
+            <li><a class="addCustomerLocation" onclick="loadPage('./inputCustomerLocationMsg.html')"><span>添加客户地理位置</span></a></li>
+            <li><a href="#" class="updateCustomerLocation" ><span>修改客户地理位置</span></a></li>
+            <li><a href="#" class="deleteCustomer"><span>删除客户</span></a></li>
+          </ul>
+        </div>
+        <div class="nav-slide-o"></div>
+        <div class="nav-slide-o"></div>
+        <div class="nav-slide-o"></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>国标库</title>
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        #eDialogInfoDialog .layui-form-item {
+            margin-left: 20px;
+        }
+        
+        .layui-btn-container {
+            width: 500px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 表格工具栏 -->
+    <form class="layui-form" action="" style="margin:20px 0">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">国标编号:</label>
+                <div class="layui-input-inline">
+                    <input name="countryStandardName" autocomplete="off" id="countryStandardName" class="layui-input" placeholder="输入国标名称" />
+                </div>
+            </div>
+            <div class="layui-inline">&emsp;
+                <button id="53" class="layui-btn icon-btn query" lay-filter="userTbSearch" lay-submit style="display:none">
+					<i class="layui-icon">&#xe615;</i>搜索
+				</button>
+            </div>
+        </div>
+        <div>
+            <h2 style="text-align: center;">国标库表</h2>
+            <table class="layui-table" id="countryStandardTable" lay-filter="test" lay-data="{id:'idTest'}" style="margin-top: 80px;"></table>
+        </div>
+        <script type="text/html" id="file">
+            <button id="handout_wrap_inner" class="layui-btn layui-btn-primary layui-border-blue" onclick="openPdf('{{d.id}}')">{{d.fileName}} </button>
+        </script>
+    </form>
+    <script type="text/html" id="barDemo">
+        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='124' ){ }} <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="detail">查看详情</a> {{# } }} {{# if(l_ist[i]=='125' ){ }}
+            <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a> {{# } }} {{# } }}
+    </script>
+    <script type="text/html" id="add">
+        <a id="35" class="layui-btn" lay-event="add" style="text-align: center; margin-left: 1%">添加</a>
+    </script>
+    <script>
+        //文件下载
+        function openPdf(id) {
+            window.open(fileDownloadUrl() + '/' + id);
+            return;
+        }
+    </script>
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var json = storage.getItem('auth');
+        var authData = JSON.parse(json);
+        //用户权限判断
+        $('#53').hide();
+        var l_ist = userData.permissionId;
+        for (var i = 0; i < l_ist.length; i++) {
+            var item = l_ist[i];
+            if (l_ist[i] == 53) {
+                $('#53').show();
+            }
+        }
+        layui.use(['layer', 'upload', 'admin', 'laytpl', 'form', 'layedit', 'laydate', 'table', 'element'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                admin = layui.admin,
+                laytpl = layui.laytpl,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                table = layui.table,
+                upload = layui.upload,
+                element = layui.element;
+            $ = layui.jquery;
+            $form = $('form');
+            //添加事件
+            table.on('toolbar(test)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'add':
+                        layer.open({
+                            type: 2,
+                            title: "添加国标",
+                            skin: 'layui-layer-rim',
+                            area: ['500px', '250px'],
+                            offset: 'auto',
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: "./addCountryStandard.html",
+                            success: function(layero, index) {
+                                var data = obj.data;
+                            },
+                            end: function() {
+                                table.reload("countryStandardTable", {
+                                    page: {
+                                        curr: $("#countryStandardTable .layui-laypage-em").next().html()
+                                    },
+                                    url: selectCountryStandardUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            //操作栏事件
+            table.on('tool(test)', function(obj) {
+                var data = obj.data;
+                var layEvent = obj.event;
+                var storage = window.localStorage;
+                storage.setItem('elemData', JSON.stringify(data));
+                if (layEvent === 'detail') {
+                    layer.open({
+                        type: 2,
+                        title: "查看详情",
+                        skin: 'layui-layer-rim',
+                        area: ['600px', '340px'],
+                        offset: 'auto',
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: "./detail.html",
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#id", index);
+                            roleId.val(obj.data.id);
+                            var roleId = layer.getChildFrame("#countryStandard", index);
+                            roleId.val(obj.data.countryStandardName);
+                            var roleId = layer.getChildFrame("#fileName", index);
+                            roleId.val(obj.data.fileName);
+                            var roleId = layer.getChildFrame("#filePath", index);
+                            roleId.val(obj.data.filePath);
+                        },
+                    });
+                } else if (layEvent == 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: "修改国标编号",
+                        skin: 'layui-layer-rim',
+                        area: ['600px', '370px'],
+                        offset: 'auto',
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: "./editor.html",
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#id", index);
+                            roleId.val(obj.data.id);
+                            var roleId = layer.getChildFrame("#countryStandardName", index);
+                            roleId.val(obj.data.countryStandardName);
+                            var roleId = layer.getChildFrame("#fileName", index);
+                            roleId.val(obj.data.fileName);
+                            var roleId = layer.getChildFrame("#filePath", index);
+                            roleId.val(obj.data.filePath);
+                        },
+                        end: function() {
+                            table.reload("countryStandardTable", {
+                                page: {
+                                    curr: $("#countryStandardTable .layui-laypage-em").next().html()
+                                },
+                                url: selectCountryStandardUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                }
+            });
+            //监听Tab切换
+            element.on('tab(demo)', function(data) {
+                layer.tips('切换了 ' + data.index + '：' + this.innerHTML, this, {
+                    tips: 1
+                });
+            });
+            // 搜索
+            form.on('submit(userTbSearch)', function(data) {
+                // 去空格
+                var s = $('#countryStandardName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#countryStandardName').val(result);
+                let countryStandardName = data.field.countryStandardName;
+                table.reload('countryStandardTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: selectCountryStandardUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        countryStandardName: HTMLEncode(result)
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            // 表格渲染
+            table.render({
+                elem: '#countryStandardTable',
+                id: 'countryStandardTable',
+                title: '用户表',
+                toolbar: '#add',
+                method: "post",
+                url: selectCountryStandardUrl(),
+                async: true,
+                dataType: "JSON",
+                contentType: 'application/json; charset=utf-8',
+                defaultToolbar: ['filter', {
+                    title: '导出',
+                    layEvent: 'DIY_EXPORT',
+                    icon: 'layui-icon-export'
+                }],
+                where: {
+                    isPage: true
+                },
+                page: true,
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left'
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '10%',
+                        fixed: 'left'
+                    }, {
+                        field: 'id',
+                        title: '国标ID',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'countryStandardName',
+                        title: '国标编号',
+                        width: '25%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'fileName',
+                        title: '文件名称',
+                        width: '30%',
+                        unresize: true,
+                        align: 'center',
+                        toolbar: '#file',
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '20%',
+                        toolbar: '#barDemo',
+                        align: 'center',
+                        unresize: true
+                    }]
+                ],
+                done: function() {
+
+                },
+            });
+
+        });
+    </script>
+</body>
+
+</html>

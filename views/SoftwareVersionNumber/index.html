@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>软件版本号</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/element.js?v=318"></script>
+    <style>
+        /* @media screen and (min-width:1080px) {
+            body {
+                background-color: red;
+            }
+        }   
+        @media screen and (min-width:1600px) {
+            body {
+                background-color: yellow;
+            }
+        } */
+    </style>
+</head>
+
+<body>
+    <!-- 选项卡 -->
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <form id="indexForm" lay-filter="indexForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 60px;">版本号</label>
+                        <div class="layui-input-inline">
+                            <input type="text" autocomplete="off" name="numberingRuleName" id="numberingRuleName" placeholder="请输入软件版本号" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 60px;" id='Model'>负责人</label>
+                        <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                            <select id="principal" name="principal" lay-search="" lay-filter="principal">
+                   <option value="">请选择</option>
+                </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 80px;">发布时间</label>
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input name="loginRecordDateSel" class="layui-input icon-date" style="width: 200px;" placeholder="选择日期范围" autocomplete="off" />
+                        </div>
+                    </div>
+                    <button class="layui-btn" style="margin-left: 30px;" lay-filter="numberingRuleSearch" lay-submit data-type="reload">查询</button>
+                    <a class="layui-btn form-search-expand" style="font-size: 18px;" search-expand>
+                        展开 <i class="layui-icon layui-icon-down"></i></a>
+                    <div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;margin-top: 10px;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;" id='Model'>产品系列</label>
+                            <div class="layui-input-block" style="width: 182px; margin-left: 0px;display: inline-block;">
+                                <select id="productLine" name="productLine" lay-search="" lay-filter="productLine">
+                                       <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;margin-top: 10px;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">版本代号</label>
+                            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                                <select id="DialogproductCode" name="DialogproductCode" lay-search="" lay-filter="DialogproductCode">
+                                      <option value=""></option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 数据表格 -->
+                    <div>
+                        <table class="layui-table" id="numberingRuleTable" lay-filter="numberingRuleTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 有效无效-->
+                    <script type="text/html" id="Valid">
+                        <input type="checkbox" name="ValidisValidity" mid={{d.id}} softwareVersion={{d.softwareVersion}} lay-filter="ValidisValidity" value="{{d.isValidity}}" lay-skin="switch" lay-text="有效|无效" {{d.isValidity==true ? 'checked' : '' }}>
+                    </script>
+                    <script type="text/html" id="ZipFile">
+                        <button id="handout_wrap_inner" class="layui-btn layui-btn-primary layui-border-blue" onclick="ZipFile('{{d.id}}','{{d.fileName}}')">{{d.fileName}} </button>
+                    </script>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="numberingRuleTbBar">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='170' ){ }}<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="upgrade">升级</a> {{# } }} {{# if(l_ist[i]=='171' ){ }}
+                            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="uploadZip">上传</a> {{# } }} {{# if(l_ist[i]=='172' ){ }}
+                            <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a> {{# } }} {{# if(l_ist[i]=='173' ){ }}
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a> {{# } }}{{# } }}
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="addnumberingRule">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='158' ){ }}<a class="layui-btn layui-btn" lay-event="addnumberingRule">添加</a> {{# } } }}
+                            <span style="margin-left: 50%; text-align: center;font-size: 18px;">软件的版本号表</span>
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var l_ist = userData.permissionId;
+        //文件压缩包下载
+        for (var i = 0; i < l_ist.length; i++) {
+            if (l_ist[i] == '174') {
+                function ZipFile(id, fileName) {
+                    if (fileName == '') {
+                        alert('请先上传文件');
+                    } else {
+                        window.open(downloadSoftwareFileUrl() + id);
+                        return;
+                    }
+                }
+            } else {
+                function ZipFile() {
+                    alert('您没有此权限！')
+                }
+            }
+        }
+    </script>
+    <script>
+        layui.use(['laydate', 'laypage', 'layer', 'table', 'element', 'admin', 'form'], function() {
+            var table = layui.table,
+                laypage = layui.laypage,
+                element = layui.element,
+                excel = layui.ecxel;
+            var admin = layui.admin;
+            var layer = layui.layer;
+            var laydate = layui.laydate;
+            var form = layui.form;
+            $ = layui.jquery;
+            $form = $('form');
+            //获取用户信息
+            var storage = window.localStorage;
+            var json = storage.getItem('userData');
+            var userData = JSON.parse(json);
+            var userId = userData.userId;
+            let operatorId = userId;
+            /* 渲染时间选择 */
+            laydate.render({
+                elem: 'input[name="loginRecordDateSel"]',
+                type: 'date',
+                range: true,
+                trigger: 'click'
+            });
+            // 正则验证
+            form.verify({
+                    productCode: function(value, item) {
+                        if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                            return '产品编码不能有特殊字符';
+                        }
+                        if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                            return '产品编码首尾不能出现下划线\'_\'';
+                        }
+                        if (/^\d+\d+\d$/.test(value)) {
+                            return '产品编码不能全为数字';
+                        }
+                        if (!/^.{1,20}$/.test(value)) {
+                            return '产品编码最多输入20位';
+                        }
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '产品编码不能输入空格哦!';
+                        }
+                    },
+                    productName: function(value, item) {
+                        if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                            return '产品名称不能有特殊字符';
+                        }
+                        if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                            return '首尾不能出现下划线\'_\'';
+                        }
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '产品名称不能输入空格哦!';
+                        }
+                        if (!/^.{1,20}$/.test(value)) {
+                            return '产品名称最多20位哦!';
+                        }
+                    }
+                })
+                //软件的版本号表
+            table.render({
+                elem: '#numberingRuleTable',
+                id: 'numberingRuleTable',
+                title: '软件的版本号表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#addnumberingRule',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllSoftwareVersionUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                parseData: function(res) {
+                    var arr = res.data
+                    for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].fileName == null) {
+                            arr[i].fileName = '';
+                        }
+                    }
+                },
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'softwareVersion',
+                        title: '版本号',
+                        width: '12%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '发布日期',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'personInChargeName',
+                        title: '负责人',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'participantsName',
+                        title: '参与人',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'operatorName',
+                        title: '操作人',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'fileName',
+                        title: 'ZIP文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#ZipFile'
+                    }, {
+                        field: 'isValidity',
+                        title: '有效无效',
+                        templet: '#Valid',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '22%',
+                        align: 'center',
+                        toolbar: '#numberingRuleTbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function(res) {},
+
+            });
+            var area = [];
+            if (window.screen.width > 1360 && window.screen.width < 1920) {
+                area = ['450px', '440px'];
+            } else if (window.screen.width >= 1920) {
+                area = ['450px', '450px'];
+            }
+            /* 添加版本号*/
+            table.on('toolbar(numberingRuleTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'addnumberingRule':
+                        layer.open({
+                            type: 2,
+                            title: '添加版本号',
+                            skin: 'layui-layer-rim',
+                            area: area,
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./addVersion.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("numberingRuleTable", {
+                                    page: {
+                                        curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllSoftwareVersionUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            /* 修改版本号 */
+            table.on('tool(numberingRuleTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改版本号',
+                        skin: 'layui-layer-rim',
+                        area: area,
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editorVersion.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#productSeriesName", index);
+                            roleId.val(obj.data.productSeriesName);
+                            var roleId = layer.getChildFrame("#majorMinorVersion", index);
+                            roleId.val(obj.data.majorMinorVersion);
+                            var roleId = layer.getChildFrame("#principal", index);
+                            roleId.val(obj.data.personInCharge);
+                            var roleId = layer.getChildFrame("#softwareName", index);
+                            roleId.val(obj.data.softwareName);
+                            var roleId = layer.getChildFrame("#description", index);
+                            roleId.val(obj.data.functionDescription);
+                            var roleId = layer.getChildFrame("#scope", index);
+                            roleId.val(obj.data.scopeOfApplication);
+                            var roleId = layer.getChildFrame("#path", index);
+                            roleId.val(obj.data.sourceCodePath);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllSoftwareVersionUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'upgrade') {
+                    layer.open({
+                        type: 2,
+                        title: ' 升级软件版本号',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '350px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./upgrade.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllSoftwareVersionUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'uploadZip') {
+                    layer.open({
+                        type: 2,
+                        title: '上传软件版本号压缩文件',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '320px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./ZipUploadProductline.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#softwareVersion", index);
+                            roleId.val(obj.data.softwareVersion);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllSoftwareVersionUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'del') {
+                    deleteMechanics(obj);
+                }
+            });
+            //开关事件(status是lay-filter中的status，注意区别)
+            form.on('switch(ValidisValidity)', function(obj) {
+                // 通过属性获取绑定的id值
+                var id = $(this).attr('mid');
+                // 判断开关的状态
+                var isValidity = obj.elem.checked ? "true" : "false";
+                $.ajax({
+                    url: updateSoftwareVersionValidUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    data: JSON.stringify({
+                        'isValidity': isValidity,
+                        'operatorId': operatorId,
+                        'id': id
+                    }),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2
+                            });
+                        }
+                    }
+
+                })
+            });
+            // 搜索
+            form.on('submit(numberingRuleSearch)', function(data) {
+                if (data.field.loginRecordDateSel) {
+                    var searchDate = data.field.loginRecordDateSel.split(' - ');
+                    data.field.releaseDateStart = searchDate[0];
+                    data.field.releaseDateEnd = searchDate[1];
+                } else {
+                    data.field.releaseDateStart = '';
+                    data.field.releaseDateEnd = '';
+                }
+                // 去空格
+                var s = $('#numberingRuleName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#numberingRuleName').val(result);
+                table.reload('numberingRuleTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllSoftwareVersionUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "releaseDateStart": data.field.releaseDateStart,
+                        "releaseDateEnd": data.field.releaseDateEnd,
+                        "productSeriesId": data.field.productLine,
+                        'majorMinorVersion': data.field.DialogproductCode,
+                        'personInCharge': data.field.principal,
+                        'softwareVersion': result,
+                        'operatorId': operatorId
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            /* 删除软件版本号*/
+            function deleteMechanics(obj) {
+                layer.confirm('要删除选中的软件版本号吗？', {
+                        btn: ['确定', '取消']
+                    },
+                    function(index) {
+                        $.ajax({
+                            url: deleteSoftwareVersionUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            async: false,
+                            data: JSON.stringify({
+                                'operatorId': operatorId,
+                                'id': obj.data.id
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    layer.msg(result.msg, {
+                                        icon: 1
+                                    });
+                                    obj.del();
+                                    layer.close(index);
+                                    table.reload('productTable', {
+                                        page: {
+                                            curr: $("#productTable .layui-laypage-em").next().html()
+                                        },
+                                        url: getAllSoftwareVersionUrl(),
+                                        method: "post",
+                                        contentType: 'application/json; charset=utf-8',
+                                        where: {
+                                            isPage: true
+                                        }
+                                    });
+                                } else {
+                                    layer.msg(result.msg, {
+                                        icon: 2
+                                    });
+                                }
+                            }
+                        });
+
+                    },
+                    function(index) {
+                        layer.close(index);
+                    }
+                );
+            }
+            //版本号
+            var arr1 = new Array(10);
+            for (var i = 1; i < arr1.length; i += 0.1) {
+                arr1[i] = i;
+                var item = arr1[i].toFixed(1);
+                $("#DialogproductCode").append("<option value=" + item + ">" + item + "</option>");
+                form.render();
+            }
+            // 初始化产品系列
+            $.ajax({
+                    url: getAllMechanicsProductCodesUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        isPage: false
+                    }),
+                    success: function(res) {
+                        if (res.code == 0) {
+                            var arr = res.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#productLine").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                }
+                            } else {
+                                $("#productLine").empty();
+                                $("#productLine").append("<option value=''>请先创建产品线</option>");
+                            }
+                            form.render();
+                        }
+
+                    }
+                })
+                //负责人初始化
+            $.ajax({
+                url: getAllUserUrl(),
+                type: "post",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    isPage: false
+                }),
+                success: function(result) {
+                    if (result.code == 0) {
+                        var arr = result.data;
+                        if (arr.length > 0) {
+                            for (var i = 0; i < arr.length; i++) {
+                                var item = arr[i];
+                                $("#principal").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                            }
+                        }
+                    } else {
+                        $("#principal").empty();
+                        $("#principal").append("<option value=''>没有选项</option>");
+                    }
+                    form.render();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

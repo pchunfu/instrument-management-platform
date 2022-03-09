@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>查看详情</title>
+
+  <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+  <style>
+    body {
+      margin: 10px;
+      width:99%;
+      min-width:1600px;
+      margin-top: 5px;
+    }
+    .layui-form-label {
+      width:80px;
+
+    }
+    .layui-input-block {
+      margin: 30px  450px;
+    }
+    .layui-form-item {
+      margin-left: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <script type="text/html" id="bardemo">
+  <table class="layui-hide" id="personalInvoice" lay-filter="test" style="margin-top: 80px;"></table>
+  <button class="layui-btn layui-btn-radius layui-btn-primary" lay-event="unprocessed">返回</button>
+  </script> -->
+  <form id="form" class="layui-form" action="">
+
+    <div class="layui-form-item" style="margin:0px 100px">
+      <button type="button" id="back" class="layui-btn layui-btn-sm"><i class="layui-icon"></i>返回</button>
+    </div>
+    <div class="layui-form-item" style="margin:30px 700px">
+      <a href="javascript:void(0)" style="color:#72040c">产品信息</a>
+    </div>
+
+    <div class="layui-form-item" style="margin-left:60px">
+      <label class="layui-form-label">样品类型</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="sampleType" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">二级分类</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="sampleTwoLevelType" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">国别</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="countryType" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">样品状态</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="sampleStatus" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-form-item" style="margin-left:60px">
+      <label class="layui-form-label">价格</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="price" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">样品编号</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="sampleCode" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">牌号及名称</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="brandName" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">单点或套标</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="sampleUnit" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-form-item" style="margin-left:60px">
+      <label class="layui-form-label">样品规格</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="sampleSpec" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">销售说明</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="saleInfo" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">证书</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="certificate" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+      <label class="layui-form-label">制造商</label>
+      <div class="layui-input-inline" id="qq">
+        <input type="text" id="manufacturer" lay-verify="title" disabled autocomplete="off" placeholder="" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-form-item" style="margin-left:60px">
+
+      <!-- </div>
+    <script type="text/html" id="barDemo">
+      <a class="layui-btn layui-btn-sm " lay-event="detail">查看详情</a>
+    </script> -->
+
+      <HR>
+      <div class="list-container" id="list-container" style="margin:15px 80px">
+
+      </div>
+
+      </script>
+  </form>
+
+  <script>
+    resize();
+    layui.use(['form', 'table'], function() {
+      var form = layui.form,
+        layer = layui.layer,
+        table = layui.table,
+        $ = layui.jquery;
+
+      $(function() {
+        $("#back").click(function() {
+          window.location.href = "../sample/sampleLibrary.html";
+          return false;
+        })
+      })
+
+      var storage = window.localStorage;
+      var elemList = storage.getItem('elemData');
+      elemList = JSON.parse(elemList);
+      var sampleType = document.getElementById("sampleType")
+      sampleType.placeholder = elemList.sampleType;
+      var sampleTwoLevelType = document.getElementById("sampleTwoLevelType")
+      sampleTwoLevelType.placeholder = elemList.sampleTwoType;
+      var countryType = document.getElementById("countryType")
+      countryType.placeholder = elemList.countryType;
+      var sampleStatus = document.getElementById("sampleStatus")
+      sampleStatus.placeholder = elemList.sampleStatus;
+      var sampleCode = document.getElementById("sampleCode")
+      sampleCode.placeholder = elemList.sampleCode;
+      var brandName = document.getElementById("brandName")
+      brandName.placeholder = HTMLDecode(elemList.sampleBrandName);
+
+
+      var sampleUnit = document.getElementById("sampleUnit")
+      sampleUnit.placeholder = elemList.sampleUnit;
+      var sampleSpec = document.getElementById("sampleSpec")
+      sampleSpec.placeholder = elemList.sampleSpec;
+      var saleInfo = document.getElementById("saleInfo")
+      saleInfo.placeholder = elemList.saleInfo;
+      var certificate = document.getElementById("certificate")
+      certificate.placeholder = elemList.certificate;
+      var manufacturer = document.getElementById("manufacturer")
+      manufacturer.placeholder = elemList.manufacturer;
+      var price = document.getElementById("price")
+      price.placeholder = elemList.price;
+
+      var arr = [];
+      var titles = ['样品编号', 'Fe', 'Cd', 'Zn', 'Al', 'Sn', 'Mo', 'Co', 'Ag', 'Si', 'Mn', 'Au', 'Sb', 'Pb', 'Ti', 'Ni', 'S', 'P', 'Bi',
+        'V', 'W', 'Mg', 'N', 'Se', 'B', 'C', 'Cu', 'Zr', 'La', 'Sr', 'Nb', 'As', 'Ga', 'Te', 'Cr', 'Be', 'Ce', 'Ca'
+      ];
+      var data = [{
+        "sampleCode": elemList.sampleCode,
+        "fe": JSON.stringify(elemList.elemInfoModelList[0].fe),
+        "cd": JSON.stringify(elemList.elemInfoModelList[0].cd),
+        "zn": JSON.stringify(elemList.elemInfoModelList[0].zn),
+        "al": JSON.stringify(elemList.elemInfoModelList[0].al),
+        "sn": JSON.stringify(elemList.elemInfoModelList[0].sn),
+        "mo": JSON.stringify(elemList.elemInfoModelList[0].mo),
+        "co": JSON.stringify(elemList.elemInfoModelList[0].co),
+        "ag": JSON.stringify(elemList.elemInfoModelList[0].ag),
+        "si": JSON.stringify(elemList.elemInfoModelList[0].si),
+        "mn": JSON.stringify(elemList.elemInfoModelList[0].mn),
+        "au": JSON.stringify(elemList.elemInfoModelList[0].au),
+        "sb": JSON.stringify(elemList.elemInfoModelList[0].sb),
+        "pb": JSON.stringify(elemList.elemInfoModelList[0].pb),
+        "ti": JSON.stringify(elemList.elemInfoModelList[0].ti),
+        "ni": JSON.stringify(elemList.elemInfoModelList[0].ni),
+        "s": JSON.stringify(elemList.elemInfoModelList[0].s),
+        "p": JSON.stringify(elemList.elemInfoModelList[0].p),
+        "bi": JSON.stringify(elemList.elemInfoModelList[0].bi),
+        "v": JSON.stringify(elemList.elemInfoModelList[0].v),
+        "w": JSON.stringify(elemList.elemInfoModelList[0].w),
+        "mg": JSON.stringify(elemList.elemInfoModelList[0].mg),
+        "n": JSON.stringify(elemList.elemInfoModelList[0].n),
+        "se": JSON.stringify(elemList.elemInfoModelList[0].se),
+        "b": JSON.stringify(elemList.elemInfoModelList[0].b),
+        "c": JSON.stringify(elemList.elemInfoModelList[0].c),
+        "cu": JSON.stringify(elemList.elemInfoModelList[0].cu),
+        "zr": JSON.stringify(elemList.elemInfoModelList[0].zr),
+        "la": JSON.stringify(elemList.elemInfoModelList[0].la),
+        "sr": JSON.stringify(elemList.elemInfoModelList[0].sr),
+        "nb": JSON.stringify(elemList.elemInfoModelList[0].nb),
+        "as": JSON.stringify(elemList.elemInfoModelList[0].as),
+        "ga": JSON.stringify(elemList.elemInfoModelList[0].ga),
+        "te": JSON.stringify(elemList.elemInfoModelList[0].te),
+        "cr": JSON.stringify(elemList.elemInfoModelList[0].cr),
+        "be": JSON.stringify(elemList.elemInfoModelList[0].be),
+        "ce": JSON.stringify(elemList.elemInfoModelList[0].ce),
+        "ca": JSON.stringify(elemList.elemInfoModelList[0].ca)
+      }]
+
+      var fields = ['sampleCode', 'fe', 'cd', 'zn', 'al', 'sn', 'mo', 'co', 'ag', 'si', 'mn', 'au', 'sb', 'pb', 'ti', 'ni', 's', 'p', 'bi',
+        'v', 'w', 'mg', 'n', 'se', 'b', 'c', 'cu', 'zr', 'la', 'sr', 'nb', 'as', 'ga', 'te', 'cr', 'be', 'ce', 'ca'
+      ];
+
+      if (elemList.sampleCode != "fsfjasfhajkghaokm") {
+        arr.push({
+          field: fields[0],
+          title: titles[0],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].fe) > 0) {
+        arr.push({
+          field: fields[1],
+          title: titles[1],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].cd) > 0) {
+        arr.push({
+          field: fields[2],
+          title: titles[2],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].zn) > 0) {
+        arr.push({
+          field: fields[3],
+          title: titles[3],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].al) > 0) {
+        arr.push({
+          field: fields[4],
+          title: titles[4],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].sn) > 0) {
+        arr.push({
+          field: fields[5],
+          title: titles[5],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].mo) > 0) {
+        arr.push({
+          field: fields[6],
+          title: titles[6],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].co) > 0) {
+        arr.push({
+          field: fields[7],
+          title: titles[7],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].ag) > 0) {
+        arr.push({
+          field: fields[8],
+          title: titles[8],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].si) > 0) {
+        arr.push({
+          field: fields[9],
+          title: titles[9],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].mn) > 0) {
+        arr.push({
+          field: fields[10],
+          title: titles[10],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].au) > 0) {
+        arr.push({
+          field: fields[11],
+          title: titles[11],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].sb) > 0) {
+        arr.push({
+          field: fields[12],
+          title: titles[12],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].pb) > 0) {
+        arr.push({
+          field: fields[13],
+          title: titles[13],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].ti) > 0) {
+        arr.push({
+          field: fields[14],
+          title: titles[14],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].ni) > 0) {
+        arr.push({
+          field: fields[15],
+          title: titles[15],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].s) > 0) {
+        arr.push({
+          field: fields[16],
+          title: titles[16],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].p) > 0) {
+        arr.push({
+          field: fields[17],
+          title: titles[17],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].bi) > 0) {
+        arr.push({
+          field: fields[18],
+          title: titles[18],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].v) > 0) {
+        arr.push({
+          field: fields[19],
+          title: titles[19],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].w) > 0) {
+        arr.push({
+          field: fields[20],
+          title: titles[20],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].mg) > 0) {
+        arr.push({
+          field: fields[21],
+          title: titles[21],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].n) > 0) {
+        arr.push({
+          field: fields[22],
+          title: titles[22],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].se) > 0) {
+        arr.push({
+          field: fields[23],
+          title: titles[23],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].b) > 0) {
+        arr.push({
+          field: fields[24],
+          title: titles[24],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].c) > 0) {
+        arr.push({
+          field: fields[25],
+          title: titles[25],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].cu) > 0) {
+        arr.push({
+          field: fields[26],
+          title: titles[26],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].zr) > 0) {
+        arr.push({
+          field: fields[27],
+          title: titles[27],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].la) > 0) {
+        arr.push({
+          field: fields[28],
+          title: titles[28],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].sr) > 0) {
+        arr.push({
+          field: fields[29],
+          title: titles[29],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].nb) > 0) {
+        arr.push({
+          field: fields[30],
+          title: titles[30],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].as) > 0) {
+        arr.push({
+          field: fields[31],
+          title: titles[31],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].ga) > 0) {
+        arr.push({
+          field: fields[32],
+          title: titles[32],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].te) > 0) {
+        arr.push({
+          field: fields[33],
+          title: titles[33],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].cr) > 0) {
+        arr.push({
+          field: fields[34],
+          title: titles[34],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].be) > 0) {
+        arr.push({
+          field: fields[35],
+          title: titles[35],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].ce) > 0) {
+        arr.push({
+          field: fields[36],
+          title: titles[36],
+          unresize: true
+        });
+      }
+      if (JSON.stringify(elemList.elemInfoModelList[0].ca) > 0) {
+        arr.push({
+          field: fields[37],
+          title: titles[37],
+          unresize: true
+        });
+      }
+
+      var index = Math.floor(arr.length / 10);
+      index = index + 1;
+
+      let htmllet = "";
+      for (var i = 0; i < index; i++) {
+        htmllet += '<table id=\"demo' + i + '\"' + ' class=\"layui-table\" lay-filter=\"test\" lay-data=\"{id:\'idTest\'}\"> </table>';
+      }
+      document.getElementById("list-container").innerHTML = htmllet;
+
+      var brandName = elemList.brandName;
+      var elem = elemList.elementModes;
+      for (var i = 0; i < index; i++) {
+        table.render({
+          elem: '#demo' + i,
+          cols: [arr.slice(i * 10, i * 10 + 10)],
+          even: true,
+          data: data
+        });
+      }
+
+      //表单取值
+      layui.$('#LAY-component-form-getval').on('click', function() {
+        var data = form.val('example');
+        alert(data);
+      });
+    });
+  </script>
+</body>
+
+</html>

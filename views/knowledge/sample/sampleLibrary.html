@@ -1,0 +1,428 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>编号查询</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+  <style>
+    body {
+      margin: 10px;
+      width:99%;
+      min-width:1600px;
+    }
+    #qq {
+      width : 120px;
+    }
+    .layui-form-label {
+      width: 100px;
+    }
+    .layui-input-block {
+      margin: 30px  450px;
+    }
+    .layui-form-item {
+      margin-left: 100px;
+    }
+    .layui-form-item .layui-input-inline {
+      width: 195px;
+    }
+  </style>
+</head>
+
+<body>
+  <form class="layui-form" action="" style="margin:50px 20">
+    <div class="layui-form-item" style="margin:0px 20px">
+      <button type="submit" class="layui-btn layui-btn-radius layui-btn-primary" lay-submit lay-filter="addSample" id="addSample" style="margin-top: 5px;">元素查询</button>
+      <button class="layui-btn layui-btn-radius layui-btn-normal" lay-event="" style="margin-top: 5px;">编号查询</button>
+
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">编号查询</label>
+      <div class="layui-input-inline">
+        <input type="text/number" oninput="if(value.length>20)value=value.slice(0,20)" id="sampleBrandName" name="sampleBrandName" autocomplete="off" class="layui-input" placeholder="样品编号/牌号及名称">
+      </div>
+      <label class="layui-form-label">国别</label>
+      <div class="layui-input-inline">
+        <select name="countryId" id="country">
+          <option value="0"></option>
+        </select>
+      </div>
+      <label class="layui-form-label">样品类型</label>
+      <div class="layui-input-inline">
+        <select name="sampleTypeId" id="sampleTypeId" lay-filter="sampleTypeId">
+          <option value="0"></option>
+        </select>
+      </div>
+      <label class="layui-form-label" id="sampleTwoLevelTypeLabel">二级分类</label>
+      <div class="layui-input-inline">
+        <select name="sampleTwoLevelTypeId" id="sampleTwoLevelTypeId">
+          <option value="0"></option>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">证书</label>
+      <div class="layui-input-inline">
+        <select name="certificateId" id="certificate">
+          <option value="0"></option>
+        </select>
+      </div>
+      <label class="layui-form-label">制造商</label>
+      <div class="layui-input-inline">
+        <select name="manufacturerId" id="manufacturer">
+          <option value="0"></option>
+        </select>
+      </div>
+      <label class="layui-form-label">样品状态</label>
+      <div class="layui-input-inline">
+        <select name="sampleStatusId" id="sampleStatus">
+          <option value="0"></option>
+        </select>
+      </div>
+      <label class="layui-form-label">单点或套标</label>
+      <div class="layui-input-inline">
+        <select name="sampleUnitId" id="sampleUnit">
+          <option value="0"></option>
+        </select>
+      </div>
+
+    </div>
+    <div class="layui-form-item">
+      <div class="layui-input-block" style="margin-left: 650px;">
+        <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">查询</button>
+      </div>
+    </div>
+    <div>
+      <table id="demo" class="layui-table" lay-filter="test" lay-data="{id:'idTest'}"></table>
+    </div>
+
+    <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="detail">查看详情</a>
+    <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+  </script>
+
+  </form>
+
+  <script>
+    resize();
+    layui.use(['form', 'layedit', 'laydate', 'table'], function() {
+      var form = layui.form,
+        layer = layui.layer,
+        layedit = layui.layedit,
+        laydate = layui.laydate,
+        table = layui.table;
+      $ = layui.jquery;
+      $form = $('form');
+
+      //监听指定开关
+      form.on('switch(switchTest)', function(data) {
+        layer.msg('开关checked：' + (this.checked ? 'true' : 'false'), {
+          offset: '6px'
+        });
+        layer.tips('', data.othis)
+      });
+
+      //监听提交
+      form.on('submit(demo1)', function(data) {
+        var sampleTypeId = data.field.sampleTypeId.split('_')[0];
+
+        $.ajax({
+          type: "post",
+          contentType: 'application/json; charset=utf-8',
+          url: selectSampleUrl(),
+          async: true,
+          dataType: "JSON",
+          data: JSON.stringify({
+            "countryId": data.field.countryId,
+            "sampleTypeId": sampleTypeId,
+            "sampleTwoLevelTypeId": data.field.sampleTwoLevelTypeId,
+            "certificateId": data.field.certificateId,
+            "manufacturerId": data.field.manufacturerId,
+            "sampleStatusId": data.field.sampleStatusId,
+            "sampleUnitId": data.field.sampleUnitId,
+            "sampleBrandName": HTMLEncode(data.field.sampleBrandName)
+          }),
+          success: function(res) {
+            table.render({
+              elem: '#demo',
+              height: 460,
+              toolbar: '#add',
+              title: '样品表',
+              defaultToolbar: ['filter', 'print',
+                {
+                  title: '导出',
+                  layEvent: 'DIY_EXPORT',
+                  icon: 'layui-icon-export'
+                }
+              ],
+              page: true //开启分页
+                ,
+              cols: [
+                [ //表头
+                  {
+                    type: 'checkbox',
+                    fixed: 'left'
+                  }
+                  // { type: 'numbers', title: '序号', width: 80 }//序号列
+                  , {
+                    field: 'id',
+                    title: 'ID',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'sampleCode',
+                    title: '样品编号',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'sampleBrandName',
+                    title: '牌号及名称',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'sampleStatus',
+                    title: '样品状态',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'concentration',
+                    title: '浓度',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'sampleSpec',
+                    title: '规格',
+                    width: '9%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'saleInfo',
+                    title: '销售说明',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'sampleUnit',
+                    title: '单位',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    field: 'price',
+                    title: '价格',
+                    width: '10%',
+                    align: 'center',
+                    unresize: true
+                  }, {
+                    fixed: 'right',
+                    title: '操作',
+                    toolbar: '#barDemo',
+                    width: '15%',
+                    align: 'center',
+                    unresize: true
+                  }
+                ]
+              ],
+              data: res.data,
+              even: true
+            });
+          },
+          error: function() {
+            alert('服务器忙......请稍后重试');
+          }
+        });
+        return false;
+      });
+      form.on('submit(addSample)', function(data) {
+        window.location.href = "../sample/elementQuery.html";
+        return false;
+      });
+
+
+      table.on('toolbar(test)', function(obj) {
+        var checkStatus = table.checkStatus(obj.config.id),
+          data = checkStatus.data; //获取选中的数据
+        switch (obj.event) {
+          case 'add':
+            location.href = "./addSample.html";
+            break;
+          case 'DIY_EXPORT':
+            if (data.length <= 0) {
+              alert("请选择至少一条记录进行导出");
+            } else {
+              table.exportFile(obj.config.id, data, 'xls');
+            }
+            break;
+        };
+      });
+
+      table.on('tool(test)', function(obj) {
+        var data = obj.data,
+          layEvent = obj.event; //获得 lay-event 对应的值
+        var storage = window.localStorage;
+        storage.setItem('elemData', JSON.stringify(data));
+        if (layEvent === 'detail') {
+          location.href = "./sampleDetail.html";
+        } else if (layEvent === 'edit') {
+          location.href = "./updateSample.html";
+        }
+      });
+
+
+
+      //表单取值
+      layui.$('#LAY-component-form-getval').on('click', function() {
+        var data = form.val('example');
+      });
+
+      //初始化国别信息
+      $.ajax({
+        url: initCountryUrl(),
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#country').append(new Option(item.countryName, item.countryId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+      //初始化样品类型
+      $.ajax({
+        url: initSampleTypeUrl(),
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+
+          loadSampleType(result);
+          // 关键
+          form.render();
+        }
+      });
+
+      //二级联动
+      //样品类型数据
+      function loadSampleType(result) {
+        // console.log(JSON.stringify(result));
+        var samHtml = '';
+        // samHtml += '<option value=""> 请选择 </option>';
+        for (var i = 0; i < result.data.length; i++) {
+          samHtml += '<option value="' + result.data[i].sampleTypeId + '_' + result.data[i].sampleTwoLevelTypeModels.length + '_' + i + '">' + result.data[i].sampleTypeName + '</option>';
+        } //初始化省数据
+        $form.find('select[name=sampleTypeId]').append(samHtml);
+
+        form.on('select(sampleTypeId)', function(data) {
+          var value = data.value;
+          if (value != '') {
+            var d = value.split('_');
+            var id = d[0];
+            var count = d[1];
+            var index = d[2];
+            if (count > 0) {
+              loadTwoLevelType(result.data[index].sampleTwoLevelTypeModels);
+            } else {
+              $form.find('select[name=sampleTwoLevelTypeId]').parent().hide();
+              $form.find('label[id=sampleTwoLevelTypeLabel]').hide();
+            }
+          } else {
+            $form.find('select[name=sampleTwoLevelTypeId]').parent().hide();
+            $form.find('label[id=sampleTwoLevelTypeLabel]').hide();
+          }
+        });
+      }
+
+      function loadTwoLevelType(sampleTwoLevelTypeModels) {
+        var sampleTwoLevelTypeHtml = '';
+        sampleTwoLevelTypeHtml += '<option value=""> 全部 </option>';
+        for (var i = 0; i < sampleTwoLevelTypeModels.length; i++) {
+          sampleTwoLevelTypeHtml += '<option value="' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeId + '">' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeName + '</option>';
+        }
+        $form.find('label[id=sampleTwoLevelTypeLabel]').show();
+        $form.find('select[name=sampleTwoLevelTypeId]').html(sampleTwoLevelTypeHtml).parent().show();
+        form.render();
+        // form.on('select(sampleTwoLevelTypeId)',
+        //   function(data) {
+        //     console.log(data);
+        //   });
+      }
+
+
+      //初始化证书信息
+      $.ajax({
+        url: initCertificateUrl(),
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#certificate').append(new Option(item.certificateTypeName, item.certificateTypeId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+      //初始化制造商信息
+      $.ajax({
+        url: initManufacturerUrl(),
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#manufacturer').append(new Option(item.manufacturerName, item.manufacturerId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+      //初始化样品状态信息
+      $.ajax({
+        url: initSampleStatusUrl(),
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#sampleStatus').append(new Option(item.sampleStatusName, item.sampleStatusId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+
+      //初始化样品单点或套标信息
+      $.ajax({
+        url: initSampleUnitUrl(),
+        dataType: 'json',
+        type: 'get',
+        success: function(result) {
+          $.each(result.data, function(index, item) {
+            $('#sampleUnit').append(new Option(item.sampleUnitName, item.sampleUnitId)); //往下拉菜单里添加元素
+          });
+          // 关键
+          form.render();
+        }
+      })
+    });
+  </script>
+</body>
+
+</html> -->

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>个人报销单</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        html {
+            height: 100%
+        }
+        
+        body {
+            width: 99%;
+            min-width: 600px;
+        }
+        /* .layui-form-item {
+      margin-left: 10px;
+    }.layui-form-item .layui-input-inline { width: auto; }
+      .layui-input, .layui-select, .layui-textarea{ height:36px;}
+      .layui-form-label {
+        padding: 8px 15px;
+        width: 80px;
+    } */
+    </style>
+</head>
+
+<body>
+    <form class="layui-form" action="" style="margin:20px 0px;">
+        <div class="layui-form-item" style="min-width: 1100px;">
+            <div class="layui-inline">
+                <label class="layui-form-label">单据状态</label>
+                <div class="layui-input-inline">
+                    <select name="reimbursementStatus" id="reimbursementStatus" lay-search="" lay-verify="">
+							<option value="0">所有</option>
+							<option value="1">未报销</option>
+							<option value="2">审核中</option>
+							<option value="3">已报销</option>
+						</select>
+                </div>
+                <label class="layui-form-label">申请时间</label>
+                <div class="layui-input-inline">
+                    <input name="beginTimeFrom" type="text" autocomplete="off" placeholder="请选择开始日期" id="startTime" class="layui-input">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline">
+                    <input name="beginTimeTo" type="text" autocomplete="off" placeholder="请选择结束日期" id="endTime" class="layui-input laydate">
+                </div>
+            </div>
+            <button id="133" type="submit" class="layui-btn query" style="margin-left: 20px;" id="select" lay-submit="" lay-filter="select">查询</button>
+        </div>
+    </form>
+    <div style="min-width: 1100px;">
+        <table class="layui-hide" id="personalReimbursement" lay-filter="personalReimbursement"></table>
+    </div>
+</body>
+<script type="text/html" id="editBar">
+    {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+    < l_ist.length;i ++){ }} {{# if(l_ist[i]=='131' && d.reimbursementStatus=="1" ){ }} <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>{{# } }} {{# if(l_ist[i]=='131' && d.reimbursementStatus == "2" ){ }}
+        <a class="layui-btn layui-btn-xs layui-btn-disabled">编辑</a>{{# } }} {{# if(l_ist[i]=='131' && d.reimbursementStatus == "3" ){ }}
+        <a class="layui-btn layui-btn-xs layui-btn-disabled">编辑</a>{{# } }} {{# if(l_ist[i]=='132'){ }}
+        <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="view">查看</a> {{# } }} {{# } }}
+</script>
+<script type="text/html" id="bar">
+    {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+    < l_ist.length;i ++){ }} {{# if(l_ist[i]=='130' ){ }} <a class="layui-btn layui-btn-sm" lay-event="addReimbursement" style="text-align: center; margin-left: 1%">添加报销单</a>{{# } } }}
+        <span style="margin-left: 50%; text-align: center;font-size: 18px;">个人报销表</span>
+</script>
+
+<script>
+    var url = getUrl();
+    var uploadUrl = url + "finance/uploadInvoiceDetailsByExcel";
+    var storage = window.localStorage;
+    var data = storage.getItem('userData');
+    var userData = JSON.parse(data);
+    var json = storage.getItem('auth');
+    var authData = JSON.parse(json);
+    //用户权限判断
+    $('#133').hide();
+    var l_ist = userData.permissionId;
+    for (var i = 0; i < l_ist.length; i++) {
+        var item = l_ist[i];
+        if (l_ist[i] == 133) {
+            $('#133').show();
+        }
+    }
+    layui.use(['form', 'layedit', 'laydate', 'table', 'element', 'upload'], function() {
+        var form = layui.form,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            laydate = layui.laydate,
+            table = layui.table,
+            element = layui.element,
+            upload = layui.upload;
+
+        var getReimbursementUrl = url + "finance/getReimbursement";
+        var storage = window.localStorage;
+        var json = storage.getItem('userData');
+        var userData = JSON.parse(json);
+        let userId = userData.userId;
+
+        //日期
+        var nowTime = getNowFormatDate();
+        var startTime = laydate.render({
+            elem: '#startTime',
+            btns: ['confirm'],
+            max: 'nowTime',
+            done: function(value, date) {
+                endTime.config.min = {
+                    year: date.year,
+                    month: date.month - 1,
+                    date: date.date
+                };
+            }
+        });
+        var endTime = laydate.render({
+            elem: '#endTime',
+            btns: ['confirm'],
+            max: 'nowTime',
+            done: function(value, date) {
+                startTime.config.max = {
+                    year: date.year,
+                    month: date.month - 1,
+                    date: date.date
+                }
+            }
+        });
+        //监听提交
+        form.on('submit(select)', function(data) {
+            table.reload('reimbursementTable', {
+                page: {
+                    curr: 1
+                },
+                url: getReimbursementUrl,
+                method: "post",
+                contentType: 'application/json; charset=utf-8',
+                where: {
+                    userId: userId,
+                    reimbursementStatus: document.getElementById('reimbursementStatus').value,
+                    applicationStartDate: document.getElementById('startTime').value,
+                    applicationEndDate: document.getElementById('endTime').value
+                },
+                done: function(res, curr, count) {
+                    $("[data-field='reimbursementStatus']").children().each(function() {
+                        if ($(this).text() == '1') {
+                            $(this).text("未报销");
+                        } else if ($(this).text() == '2') {
+                            $(this).text("审核中");
+                        } else if ($(this).text() == '3') {
+                            $(this).text("已报销");
+                        }
+                    });
+                }
+            });
+            return false;
+        });
+
+        table.render({
+            id: 'reimbursementTable',
+            elem: '#personalReimbursement',
+            contentType: 'application/json; charset=utf-8',
+            url: getReimbursementUrl,
+            method: 'post',
+            title: '报销单',
+            page: true,
+            defaultToolbar: [],
+            toolbar: '#bar',
+            totalRow: false,
+            even: true,
+            async: true,
+            dataType: "JSON",
+            loading: true,
+            page: {
+                curr: 1
+            },
+            where: {
+                userId: userId,
+                reimbursementStatus: document.getElementById('reimbursementStatus').value,
+                applicationStartDate: document.getElementById('startTime').value,
+                applicationEndDate: document.getElementById('endTime').value
+            },
+            cols: [
+                [ //表头
+                    {
+                        type: 'checkbox',
+                    }, {
+                        field: 'id',
+                        title: '编号',
+                        width: '5%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'userName',
+                        title: '姓名',
+                        width: '5%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'applicationDate',
+                        title: '申请日期',
+                        width: '9%',
+                        align: 'center',
+                        unresize: true,
+                        sort: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建日期',
+                        width: '9%',
+                        align: 'center',
+                        unresize: true,
+                        sort: true
+                    }, {
+                        field: 'totalInvoiceAmount',
+                        title: '发票总额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'totalTaxAmount',
+                        title: '总税额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'totalPriceTaxAmount',
+                        title: '价税合计总额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'totalActualReimbursementAmount',
+                        title: '实际报销总额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'reimbursementStatus',
+                        title: '报销状态',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'reimbursementDate',
+                        title: '报销日期',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'voucherNum',
+                        title: '凭证号码',
+                        unresize: true,
+                        width: '8%',
+                        align: 'center'
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        toolbar: '#editBar',
+                        width: '11%',
+                        align: 'center',
+                        unresize: true
+                    }
+                ]
+            ],
+            done: function(res, curr, count) {
+                $("[data-field='reimbursementStatus']").children().each(function() {
+                    if ($(this).text() == '1') {
+                        $(this).text("未报销");
+                    } else if ($(this).text() == '2') {
+                        $(this).text("审核中");
+                    } else if ($(this).text() == '3') {
+                        $(this).text("已报销");
+                    }
+                });
+            }
+        });
+
+        //监听头工具栏事件
+        table.on('toolbar(personalReimbursement)', function(obj) {
+            var checkStatus = table.checkStatus(obj.config.id),
+                data = checkStatus.data; //获取选中的数据
+            switch (obj.event) {
+                case 'addReimbursement':
+                    layer.open({
+                        type: 2,
+                        title: "添加报销单",
+                        skin: 'layui-layer-rim', //加上边框
+                        area: ['100%', '100%'], //宽高
+                        offset: 'auto',
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: "./addReimbursementForm.html", //调到新的界面
+                        end: function() {
+                            table.reload('reimbursementTable', {
+                                page: {
+                                    curr: 1
+                                },
+                                url: getReimbursementUrl,
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    userId: userId,
+                                    reimbursementStatus: document.getElementById('reimbursementStatus').value,
+                                    applicationStartDate: document.getElementById('startTime').value,
+                                    applicationEndDate: document.getElementById('endTime').value
+                                },
+                                done: function(res, curr, count) {
+                                    $("[data-field='reimbursementStatus']").children().each(function() {
+                                        if ($(this).text() == '1') {
+                                            $(this).text("未报销");
+                                        } else if ($(this).text() == '2') {
+                                            $(this).text("审核中");
+                                        } else if ($(this).text() == '3') {
+                                            $(this).text("已报销");
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    break;
+                case 'DIY_EXPORT':
+                    // var userId = document.getElementById('userId').value;
+                    // var typeId = document.getElementById('type').value;
+                    // var invoiceCode = document.getElementById('invoiceCode').value;
+                    // var invoiceNum = document.getElementById('invoiceNum').value;
+                    // var remarks = document.getElementById('remarks').value;
+                    // var checkStatus = table.checkStatus('invoiceTable');
+                    // var exportDataIds = new Array(checkStatus.data.length);
+                    // for (var i = 0; i < checkStatus.data.length; i++) {
+                    //   exportDataIds[i] = checkStatus.data[i].id;
+                    // }
+                    // downloadInvoiceDetailData(userId, typeId, invoiceCode, invoiceNum, remarks, exportDataIds);
+                    break;
+            };
+        });
+
+        //监听行工具事件
+        table.on('tool(personalReimbursement)', function(obj) {
+            console.log('============obj', obj);
+            var data = obj.data,
+                layEvent = obj.event; //获得 lay-event 对应的值
+            // var storage = window.localStorage;
+            // storage.setItem('invoiceData', JSON.stringify(data));
+            if (layEvent === 'edit') {
+                layer.open({
+                    type: 2,
+                    title: "修改报销单",
+                    skin: 'layui-layer-rim', //加上边框
+                    area: ['100%', '100%'], //宽高
+                    offset: 'auto',
+                    skin: 'layerdemo',
+                    resize: false,
+                    content: "./updateReimbursementForm.html", //调到新的界面
+                    success: function(layero, index) {
+                        // 获取子页面的iframe
+                        var iframe = window['layui-layer-iframe' + index];
+                        // 向子页面的全局函数child传参
+                        iframe.child(data);
+                    },
+                    end: function() {
+                        table.reload('reimbursementTable', {
+                            page: {
+                                curr: $(".layui-laypage-em").next().html()
+                            },
+                            url: getReimbursementUrl,
+                            method: "post",
+                            contentType: 'application/json; charset=utf-8',
+                            where: {
+                                userId: userId,
+                                reimbursementStatus: document.getElementById('reimbursementStatus').value,
+                                applicationStartDate: document.getElementById('startTime').value,
+                                applicationEndDate: document.getElementById('endTime').value
+                            },
+                            done: function(res, curr, count) {
+                                $("[data-field='reimbursementStatus']").children().each(function() {
+                                    if ($(this).text() == '1') {
+                                        $(this).text("未报销");
+                                    } else if ($(this).text() == '2') {
+                                        $(this).text("审核中");
+                                    } else if ($(this).text() == '3') {
+                                        $(this).text("已报销");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            } else if (layEvent === 'view') {
+                layer.open({
+                    type: 2,
+                    title: "查看报销单",
+                    skin: 'layui-layer-rim', //加上边框
+                    area: ['100%', '100%'], //宽高
+                    offset: 'auto',
+                    skin: 'layerdemo',
+                    resize: false,
+                    content: "./viewReimbursementForm.html", //调到新的界面
+                    success: function(layero, index) {
+                        // 获取子页面的iframe
+                        var iframe = window['layui-layer-iframe' + index];
+                        // 向子页面的全局函数child传参
+                        iframe.child(data);
+                    },
+                    end: function() {
+                        table.reload('reimbursementTable', {
+                            page: {
+                                curr: $(".layui-laypage-em").next().html()
+                            },
+                            url: getReimbursementUrl,
+                            method: "post",
+                            contentType: 'application/json; charset=utf-8',
+                            where: {
+                                userId: userId,
+                                reimbursementStatus: document.getElementById('reimbursementStatus').value,
+                                applicationStartDate: document.getElementById('startTime').value,
+                                applicationEndDate: document.getElementById('endTime').value
+                            },
+                            done: function(res, curr, count) {
+                                $("[data-field='reimbursementStatus']").children().each(function() {
+                                    if ($(this).text() == '1') {
+                                        $(this).text("未报销");
+                                    } else if ($(this).text() == '2') {
+                                        $(this).text("审核中");
+                                    } else if ($(this).text() == '3') {
+                                        $(this).text("已报销");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+    });
+    //显示大图片
+    function showBigImage(e) {
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            shadeClose: true, //点击阴影关闭
+            area: [$(e).width + 'px', $(e).height + 'px'], //宽高
+            content: "<img src=" + $(e).attr('src') + " />"
+        });
+    }
+
+    var fileDownloadInvoiceExcelTemplateUrl = url + "finance/fileDownload/invoiceExcelTemplate"
+
+    function downloadExcelTemplate() {
+        window.location.href = fileDownloadInvoiceExcelTemplateUrl;
+    }
+
+    //下载InvoiceDetailData
+    function downloadInvoiceDetailData(userId, typeId, invoiceCode, invoiceNum, remarks, exportDataIds) {
+
+        var fileDownloadInvoiceDetailsExcelDataUrl = url + "finance/fileDownload/invoiceDetailsExcelData?" + "userId=" +
+            userId + "&typeId=" + typeId +
+            "&invoiceCode=" + invoiceCode + "&invoiceNum=" + invoiceNum + "&remarks=" + remarks;
+
+        for (var i = 0; i < exportDataIds.length; i++) {
+            fileDownloadInvoiceDetailsExcelDataUrl += "&exportDataIds=" + exportDataIds[i];
+        }
+        window.location.href = fileDownloadInvoiceDetailsExcelDataUrl;
+    }
+</script>
+
+
+</html>

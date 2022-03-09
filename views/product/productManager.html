@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>产品管理</title>
+    <!-- <link type="text/css" rel="stylesheet" href="layui/css/layui.css" rel="external nofollow" /> -->
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/element.js?v=318"></script>
+    <style>
+        body {
+            overflow-y: scroll;
+        }
+        /* 禁止刷新后出现横向滚动条 */
+        /* 左树 */
+        
+        #productLineTreeBar {
+            padding: 10px 15px;
+            border: 1px solid #e6e6e6;
+            background-color: #f2f2f2;
+        }
+        
+        #productLineTree {
+            border: 1px solid #e6e6e6;
+            border-top: none;
+            padding: 10px 5px;
+            overflow: auto;
+            height: -webkit-calc(100vh - 125px);
+            height: -moz-calc(100vh - 125px);
+            height: calc(100vh - 125px);
+        }
+        
+        .layui-tree-entry .layui-tree-txt {
+            padding: 0 5px;
+            border: 1px transparent solid;
+            text-decoration: none !important;
+        }
+        
+        .layui-tree-entry.ew-tree-click .layui-tree-txt {
+            background-color: #fff3e0;
+            border: 1px #FFE6B0 solid;
+        }
+        /* 右表搜索表单 */
+        
+        #productLineUserTbSearchForm .layui-form-label {
+            box-sizing: border-box !important;
+            width: 90px !important;
+        }
+        
+        #productLineUserTbSearchForm .layui-input-block {
+            margin-left: 90px !important;
+        }
+        
+        #type option {
+            line-height: 36px;
+            font-size: 16px;
+        }
+        
+        #chongzhi {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        body .layerdemo .layui-layer-title {
+            color: rgb(16, 16, 17);
+            background-color: rgb(242, 248, 248);
+            font-size: 20px;
+            /* font-weight: bold; */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">产品线查询</li>
+            <li>条件查询</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 100px;">
+            <!-- 产品线搜索 -->
+            <div class="layui-tab-item layui-show">
+                <div class="layui-fluid" style="padding-bottom: 0;">
+                    <div class="layui-row layui-col-space15">
+                        <div class="layui-col-md3">
+                            <div class="layui-card">
+                                <div class="layui-card-body" style="padding: 10px;">
+                                    <div id="productLineTree"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md9">
+                            <div class="layui-card">
+                                <div class="layui-card-body" style="padding: 10px;">
+                                    <table class="layui-hide" id="productTable" lay-filter="productTable"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 产品管理 -->
+            <div class="layui-tab-item">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline" style="width: 20%;">
+                            <label class="layui-form-label" style="width: 60px;">产品线</label>
+                            <div class="layui-input-inline" style="width: 50%;">
+                                <select id="toolbarproductLine" name="productLineId" lay-search="" lay-filter="productLine">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline" style="width: 20%;">
+                            <label class="layui-form-label" style="width: 60px;">设备类型</label>
+                            <div class="layui-input-inline" style="width: 50%;">
+                                <select id="toolbarequipments" name="equipmentId" lay-search="" lay-filter="equipments">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline" style="width: 20%;">
+                            <label class="layui-form-label" style="width: 60px;">产品系列</label>
+                            <div class="layui-input-inline" style="width: 50%;">
+                                <select id="toolbarproductModels" name="productSeriesId" lay-search="" lay-filter="productModels">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline" style="width: 20%;">
+                            <label class="layui-form-label" style="width: 60px;">产品编码</label>
+                            <div class="layui-input-inline" style="width: 50%;">
+                                <select id="toolbarDialogproductCode" name="productModelId" lay-search="" lay-filter="DialogproductCode">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline" style="width: 20%;">
+                            <label class="layui-form-label" style="width: 60px;">产品名称</label>
+                            <div class="layui-input-inline" style="width: 50%;">
+                                <input type="text" autocomplete="off" name="DialogproductName" id="DialogproductName" placeholder="请输入产品名称" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline" style="width: 20%;">
+                            <label class="layui-form-label" style="width: 60px;">产品型号</label>
+                            <div class="layui-input-inline" style="width: 50%;">
+                                <input type="text" autocomplete="off" name="coding" id="coding" placeholder="请输入产品编码" class="layui-input">
+                            </div>
+                        </div>
+                        <button id="148" class="layui-btn" style="margin-left: 30px;" lay-filter="userTbSearch" lay-submit data-type="reload">搜索</button>
+                        <div class="layui-btn-container" id="chongzhi">
+                            <button type="reset" class="layui-btn layui-btn-normal" id="chongzhi">重置</button>
+                        </div>
+                    </div>
+
+                    <!-- 数据表格 -->
+                    <div>
+                        <table class="layui-table" id="productTable2" lay-filter="productTable2" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="productLineUserTbBar">
+                        <a class="layui-btn layui-btn-primary layui-btn-xs" id="115" lay-event="edit">修改</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" id="116" lay-event="del">删除</a>
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- 表格添加按钮 -->
+    <script type="text/html" id="addbar">
+        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='46' ){ }} <button lay-event="add" class="layui-btn layui-btn-sm icon-btn"><i class="layui-icon">&#xe654;</i>添加</button>&nbsp;{{# } } }}
+            <span style="margin-left: 50%; text-align: center;font-size: 18px;">产品管理表</span>
+    </script>
+
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var json = storage.getItem('auth');
+        var authData = JSON.parse(json);
+        //用户权限判断
+        $('#115').hide();
+        $('#116').hide();
+        $('#148').hide();
+
+        var l_ist = userData.permissionId;
+        for (var i = 0; i < l_ist.length; i++) {
+            var item = l_ist[i];
+            if (l_ist[i] == 115) {
+                $('#115').show();
+            }
+            if (l_ist[i] == 116) {
+                $('#116').show();
+            }
+            if (l_ist[i] == 148) {
+                $('#148').show();
+            }
+
+        }
+        layui.use(['excel', 'laypage', 'layer', 'xmSelect', 'table', 'tree', 'treeTable', 'element', 'admin', 'form'], function() {
+            var table = layui.table,
+                laypage = layui.laypage,
+                element = layui.element,
+                excel = layui.ecxel;
+            var admin = layui.admin;
+            var layer = layui.layer;
+            var tree = layui.tree;
+            var xmSelect = layui.xmSelect;
+            var selObj, treeData;
+            var form = layui.form;
+            $ = layui.jquery;
+            $form = $('form');
+            //获取用户信息
+            var storage = window.localStorage;
+            var json = storage.getItem('userData');
+            var userData = JSON.parse(json);
+            var userId = userData.userId;
+            let operatorId = userId;
+            loadEquipment();
+            // 正则验证
+            form.verify({
+                    productCode: function(value, item) {
+                        if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                            return '产品编码不能有特殊字符';
+                        }
+                        if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                            return '产品编码首尾不能出现下划线\'_\'';
+                        }
+                        if (/^\d+\d+\d$/.test(value)) {
+                            return '产品编码不能全为数字';
+                        }
+                        if (!/^.{1,20}$/.test(value)) {
+                            return '产品编码最多输入20位';
+                        }
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '产品编码不能输入空格哦!';
+                        }
+                    },
+                    productName: function(value, item) {
+                        if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                            return '产品名称不能有特殊字符';
+                        }
+                        if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                            return '首尾不能出现下划线\'_\'';
+                        }
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '产品名称不能输入空格哦!';
+                        }
+                        if (!/^.{1,20}$/.test(value)) {
+                            return '产品名称最多20位哦!';
+                        }
+                    }
+                })
+                /* 产品线渲染树形 */
+            function renderTree() {
+                $.get(getAllProductLineUrl(), function(res) {
+                    for (var i = 0; i < res.data.length; i++) {
+                        res.data[i].title = res.data[i].name;
+                        res.data[i].id = res.data[i].id;
+                        res.data[i].spread = true;
+                    }
+                    treeData = layui.treeTable.pidToChildren(res.data, 'id', 'parentId');
+                    tree.render({
+                        elem: '#productLineTree',
+                        onlyIconControl: true,
+                        data: treeData,
+                        click: function(obj) {
+                            var id = obj.data.id;
+                            var parentId = obj.data.parentId;
+                            var name = obj.data.name;
+                            if (obj.data.type == 1) {
+                                table.reload('productTable', {
+                                    page: {
+                                        curr: 1
+                                    },
+                                    url: getProductsUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        "equipmentId": '',
+                                        "productModelId": '',
+                                        "productLineId": id,
+                                        "productSeriesId": '',
+                                        "productId": '',
+                                        "productName": '',
+                                        "productCode": '',
+                                        "operatorId": operatorId,
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            } else if (obj.data.type == 2) {
+                                table.reload('productTable', {
+                                    page: {
+                                        curr: 1
+                                    },
+                                    url: getProductsUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        "equipmentId": id,
+                                        "productModelId": '',
+                                        "productLineId": parentId,
+                                        "productSeriesId": '',
+                                        "productId": '',
+                                        "productName": '',
+                                        "productCode": '',
+                                        "operatorId": operatorId,
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            } else if (obj.data.type == 3) {
+                                // 型号编号初始化
+                                $.ajax({
+                                    url: getAllEquipmentAndProductModelUrl(),
+                                    type: "get",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    success: function(result) {
+                                        var mdata = result.data;
+                                        if (mdata.length > 0) {
+                                            for (var i = 0; i < mdata.length; i++) {
+                                                var item = mdata[i];
+                                                var arr = item.equipmentModels;
+                                                var obj = {};
+                                                for (var key in arr) {
+                                                    obj[key] = arr[key];
+                                                    var array = obj[key].productSeriesModels;
+                                                    if (parentId == obj[key].equipmentId) {
+                                                        table.reload('productTable', {
+                                                            page: {
+                                                                curr: 1
+                                                            },
+                                                            url: getProductsUrl(),
+                                                            method: "post",
+                                                            contentType: 'application/json; charset=utf-8',
+                                                            where: {
+                                                                "equipmentId": parentId,
+                                                                "productModelId": '',
+                                                                "productLineId": item.id,
+                                                                "productSeriesId": id,
+                                                                "productId": '',
+                                                                "productName": '',
+                                                                "productCode": '',
+                                                                "operatorId": operatorId,
+                                                            },
+                                                            done: function(res, curr, count) {}
+                                                        });
+                                                    }
+
+                                                }
+
+                                            }
+                                        }
+                                    },
+                                    error: function() {
+                                        alert("服务器忙……请稍后重试！");
+                                    }
+                                })
+                            } else if (obj.data.type == 4) {
+                                // 型号编号初始化
+                                $.ajax({
+                                    url: getAllEquipmentAndProductModelUrl(),
+                                    type: "get",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    success: function(result) {
+                                        var mdata = result.data;
+                                        if (mdata.length > 0) {
+                                            for (var i = 0; i < mdata.length; i++) {
+                                                var item = mdata[i];
+                                                var arr = item.equipmentModels;
+                                                var obj = {};
+                                                for (var key in arr) {
+                                                    obj[key] = arr[key];
+                                                    var array = obj[key].productSeriesModels;
+                                                    var obj1 = {};
+                                                    for (var key in array) {
+                                                        obj1[key] = array[key];
+                                                        if (parentId == obj1[key].productSeriesId) {
+                                                            table.reload('productTable', {
+                                                                page: {
+                                                                    curr: 1
+                                                                },
+                                                                url: getProductsUrl(),
+                                                                method: "post",
+                                                                contentType: 'application/json; charset=utf-8',
+                                                                where: {
+                                                                    "equipmentId": '',
+                                                                    "productModelId": id,
+                                                                    "productLineId": item.id,
+                                                                    "productSeriesId": parentId,
+                                                                    "productId": '',
+                                                                    "productName": '',
+                                                                    "productCode": '',
+                                                                    "operatorId": operatorId,
+                                                                },
+                                                                done: function(res, curr, count) {}
+                                                            });
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    },
+                                    error: function() {
+                                        alert("服务器忙……请稍后重试！");
+                                    }
+                                })
+                            }
+                            selObj = obj;
+                            $('#productLineTree').find('.ew-tree-click').removeClass('ew-tree-click');
+                            $(obj.elem).children('.layui-tree-entry').addClass('ew-tree-click');
+                        }
+                    });
+                    $('#productLineTree').find('.layui-tree-entry:first>.layui-tree-main>.layui-tree-txt').trigger('click');
+                });
+            }
+            renderTree();
+            // 产品线查询表格渲染
+            table.render({
+                elem: '#productTable',
+                id: 'productTable',
+                title: '产品表',
+                page: true,
+                contentType: 'application/json; charset=utf-8',
+                url: getProductsUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'productLineName',
+                        title: '产品线',
+                        width: '13%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'equipmentName',
+                        title: '设备类型',
+                        width: '13%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productSeriesName',
+                        title: '产品系列',
+                        width: '15%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productModelName',
+                        title: '产品型号',
+                        width: '15%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productCode',
+                        title: '产品编码',
+                        width: '15%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productName',
+                        title: '产品名称',
+                        width: '21%',
+                        align: 'center',
+                        unresize: true
+                    }, ]
+                ],
+                done: function() {},
+
+            });
+            //产品表格渲染
+            table.render({
+                elem: '#productTable2',
+                id: 'productTable2',
+                title: '产品表',
+                page: true,
+                defaultToolbar: ['print', {
+                    title: '导出',
+                    layEvent: 'DIY_EXPORT',
+                    icon: 'layui-icon-export'
+                }],
+                contentType: 'application/json; charset=utf-8',
+                url: getProductsUrl(),
+                async: true,
+                dataType: "JSON",
+                toolbar: '#addbar',
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                parseData: function(res) {
+                    if (res.data == null) {
+                        $(".layui-table-sort").remove();
+                        return {
+                            "code": 201,
+                            "msg": '无数据',
+                        };
+                    }
+                },
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'productLineName',
+                        title: '产品线',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'equipmentName',
+                        title: '设备类型',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productSeriesName',
+                        title: '产品系列',
+                        width: '12%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productModelName',
+                        title: '产品编号',
+                        width: '13%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productCode',
+                        title: '产品型号',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productName',
+                        title: '产品名称',
+                        width: '20%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '15%',
+                        align: 'center',
+                        toolbar: '#productLineUserTbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function() {},
+            });
+            /* 添加按钮点击事件 */
+            table.on('toolbar(productTable2)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'add':
+                        layer.open({
+                            type: 2,
+                            title: '添加产品',
+                            skin: 'layui-layer-rim',
+                            area: ['40%', '420px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./addProduct.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("productTable2", {
+                                    page: {
+                                        curr: $("#productTable2 .layui-laypage-em").next().html()
+                                    },
+                                    url: getProductsUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            /* 修改按钮点击事件 */
+            table.on('tool(productTable2)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改产品',
+                        skin: 'layui-layer-rim',
+                        area: ['40%', '420px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editorProduct.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#coding", index);
+                            roleId.val(obj.data.productCode);
+                            var roleId = layer.getChildFrame("#DialogproductName", index);
+                            roleId.val(obj.data.productName);
+                        },
+                        end: function() {
+                            table.reload("productTable2", {
+                                page: {
+                                    curr: $("#productTable2 .layui-laypage-em").next().html()
+                                },
+                                url: getProductsUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'del') {
+                    doDel2(obj);
+                }
+            });
+            /* 删除产品*/
+            function doDel2(obj) {
+                var productId = obj.data.productId;
+                var productModelId = obj.data.productModelId;
+                layer.confirm('要删除选中的样品吗？', {
+                    skin: 'layui-layer-admin',
+                    shade: .1
+                }, function(index) {
+                    obj.del();
+                    layer.close(index);
+                    $.ajax({
+                        url: deleteProductUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "productModelId": productModelId,
+                            "productId": productId,
+                            'operatorId': userId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1
+                                });
+                                table.reload('productTable2', {
+                                    page: {
+                                        curr: $("#productTable2 .layui-laypage-em").next().html()
+                                    },
+                                    url: getProductsUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    }
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                });
+            }
+            //搜索功能
+            form.on('submit(userTbSearch)', function(data) {
+                let productLineId = data.field.productLineId;
+                let productSeriesId = data.field.productSeriesId;
+                let equipmentId = data.field.equipmentId;
+                let productModelId = data.field.productModelId;
+                // 去空格
+                var s = $('#DialogproductName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#productCode2').val(result);
+                var code = $('#coding').val();
+                var Coderesult = code.replace(/\s+/g, "");
+                $('#productCode2').val(Coderesult);
+                table.reload('productTable2', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getProductsUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "equipmentId": data.field.equipmentId,
+                        "productModelId": data.field.productModelId,
+                        "productLineId": data.field.productLineId,
+                        "productSeriesId": data.field.productSeriesId,
+                        "productId": '',
+                        "productName": HTMLEncode(result),
+                        "productCode": HTMLEncode(Coderesult),
+                        "operatorId": operatorId,
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+
+            //设备产品初始化
+            function loadEquipment() {
+                //产品线初始化
+                $.ajax({
+                    url: getAllEquipmentAndProductModelUrl(),
+                    type: "get",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    success: function(result) {
+                        if (result.code == 0) {
+                            var arr = result.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#toolbarproductLine").append("<option value=" + item.id + ">" + item.name + "</option>");
+                                }
+                            }
+                        } else {
+                            $("#toolbarproductLine").empty();
+                            $("#toolbarproductLine").append("<option value=''>请先创建产品线</option>");
+                        }
+                        form.render();
+                        // 设备初始化   
+                        form.on('select(productLine)', function(data) {
+                            $("#toolbarequipments").empty();
+                            $("#toolbarproductModels").empty();
+                            $("#toolbarDialogproductCode").empty();
+                            if (!isEmpty(data.value)) {
+                                var productEquipments;
+                                for (var i = 0; i < arr.length; i++) {
+                                    if (arr[i].id == data.value) {
+                                        productEquipments = arr[i].equipmentModels;
+                                    }
+                                }
+                                if (productEquipments.length > 0) {
+                                    $("#toolbarequipments").append("<option value=''>请选择</option>");
+                                    for (var i = 0; i < productEquipments.length; i++) {
+                                        var item = productEquipments[i];
+                                        $("#toolbarequipments").append("<option value=" + item.equipmentId + ">" + item.equipmentName + "</option>");
+                                    }
+                                } else {
+                                    $("#toolbarequipments").append("<option value=''>请先创建设备</option>");
+                                }
+                            } else {
+                                $("#toolbarequipments").empty();
+                                $("#toolbarequipments").append("<option value=''>请先选择产品线</option>");
+                            }
+                            form.render();
+                        });
+                        // 产品系列初始化   
+                        form.on('select(equipments)', function(data) {
+                            $("#toolbarproductModels").empty();
+                            $("#toolbarDialogproductCode").empty();
+                            if (!isEmpty(data.value)) {
+                                var obj = {};
+                                var productSeriesModels;
+                                for (var key in arr) {
+                                    obj[key] = arr[key];
+                                    var productModels = obj[key].equipmentModels;
+                                    var obj1 = {};
+                                    for (var key in productModels) {
+                                        obj1[key] = productModels[key];
+                                        if (obj1[key].equipmentId == data.value) {
+                                            productSeriesModels = obj1[key].productSeriesModels;
+                                            if (productSeriesModels.length > 0) {
+                                                $("#toolbarproductModels").empty();
+                                                $("#toolbarproductModels").append("<option value=''>请选择</option>");
+                                                for (var i = 0; i < productSeriesModels.length; i++) {
+                                                    var item = productSeriesModels[i];
+                                                    $("#toolbarproductModels").append("<option value=" + item.productSeriesId + ">" + item.productSeriesName + "</option>");
+                                                }
+                                            } else {
+                                                $("#toolbarproductModels").append("<option value=''>请先创建产品系列</option>");
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                $("#toolbarproductModels").empty();
+                                $("#toolbarproductModels").append("<option value=''>请先选择设备类型</option>");
+                            }
+                            form.render();
+                            // 产品型号初始化   
+                            form.on('select(productModels)', function(data) {
+                                $("#toolbarDialogproductCode").empty();
+                                if (!isEmpty(data.value)) {
+                                    var productCode;
+                                    var obj = {};
+                                    for (var key in arr) {
+                                        obj[key] = arr[key];
+                                        var productModels = obj[key].equipmentModels;
+                                        var obj1 = {};
+                                        for (var key in productModels) {
+                                            obj1[key] = productModels[key];
+                                            var array = obj1[key].productSeriesModels;
+                                            var obj2 = {};
+                                            for (var key in array) {
+                                                obj2[key] = array[key];
+                                                if (obj2[key].productSeriesId == data.value) {
+                                                    productCode = obj2[key].productModelModelList;
+                                                    if (productCode.length > 0) {
+                                                        $("#toolbarDialogproductCode").empty();
+                                                        $("#toolbarDialogproductCode").append("<option value='' selected='selected'>请选择</option>");
+                                                        for (var i = 0; i < productCode.length; i++) {
+                                                            var item = productCode[i];
+                                                            $("#toolbarDialogproductCode").append("<option value=" + item.productModelId + ">" + item.productModelName +
+                                                                "</option>");
+                                                        }
+                                                    } else {
+                                                        $("#toolbarDialogproductCode").append("<option value=''>请先创建产品编号</option>");
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else {
+                                    $("#toolbarDialogproductCode").empty();
+                                    $("#toolbarDialogproductCode").append("<option value=''>请先选择产品系列</option>");
+                                }
+                                form.render();
+                            });
+                        });
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

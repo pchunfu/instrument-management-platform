@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>修改报销单</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-form-item {
+            display: inline-block;
+            width: 20%;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 130px;
+        }
+        
+        .layui-form-label {
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 style="text-align: center;">创想报销单</h2>
+    <form id="form" class="layui-form" action="" lay-filter="form_filter" style="margin-top: 10px;">
+        <div class="layui-form-item" style="padding-left: 80px;">
+            <label class="layui-form-label">申请日期：</label>
+            <div class="layui-input-inline">
+                <input id="reimbursementId" type="hidden" class="id" name="reimbursementId">
+                <label class="layui-form-label" id="application_date_value" name="application_date_value">2020-12-24</label>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">申请人：</label>
+            <div class="layui-input-inline">
+                <label class="layui-form-label" id="application_user_value" name="application_user_value">yhl</label>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">部门：</label>
+            <div class="layui-input-inline">
+                <label class="layui-form-label" id="application_user_department_value" name="application_user_department_value">研发部</label>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">岗位：</label>
+            <div class="layui-input-inline">
+                <label class="layui-form-label" style="width: 120px;" id="application_user_post_value" name="application_user_post_value">研发工程师</label>
+            </div>
+        </div>
+    </form>
+    <div id="invoice_table_div">
+        <table class="layui-hide" id="invoice_table" lay-filter="invoice_table"></table>
+        <button id="importExcel" class="layui-btn layui-btn-sm" style="display:none"></button>
+    </div>
+</body>
+<!-- 20201224;yhl;表头添加增加一行的按钮 -->
+<script type="text/html" id="bar">
+    <a class="layui-btn layui-btn-sm" lay-event="add" style="text-align: center; margin-left: 1%">添加发票</a>
+    <a id="import" class="layui-btn layui-btn-sm layui-btn-warm" lay-event="import" style="text-align: center; margin-left: 1%">导入发票</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete" style="text-align: center; margin-left: 1%">删除发票</a>
+    <!-- <a class="layui-btn layui-btn-sm" lay-event="submit"  style="text-align: center; margin-left: 1%">立即提交</a> -->
+</script>
+
+<script type="text/html" id="editBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+</script>
+
+<script>
+    //重新设置页面大小
+    // resize();
+    //Demo
+    var url = getUrl();
+    //表格数据
+    var invoiceMsgData = new Array();
+
+    var storage = window.localStorage;
+    //获取用户信息
+    var json = storage.getItem('userData');
+    var userData = JSON.parse(json);
+    var userId = userData.userId;
+
+    //发票总额
+    var totalInvoiceAmount;
+    //总税额
+    var totalTaxAmount;
+    //价税合计总额
+    var totalPriceTaxAmount;
+    //实际报销总额
+    var totalActualReimbursementAmount;
+    //添加报销单发票
+    var getInvoicesByReimbursementIdUrl = url + "finance/getInvoicesByReimbursementId/";
+    //删除发票
+    var deleteInvoicesUrl = url + "finance/deleteInvoices";
+    //下载发票模板
+    var fileDownloadInvoiceExcelTemplateUrl = url + "finance/fileDownload/invoiceExcelTemplate";
+    //上传发票信息
+    var uploadInvoiceDetailsByExcelUrl = url + "finance/uploadInvoiceDetailsByExcel";
+
+    layui.use(['form', 'layedit', 'laydate', 'table', 'upload'], function() {
+        var form = layui.form,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            laydate = layui.laydate,
+            table = layui.table,
+            upload = layui.upload,
+            $ = layui.$;
+        //获取当前的报销单ID
+        var reimbursementId = document.getElementById('reimbursementId').value;
+        //重组URL
+        getInvoicesByReimbursementIdUrl = getInvoicesByReimbursementIdUrl + reimbursementId;
+
+        table.render({
+            id: 'invoice_table',
+            elem: '#invoice_table',
+            // height: 700,
+            title: '发票信息',
+            page: true,
+            method: "get",
+            url: getInvoicesByReimbursementIdUrl,
+            async: true,
+            dataType: "JSON",
+            defaultToolbar: [],
+            toolbar: '#bar',
+            totalRow: true,
+            even: true,
+            loading: true,
+            cols: [
+                [ //表头
+                    {
+                        type: 'checkbox',
+                        totalRowText: '合计'
+                    }, {
+                        field: 'id',
+                        title: '序号',
+                        width: '4%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'userName',
+                        title: '姓名',
+                        width: '6%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'invoiceDate',
+                        title: '发票日期',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true,
+                        sort: true
+                    }, {
+                        field: 'invoiceCode',
+                        title: '发票代码',
+                        width: '9%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'invoiceNum',
+                        title: '发票号码',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'issuingOffice',
+                        title: '发票开票单位',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'amount',
+                        title: '发票金额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true,
+                        totalRow: true
+                    }, {
+                        field: 'taxAmount',
+                        title: '报销税额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true,
+                        totalRow: true
+                    }, {
+                        field: 'totalAmount',
+                        title: '价税合计金额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true,
+                        totalRow: true
+                    }, {
+                        field: 'actualReimbursementAmount',
+                        title: '实际报销金额',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true,
+                        totalRow: true
+                    }, {
+                        field: 'type',
+                        title: '报销类目',
+                        width: '14%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'remarks',
+                        title: '备注',
+                        width: '14%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'title',
+                        title: '发票图片',
+                        unresize: true,
+                        width: '6%',
+                        align: 'center',
+                        templet: '<div><img src="' + url + 'finance/fileDownload/{{d.id}}" width="100" height="100" style="width:30px;height:30px;" onclick="showBigImage(this)"/> </div>'
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '10%',
+                        align: 'center',
+                        toolbar: '#editBar'
+                    }
+                ]
+            ]
+        });
+
+        //监听头工具栏事件
+        table.on('toolbar(invoice_table)', function(obj) {
+            var checkStatus = table.checkStatus(obj.config.id),
+                data = checkStatus.data; //获取选中的数据
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        title: "添加发票",
+                        skin: 'layui-layer-rim', //加上边框
+                        area: ['700px', '400px'], //宽高
+                        offset: 'auto',
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: "./addInvoice.html", //调到新的界面
+                        success: function(layero, index) {
+                            // 获取子页面的iframe
+                            var iframe = window['layui-layer-iframe' + index];
+                            // 向子页面的全局函数child传参 //1表示从添加报销单跳转至添加发票，不可直接添加发票；2表示从更新报销单跳转至添加发票 则发票可直接添加到后端数据库并绑定到报销单
+                            data.jumpType = 2;
+                            data.reimbursementId = reimbursementId;
+                            iframe.child(data);
+                        },
+                        end: function() {
+                            table.reload('invoice_table', {
+                                page: {
+                                    curr: $(".layui-laypage-em").next().html()
+                                },
+                                method: "get",
+                                url: getInvoicesByReimbursementIdUrl,
+                                async: true,
+                                contentType: 'application/json; charset=utf-8',
+                                done: function(res) {
+                                    totalInvoiceAmount = this.elem.next().find('.layui-table-total td[data-field="amount"] .layui-table-cell').text();
+                                    totalTaxAmount = this.elem.next().find('.layui-table-total td[data-field="taxAmount"] .layui-table-cell').text();
+                                    totalPriceTaxAmount = this.elem.next().find('.layui-table-total td[data-field="totalAmount"] .layui-table-cell').text();
+                                    totalActualReimbursementAmount = this.elem.next().find('.layui-table-total td[data-field="actualReimbursementAmount"] .layui-table-cell').text();
+
+                                    $("[data-field='typeId']").css('display', 'none');
+                                    $("[data-field='link']").css('display', 'none');
+                                }
+                            });
+                        }
+                    });
+                    break;
+                case 'import':
+                    $("#importExcel").click();
+                    break;
+                case 'delete':
+                    //删除发票
+                    if (data.length <= 0) {
+                        alert("请选择至少一条记录进行删除");
+                    } else {
+                        if (confirm("确实要删除吗？")) {
+                            $.ajax({
+                                url: deleteInvoicesUrl,
+                                type: "post", // 采用post方法
+                                dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                                contentType: 'application/json; charset=utf-8',
+                                async: true,
+                                // 获取id=loginForm的form表单中的参数
+                                data: JSON.stringify({
+                                    "reimbursementId": reimbursementId,
+                                    "operatorId": userId,
+                                    "invoiceModels": data
+                                }),
+                                // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                                success: function(result) {
+                                    if (result.code == 0) {
+                                        alert(result.msg);
+                                        table.reload('invoice_table', {
+                                            page: {
+                                                curr: $(".layui-laypage-em").next().html()
+                                            },
+                                            method: "get",
+                                            url: getInvoicesByReimbursementIdUrl,
+                                            async: true,
+                                            contentType: 'application/json; charset=utf-8',
+                                            done: function(res) {
+                                                totalInvoiceAmount = this.elem.next().find('.layui-table-total td[data-field="amount"] .layui-table-cell').text();
+                                                totalTaxAmount = this.elem.next().find('.layui-table-total td[data-field="taxAmount"] .layui-table-cell').text();
+                                                totalPriceTaxAmount = this.elem.next().find('.layui-table-total td[data-field="totalAmount"] .layui-table-cell').text();
+                                                totalActualReimbursementAmount = this.elem.next().find('.layui-table-total td[data-field="actualReimbursementAmount"] .layui-table-cell').text();
+
+                                                $("[data-field='typeId']").css('display', 'none');
+                                                $("[data-field='link']").css('display', 'none');
+                                            }
+                                        });
+                                    } else {
+                                        alert(result.msg);
+                                    }
+                                },
+                                error: function() {
+                                    alert("服务器忙……请稍后重试！");
+                                }
+                            });
+                        }
+                    }
+                    break;
+                case 'exportTemplate':
+                    downloadExcelTemplate();
+                    break;
+            };
+        });
+
+        table.on('tool(invoice_table)', function(obj) {
+            var data = obj.data,
+                layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent === 'edit') {
+                layer.open({
+                    type: 2,
+                    title: "修改发票",
+                    skin: 'layui-layer-rim', //加上边框
+                    area: ['700px', '400px'], //宽高
+                    offset: 'auto',
+                    skin: 'layerdemo',
+                    resize: false,
+                    content: "./updateInvoice.html", //调到新的界面
+                    success: function(layero, index) {
+                        data.jumpType = 2;
+                        data.reimbursementId = reimbursementId;
+                        // 获取子页面的iframe
+                        var iframe = window['layui-layer-iframe' + index];
+                        // 向子页面的全局函数child传参
+                        iframe.child(data);
+                    },
+                    end: function() {
+                        table.reload('invoice_table', {
+                            data: invoiceMsgData,
+                            done: function(res) {
+                                totalInvoiceAmount = this.elem.next().find('.layui-table-total td[data-field="amount"] .layui-table-cell').text();
+                                totalTaxAmount = this.elem.next().find('.layui-table-total td[data-field="taxAmount"] .layui-table-cell').text();
+                                totalPriceTaxAmount = this.elem.next().find('.layui-table-total td[data-field="totalAmount"] .layui-table-cell').text();
+                                totalActualReimbursementAmount = this.elem.next().find('.layui-table-total td[data-field="actualReimbursementAmount"] .layui-table-cell').text();
+
+                                $("[data-field='typeId']").css('display', 'none');
+                                $("[data-field='link']").css('display', 'none');
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        upload.render({
+            elem: '#importExcel',
+            url: uploadInvoiceDetailsByExcelUrl,
+            accept: 'file' //普通文件
+                ,
+            exts: 'xls|excel|xlsx' //设置文件可以接受的格式
+                ,
+            data: {
+                'operatorId': userId,
+                'reimbursementId': reimbursementId
+            },
+            done: function(res) {
+                layer.msg(res.msg);
+                table.reload('invoice_table', {
+                    page: {
+                        curr: 1
+                    },
+                    method: "get",
+                    url: getInvoicesByReimbursementIdUrl,
+                    async: true,
+                    contentType: 'application/json; charset=utf-8',
+                    done: function(res) {
+                        totalInvoiceAmount = this.elem.next().find('.layui-table-total td[data-field="amount"] .layui-table-cell').text();
+                        totalTaxAmount = this.elem.next().find('.layui-table-total td[data-field="taxAmount"] .layui-table-cell').text();
+                        totalPriceTaxAmount = this.elem.next().find('.layui-table-total td[data-field="totalAmount"] .layui-table-cell').text();
+                        totalActualReimbursementAmount = this.elem.next().find('.layui-table-total td[data-field="actualReimbursementAmount"] .layui-table-cell').text();
+
+                        $("[data-field='typeId']").css('display', 'none');
+                        $("[data-field='link']").css('display', 'none');
+                    }
+                });
+            },
+            error: function() {
+                //请求异常回调
+            }
+        });
+
+        return false;
+    });
+
+    //回调发票信息
+    function getInvoiceMsg(invoiceMsg) {
+        invoiceMsgData.push(invoiceMsg);
+    }
+
+    //更新发票信息
+    function updateInvoiceMsg(invoiceMsg, link) {
+        for (var i = 0; i < invoiceMsgData.length; i++) {
+            if (invoiceMsgData[i].link == link) {
+                invoiceMsgData.splice(i, 1, invoiceMsg);
+            }
+        }
+    }
+
+    //显示大图片
+    function showBigImage(e) {
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            shadeClose: true, //点击阴影关闭
+            area: [$(e).width + 'px', $(e).height + 'px'], //宽高
+            content: "<img src=" + $(e).attr('src') + " />"
+        });
+    }
+
+    //下载发票的Excel模板
+    function downloadExcelTemplate() {
+        window.location.href = fileDownloadInvoiceExcelTemplateUrl;
+    }
+
+    //接收父级页面传值
+    function child(data) {
+        $("label[name='application_date_value']").html(data.applicationDate);
+        $("label[name='application_user_value']").html(data.userName);
+        $("label[name='application_user_department_value']").html(data.departmentName);
+        $("label[name='application_user_post_value']").html(data.postName);
+        $("input[name='reimbursementId']").val(data.id);
+    }
+</script>
+
+</html>

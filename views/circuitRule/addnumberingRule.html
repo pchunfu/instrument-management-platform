@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>生成编号规则</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-form-item {
+            margin-right: 20px;
+        }
+        
+        .layui-form-select dl {
+            max-height: 153px;
+        }
+        
+        .layui-textarea {
+            resize: none;
+            min-height: 50px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="productLineEditForm" lay-filter="productLineEditForm" class="layui-form model-form" style="padding: 0;">
+        <div class="layui-form-item" style="margin-top: 10px;">
+            <label class="layui-form-label layui-form-required" style="width: 105px;">特殊标志位：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 35px;display: inline-block;">
+                <select name="" id="">
+                    <option value="6-910">6-910</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 140px;">零件产品系列代号：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 0px;display: inline-block;">
+                <select id="productLine" lay-verType="tips" lay-verify="required|productLine" lay-reqText="请选择零件产品系列代号" name="productLine" lay-search="" lay-filter="productLine">
+                   <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 85px;">版本代号：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 55px;display: inline-block;">
+                <select id="DialogproductCode" lay-verType="tips" lay-verify="required|DialogproductCode" lay-reqText="请选择版本代号" name="productModelId" lay-search="" lay-filter="DialogproductCode">
+                  <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 115px;">零件中文名称：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 25px;display: inline-block;">
+                <input type="text" style="width: 200px;" autocomplete="off" id="Productname" name="Productname" placeholder="只允许输入中文" oninput="if(value.length>20)value=value.slice(0,20)" class="layui-input" lay-verType="tips" lay-reqText="请输入零件中文名称" lay-verify="required|Productname"
+                    required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 115px;">零件英文名称：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 25px;display: inline-block;">
+                <input type="text" style="width: 200px;" autocomplete="off" id="EnglishProductname" name="EnglishProductname" placeholder="只允许输入26个英文字母" oninput="if(value.length>20)value=value.slice(0,20)" class="layui-input" lay-verType="tips" lay-reqText="请输入零件英文名称"
+                    lay-verify="required|EnglishProductname" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 75px;">描述说明:</label>
+            <div class="layui-input-block" style="margin-left: 170px;">
+                <textarea name="description" id="description" lay-reqText="请输入描述说明" oninput="if(value.length>51)value=value.slice(0,51)" lay-verType="tips" lay-verify="required|description" lay-filter="description" placeholder="请输入描述说明" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-top: 10px;position: relative;">
+            <label class="layui-form-label layui-form-required" style="width: 110px;">电路编号规则：</label>
+            <div class="layui-input-block" style="width: 200px; margin-left: 145px;">
+                <input type="text" id="drawingCode" style="width: 200px;font-size: 20px;" autocomplete="off" class="layui-input" disabled>
+            </div>
+            <button class="layui-btn" style="position: absolute; right: 0;top: 0;" lay-filter="productSubmit" lay-submit>生成</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            layui.use(['layer', 'element', 'admin', 'form'], function() {
+                var element = layui.element;
+                var admin = layui.admin;
+                var layer = layui.layer;
+                var form = layui.form;
+                $ = layui.jquery;
+                $form = $('form');
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                var userId = userData.userId;
+                let operatorId = userId;
+                banben();
+                product();
+
+                function banben() {
+                    var arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                    for (var i = 0; i < arr.length; i++) {
+                        var item = arr[i];
+                        $('#DialogproductCode').append("<option value=" + item + ">" + item + "</option>");
+                    }
+                }
+                // 正则验证
+                form.verify({
+                        Productname: function(value, item) {
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '产品名称不能输入空格哦!';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '产品名称最多20位哦!';
+                            }
+                            if (!new RegExp("^[\u4e00-\u9fa5A-Za-z0-9\-\_]*$").test(value)) {
+                                return '中文产品名称只能输入数字、汉字、字母、或者中划线组成的字符串!';
+                            }
+                        },
+                        EnglishProductname: function(value, item) {
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (!/^.{1,20}$/.test(value)) {
+                                return '最多输入20位';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!/^[\w-\s]+$/.test(value)) {
+                                return '英文产品名称由数字、26个英文字母或者中划线组成';
+                            }
+                        },
+                        description: function(value, item) {
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (/^\d+\d+\d$/.test(value)) {
+                                return '不能全为数字';
+                            }
+                            if (!/^.{1,50}$/.test(value)) {
+                                return '最多输入50位！';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '不能有特殊字符哦';
+                            }
+                        }
+                    })
+                    // 初始化产品系列
+                function product() {
+                    $.ajax({
+                        url: getAllMechanicsProductCodesUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({
+                            isPage: false
+                        }),
+                        success: function(res) {
+                            if (res.code == 0) {
+                                var arr = res.data;
+                                if (arr.length > 0) {
+                                    for (var i = 0; i < arr.length; i++) {
+                                        var item = arr[i];
+                                        $("#productLine").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                    }
+                                } else {
+                                    $("#productLine").empty();
+                                    $("#productLine").append("<option value=''>请先创建产品产品系列</option>");
+                                }
+                                form.render();
+                            }
+
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    })
+                }
+                // 表单提交
+                form.on('submit(productSubmit)', function(data) {
+                    console.log(data);
+                    let operatorId = userId;
+                    $.ajax({
+                        url: addHardwareCircuitBoardDrawingCodeUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "productCodeId": data.field.productLine,
+                            "description": data.field.description,
+                            'version': data.field.productModelId,
+                            'partChineseName': data.field.Productname,
+                            'partEnglishName': data.field.EnglishProductname,
+                            'operatorId': operatorId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                $("#productLine").empty();
+                                $("#productLine").append("<option value=''>请选择</option>");
+                                $("#DialogproductCode").empty();
+                                $("#DialogproductCode").append("<option value=''>请选择</option>");
+                                banben();
+                                product();
+                                $("#Productname").val('');
+                                $("#EnglishProductname").val('');
+                                $("#description").val('');
+                                $("#drawingCode").val('');
+                                $('#drawingCode').val(result.data);
+                                form.render();
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

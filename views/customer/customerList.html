@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>客户列表</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/area.js?v=318"></script>
+    <style>
+        #form {
+            min-width: 1091px;
+        }
+        
+        .layui-form-label {
+            padding-left: 0;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 120px;
+        }
+        
+        .layui-form-item {
+            display: inline-block;
+        }
+        
+        .layui-card {
+            min-width: 1000px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form id="form" class="layui-form" action="">
+                <div class="layui-form-item" style="width: 226px;">
+                    <label class="layui-form-label">客户名称</label>
+                    <div class="layui-input-inline">
+                        <input name="customerName" type="text" oninput="if(value.length>20)value=value.slice(0,20)" autocomplete="off" placeholder="请输入客户名称" id="customerName" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="width: 226px;">
+                    <label class="layui-form-label">客户编码</label>
+                    <div class="layui-input-inline">
+                        <input name="customerCode" type="text" autocomplete="off" placeholder="请输入客户编码" id="customerCode" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择地区</label>
+                    <div class="layui-input-inline">
+                        <select name="province" id="province" lay-filter="province">
+                                <option value="">请选择省</option>
+                                </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="city" id="city" lay-filter="city">
+                  <option value="">请选择市</option>
+                </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="county" id="county" lay-filter="county">
+                  <option value="">请选择县/区</option>
+                </select>
+                    </div>
+
+                </div>
+                <div class="layui-input-inline" style="position: absolute;top: 10px;">
+                    <button id="147" class="layui-btn" style="width: 80px;" lay-submit lay-filter="queryBtn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    <a class="layui-btn form-search-expand" search-expand>
+                  展开 <i class="layui-icon layui-icon-down"></i></a>
+                </div>
+                <div>
+                    <div class="layui-form-item form-search-show-expand">
+                        <label class="layui-form-label">销售员</label>
+                        <div class="layui-input-inline">
+                            <select id="salesman" name="salesmanId" lay-filter="" lay-search="">
+                            <option value=""></option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item form-search-show-expand">
+                        <label class="layui-form-label">设备类型</label>
+                        <div class="layui-input-inline">
+                            <select id="equipment" name="equipmentId" lay-filter="equipment" lay-search="">
+                            <option value=""></option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item form-search-show-expand">
+                        <label class="layui-form-label">产品系列</label>
+                        <div class="layui-input-inline">
+                            <select id="productModel" name="productModelId" lay-filter="productModel" lay-search="">
+                        <option value=""></option>
+                    </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <table class="layui-hide" id="customerTable" lay-filter="test"></table>
+        </div>
+    </div>
+    <script type="text/html" id="barDemo">
+        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='47' ){ }} <a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="assignProduct">产品绑定</a> {{# } }} {{# if(l_ist[i]=='48' ){ }}
+            <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a> {{# } }} {{# if(l_ist[i]=='49' ){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>{{# } }} {{# } }}
+            <!-- {{#
+	  	var storage = window.localStorage;
+	  	var json = storage.getItem('auth');
+	  	var authData = JSON.parse(json);
+	  }}
+	  {{# 
+	  for(var i = 0;i < authData.length;i ++){
+	  	}}
+			{{# 
+			if(authData[i].parentId > 0 && authData[i].identification === "customer:assignProduct"){ 
+				}}
+				<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="assignProduct">产品绑定</a>
+			{{#
+			}
+			}}
+			
+			{{#
+			if(authData[i].parentId > 0 && authData[i].identification === "customer:edit"){
+				}}
+				<a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+			{{#
+			}
+			}}
+				
+			{{# 
+			if(authData[i].parentId > 0 && authData[i].identification === "customer:delete"){
+				}}
+				<a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+			{{#
+			}
+			}}
+			
+		{{#
+		}
+		}} -->
+    </script>
+
+    <script type="text/html" id="customerTabelToolBar">
+        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='114' ){ }} <a class="layui-btn layui-btn-sm" lay-event="addCustomer">添加</a> {{# } } }}
+            <!-- {{# var storage = window.localStorage; var json = storage.getItem('auth'); var authData = JSON.parse(json); }} {{# for(var i = 0;i
+        < authData.length;i ++){ }} {{# if(authData[i].parentId> 0 && authData[i].identification === "customer:add"){ }}
+            <a class="layui-btn layui-btn-sm" lay-event="addCustomer">添加</a> {{# } } }} -->
+    </script>
+
+    <script>
+        //重新设置页面大小
+        // resize();
+        layui.config({
+            version: '1560414887155' //为了更新 js 缓存，可忽略
+        });
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var json = storage.getItem('auth');
+        var authData = JSON.parse(json);
+        //用户权限判断
+        $('#147').hide();
+        var l_ist = userData.permissionId;
+        for (var i = 0; i < l_ist.length; i++) {
+            var item = l_ist[i];
+            if (l_ist[i] == 147) {
+                $('#147').show();
+            }
+
+        }
+        var areaData = Area;
+        var $form;
+        var form;
+
+        layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider', 'admin', 'form'],
+            function() {
+
+                var table = layui.table //表格
+                    ,
+                    laypage = layui.laypage //分页
+                    ,
+                    element = layui.element; //元素操作
+                var layer = layui.layer;
+                var admin = layui.admin;
+                form = layui.form;
+                $form = $('form');
+                loadProvince();
+                loadSaleMan();
+
+                //监听Tab切换
+                element.on('tab(demo)', function(data) {
+                    layer.tips('切换了 ' + data.index + '：' + this.innerHTML, this, {
+                        tips: 1
+                    });
+                });
+                // 设备类型初始化
+                $.ajax({
+                    url: getAllEquipmentAndProductModelUrl(),
+                    type: "get", // 采用post方法
+                    dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                    contentType: 'application/json; charset=utf-8',
+                    // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                    success: function(result) {
+                        if (result.code == 0) {
+                            var datas = result.data;
+                            if (datas.length > 0) {
+                                $("#equipment").empty(); //清空下拉框
+                                $("#equipment").append("<option value=''>请选择</option>");
+                                for (var i = 0; i < datas.length; i++) {
+                                    var item = datas[i].equipmentModels;
+                                    for (var j = 0; j < item.length; j++) {
+                                        var arr = item[j];
+                                        $("#equipment").append("<option value=" + arr.equipmentId + ">" + arr.equipmentName + "</option>");
+                                        form.render();
+                                    }
+                                }
+                            }
+                            form.on('select(equipment)', function(data) {
+                                if (!isEmpty(data.value)) {
+                                    var productModelModels;
+                                    for (var i = 0; i < datas.length; i++) {
+                                        var item = datas[i].equipmentModels;
+                                        for (var j = 0; j < item.length; j++) {
+                                            if (item[j].equipmentId == data.value) {
+                                                productModelModels = item[j].productSeriesModels;
+
+                                            }
+                                        }
+                                    }
+                                    if (productModelModels.length > 0) {
+                                        $("#productModel").empty(); //清空下拉框
+                                        $("#productModel").append("<option value='' selected='selected'>请选择</option>");
+                                        for (var i = 0; i < productModelModels.length; i++) {
+                                            var item = productModelModels[i];
+                                            $("#productModel").append("<option value=" + item.productSeriesId + ">" + item.productSeriesName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#productModel").empty(); //清空下拉框
+                                    $("#productModel").append("<option value=''>请新建产品系列</option>");
+                                }
+                                form.render();
+                            });
+                        } else {
+                            $("#equipment").empty(); //清空下拉框
+                            $("#equipment").append("<option value=''>请创建设备</option>");
+                            form.render();
+                        }
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+
+                form.on('submit(queryBtn)', function(data) {
+                    let customerName = data.field.customerName;
+                    let customerCode = data.field.customerCode;
+                    let province = data.field.province;
+                    let city = data.field.city;
+                    let county = data.field.county;
+                    let salesMan = data.field.salesmanId;
+                    let equipmentId = data.field.equipmentId;
+                    let productModelId = data.field.productModelId;
+                    if (province != '') {
+                        province = province.split('_')[0];
+                        if (city != '') {
+                            city = city.split('_')[0];
+                        } else {
+                            county = '';
+                        }
+                    } else {
+                        city = '';
+                        county = '';
+                    }
+
+                    table.reload('customerTable', {
+                        page: {
+                            curr: 1
+                        },
+                        url: getAllCustomerLocationMsgForTableUrl(),
+                        method: "post",
+                        contentType: 'application/json; charset=utf-8',
+                        where: {
+                            customerName: HTMLEncode(customerName),
+                            customerCode: HTMLEncode(customerCode),
+                            provinceCode: province,
+                            cityCode: city,
+                            areaCode: county,
+                            salesMan: salesMan,
+                            equipmentId: equipmentId,
+                            productModelId: productModelId
+                        },
+                        done: function(res, curr, count) {
+
+                        }
+                    });
+                    return false;
+                });
+
+                table.render({
+                    id: 'customerTable',
+                    elem: '#customerTable',
+                    title: '客户表',
+                    page: true,
+                    defaultToolbar: [],
+                    method: 'post',
+                    contentType: 'application/json; charset=utf-8',
+                    url: getAllCustomerLocationMsgForTableUrl(),
+                    async: true,
+                    dataType: "JSON",
+                    toolbar: '#customerTabelToolBar',
+                    cols: [
+                        [ //表头
+                            {
+                                type: 'checkbox',
+                                fixed: 'left'
+                            }, {
+                                type: 'numbers',
+                                title: '序号',
+                                width: '10%'
+                            }, {
+                                field: 'customerName',
+                                title: '客户名称',
+                                width: '14%',
+                                align: 'center',
+                                unresize: true
+                            }, {
+                                field: 'customerCode',
+                                title: '客户编码',
+                                width: '15%',
+                                align: 'center',
+                                unresize: true
+                            }, {
+                                field: 'location',
+                                title: '客户位置',
+                                width: '20%',
+                                align: 'center',
+                                unresize: true
+                            }, {
+                                field: 'salesManName',
+                                title: '销售员',
+                                width: '8%',
+                                align: 'center',
+                                unresize: true
+                            }, {
+                                fixed: 'right',
+                                title: '操作',
+                                align: 'center',
+                                toolbar: '#barDemo',
+                                unresize: true
+                            }
+                        ]
+                    ],
+                    done: function() {}
+                });
+                //监听头工具栏事件
+                table.on('toolbar(test)', function(obj) {
+                    var checkStatus = table.checkStatus(obj.config.id),
+                        data = checkStatus.data; //获取选中的数据
+                    switch (obj.event) {
+                        case 'addCustomer':
+                            layer.open({
+                                type: 2,
+                                title: "添加客户",
+                                skin: 'layui-layer-rim', //加上边框
+                                area: ['100%', '100%'], //宽高
+                                offset: 'auto',
+                                skin: 'layerdemo',
+                                resize: false,
+                                content: "../../views/customer/addCustomer.html", //调到新的界面
+                                end: function() {
+                                    // let customerName = document.getElementById('customerName').value;
+                                    // let customerCode = document.getElementById('customerCode').value;
+                                    // let province = document.getElementById('province').value;
+                                    // let city = document.getElementById('city').value;
+                                    // let county = document.getElementById('county').value;
+                                    // let salesMan = document.getElementById('salesman').value;
+                                    // let equipmentId = document.getElementById('equipment').value;
+                                    // let productModelId = document.getElementById('productModel').value;
+                                    // if (province != '') {
+                                    //     province = province.split('_')[0];
+                                    //     if (city != '') {
+                                    //         city = city.split('_')[0];
+                                    //     } else {
+                                    //         county = '';
+                                    //     }
+                                    // } else {
+                                    //     city = '';
+                                    //     county = '';
+                                    // }
+                                    table.reload('customerTable', {
+                                        page: {
+                                            curr: 1
+                                        },
+                                        url: getAllCustomerLocationMsgForTableUrl(),
+                                        where: {
+                                            isPage: true
+                                                // customerName: HTMLEncode(customerName),
+                                                // customerCode: HTMLEncode(customerCode),
+                                                // provinceCode: province,
+                                                // cityCode: city,
+                                                // areaCode: county,
+                                                // salesMan: salesMan,
+                                                // equipmentId: equipmentId,
+                                                // productModelId: productModelId
+                                        },
+                                        method: "post",
+                                        contentType: 'application/json; charset=utf-8'
+                                    });
+                                }
+                            });
+                            break;
+                        case 'DIY_EXPORT':
+                            if (data.length <= 0) {
+                                alert("请选择至少一条记录进行导出");
+                            } else {
+                                table.exportFile(obj.config.id, data, 'xls');
+                            }
+                            break;
+                    };
+                });
+
+                //监听行工具事件
+                table.on('tool(test)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+                    var data = obj.data, //获得当前行数据
+                        layEvent = obj.event; //获得 lay-event 对应的值
+                    if (layEvent === 'assignProduct') {
+                        layer.open({
+                            type: 2,
+                            title: "配置产品",
+                            skin: 'layui-layer-rim', //加上边框
+                            area: ['750px', '480px'], //宽高
+                            offset: 'auto',
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: "../../../views/product/assignProduct.html", //调到新的界面
+                            success: function(layero, index) {
+                                var customerId = layer.getChildFrame("#customerId", index);
+                                customerId.val(data.customerId);
+                                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                                iframeWin.init();
+
+                            },
+                            end: function() {
+                                let customerName = document.getElementById('customerName').value;
+                                let customerCode = document.getElementById('customerCode').value;
+                                let province = document.getElementById('province').value;
+                                let city = document.getElementById('city').value;
+                                let county = document.getElementById('county').value;
+                                let salesMan = document.getElementById('salesman').value;
+                                let equipmentId = document.getElementById('equipment').value;
+                                let productModelId = document.getElementById('productModel').value;
+                                if (province != '') {
+                                    province = province.split('_')[0];
+                                    if (city != '') {
+                                        city = city.split('_')[0];
+                                    } else {
+                                        county = '';
+                                    }
+                                } else {
+                                    city = '';
+                                    county = '';
+                                }
+                                table.reload('customerTable', {
+                                    page: {
+                                        curr: $(".layui-laypage-em").next().html()
+                                    },
+                                    url: getAllCustomerLocationMsgForTableUrl(),
+                                    where: {
+                                        customerName: HTMLEncode(customerName),
+                                        customerCode: HTMLEncode(customerCode),
+                                        provinceCode: province,
+                                        cityCode: city,
+                                        areaCode: county,
+                                        salesMan: salesMan,
+                                        equipmentId: equipmentId,
+                                        productModelId: productModelId
+                                    },
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8'
+                                });
+                            }
+                        });
+                        // admin.open({
+                        //     type: 2,
+                        //     title: "配置产品",
+                        //     area: ['750px', '480px'], //宽高
+                        //     offset: ['30px'],
+                        //     resize: false,
+                        //     content: "../../../views/product/assignProduct.html", //调到新的界面
+                        //     success: function(layero, index) {
+                        //         var customerId = layer.getChildFrame("#customerId", index);
+                        //         customerId.val(data.customerId);
+                        //         var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                        //         iframeWin.init();
+                        //     },
+                        //     end: function() {
+                        //         let customerName = document.getElementById('customerName').value;
+                        //         let customerCode = document.getElementById('customerCode').value;
+                        //         let province = document.getElementById('province').value;
+                        //         let city = document.getElementById('city').value;
+                        //         let county = document.getElementById('county').value;
+                        //         let salesMan = document.getElementById('salesman').value;
+                        //         let equipmentId = document.getElementById('equipment').value;
+                        //         let productModelId = document.getElementById('productModel').value;
+                        //         if (province != '') {
+                        //             province = province.split('_')[0];
+                        //             if (city != '') {
+                        //                 city = city.split('_')[0];
+                        //             } else {
+                        //                 county = '';
+                        //             }
+                        //         } else {
+                        //             city = '';
+                        //             county = '';
+                        //         }
+                        //         table.reload('customerTable', {
+                        //             page: {
+                        //                 curr: $(".layui-laypage-em").next().html()
+                        //             },
+                        //             url: getAllCustomerLocationMsgForTableUrl(),
+                        //             where: {
+                        //                 customerName: HTMLEncode(customerName),
+                        //                 customerCode: HTMLEncode(customerCode),
+                        //                 provinceCode: province,
+                        //                 cityCode: city,
+                        //                 areaCode: county,
+                        //                 salesMan: salesMan,
+                        //                 equipmentId: equipmentId,
+                        //                 productModelId: productModelId
+                        //             },
+                        //             method: "post",
+                        //             contentType: 'application/json; charset=utf-8'
+                        //         });
+                        //     }
+                        // });
+                    } else if (layEvent === 'del') {
+                        layer.confirm('真的删除行么', function(index) {
+                            obj.del(); //删除对应行（tr）的DOM结构
+                            layer.close(index);
+                            let customerId = data.customerId;
+                            //获取用户信息
+                            var storage = window.localStorage;
+                            var json = storage.getItem('userData');
+                            var userData = JSON.parse(json);
+                            let operatorId = userData.userId;
+
+                            $.ajax({
+                                url: deleteCustomerUrl(),
+                                type: "post", // 采用post方法
+                                dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                                contentType: 'application/json; charset=utf-8',
+                                async: false,
+                                // 获取id=loginForm的form表单中的参数
+                                data: JSON.stringify({
+                                    "customerId": customerId,
+                                    "operatorId": operatorId
+                                }),
+                                // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                                success: function(result) {
+                                    if (result.code == 0) {
+                                        layer.msg(result.msg, {
+                                            icon: 1
+                                        });
+                                        let customerName = document.getElementById('customerName').value;
+                                        let customerCode = document.getElementById('customerCode').value;
+                                        let province = document.getElementById('province').value;
+                                        let city = document.getElementById('city').value;
+                                        let county = document.getElementById('county').value;
+                                        let salesMan = document.getElementById('salesman').value;
+                                        let equipmentId = document.getElementById('equipment').value;
+                                        let productModelId = document.getElementById('productModel').value;
+                                        if (province != '') {
+                                            province = province.split('_')[0];
+                                            if (city != '') {
+                                                city = city.split('_')[0];
+                                            } else {
+                                                county = '';
+                                            }
+                                        } else {
+                                            city = '';
+                                            county = '';
+                                        }
+                                        table.reload('customerTable', {
+                                            page: {
+                                                curr: $(".layui-laypage-em").next().html()
+                                            },
+                                            url: getAllCustomerLocationMsgForTableUrl(),
+                                            where: {
+                                                customerName: HTMLEncode(customerName),
+                                                customerCode: HTMLEncode(customerCode),
+                                                provinceCode: province,
+                                                cityCode: city,
+                                                areaCode: county,
+                                                salesMan: salesMan,
+                                                equipmentId: equipmentId,
+                                                productModelId: productModelId
+                                            },
+                                            method: "post",
+                                            contentType: 'application/json; charset=utf-8'
+                                        });
+                                    } else {
+                                        alert(result.msg);
+                                    }
+
+                                },
+                                error: function() {
+                                    alert("服务器忙……请稍后重试！");
+                                }
+                            });
+                        });
+                    } else if (layEvent === 'edit') {
+                        layer.open({
+                            type: 2,
+                            title: "修改客户信息",
+                            skin: 'layui-layer-rim', //加上边框
+                            area: ['100%', '100%'], //宽高
+                            offset: 'auto',
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: "../../../views/customer/updateCustomer.html", //调到新的界面
+                            success: function(layero, index) {
+                                // 获取子页面的iframe
+                                var iframe = window['layui-layer-iframe' + index];
+                                // 向子页面的全局函数child传参
+                                iframe.child(data);
+                            },
+                            end: function() {
+                                let customerName = document.getElementById('customerName').value;
+                                let customerCode = document.getElementById('customerCode').value;
+                                let province = document.getElementById('province').value;
+                                let city = document.getElementById('city').value;
+                                let county = document.getElementById('county').value;
+                                let salesMan = document.getElementById('salesman').value;
+                                let equipmentId = document.getElementById('equipment').value;
+                                let productModelId = document.getElementById('productModel').value;
+                                if (province != '') {
+                                    province = province.split('_')[0];
+                                    if (city != '') {
+                                        city = city.split('_')[0];
+                                    } else {
+                                        county = '';
+                                    }
+                                } else {
+                                    city = '';
+                                    county = '';
+                                }
+                                table.reload('customerTable', {
+                                    page: {
+                                        curr: $(".layui-laypage-em").next().html()
+                                    },
+                                    url: getAllCustomerLocationMsgForTableUrl(),
+                                    where: {
+                                        customerName: HTMLEncode(customerName),
+                                        customerCode: HTMLEncode(customerCode),
+                                        provinceCode: province,
+                                        cityCode: city,
+                                        areaCode: county,
+                                        salesMan: salesMan,
+                                        equipmentId: equipmentId,
+                                        productModelId: productModelId
+                                    },
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+        //加载省的数据
+        function loadProvince() {
+            var proHtml = '';
+            for (var i = 0; i < areaData.length; i++) {
+                proHtml += '<option value="' + areaData[i].provinceCode + '_' + areaData[i].mallCityList.length + '_' + i + '">' +
+                    areaData[i].provinceName + '</option>';
+            } //初始化省数据
+            $form.find('select[name=province]').append(proHtml);
+            form.render();
+            form.on('select(province)', function(data) {
+                // $form.find('select[name=area]').html('<option value="">请选择县/区</option>').parent().hide();
+                var value = data.value;
+
+                if (value != '') {
+                    var d = value.split('_');
+                    var code = d[0];
+                    var count = d[1];
+                    var index = d[2];
+                    if (count > 0) {
+                        loadCity(areaData[index].mallCityList);
+                    } else {
+                        $form.find('select[name=city]').parent().hide();
+                        $form.find('select[name=county]').parent().hide();
+                    }
+                } else {
+                    $form.find('select[name=city]').empty();
+                    $form.find('select[name=county]').empty();
+                    form.render();
+                }
+            });
+        }
+
+        //加载市的数据
+        function loadCity(citys) {
+            var cityHtml = '';
+            cityHtml += '<option value="">请选择市</option>';
+            for (var i = 0; i < citys.length; i++) {
+                cityHtml += '<option value="' + citys[i].cityCode + '_' + citys[i].mallAreaList.length + '_' + i + '">' + citys[i]
+                    .cityName + '</option>';
+            }
+            $form.find('select[name=city]').html(cityHtml).parent().show();
+            var areaHtml = '<option value="">请选择县/区</option>';
+            $form.find('select[name=county]').html(areaHtml).parent().show();
+            form.render();
+            form.on('select(city)', function(data) {
+                var value = data.value;
+                if (value != '') {
+                    var d = value.split('_');
+                    var code = d[0];
+                    var count = d[1];
+                    var index = d[2];
+                    if (count > 0) {
+                        loadArea(citys[index].mallAreaList);
+                    } else {
+                        $form.find('select[name=county]').parent().hide();
+                    }
+                } else {
+                    $form.find('select[name=county]').empty();
+                    form.render();
+                }
+            });
+        }
+
+        //加载县的数据
+        function loadArea(areas) {
+            var areaHtml = '';
+            areaHtml += '<option value="">请选择县/区</option>';
+            for (var i = 0; i < areas.length; i++) {
+                areaHtml += '<option value="' + areas[i].areaCode + '">' + areas[i].areaName + '</option>';
+            }
+            $form.find('select[name=county]').html(areaHtml).parent().show();
+            form.render();
+            form.on('select(county)',
+                function(data) {});
+        }
+
+        //加载业务员信息
+        function loadSaleMan() {
+            $.ajax({
+                url: getUserByRoleNameUrl("销售员"),
+                type: "get", // 采用post方法
+                dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                contentType: 'application/json; charset=utf-8',
+                // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                success: function(result) {
+                    if (result.code == 0) {
+                        var datas = result.data;
+                        if (datas.length > 0) {
+                            $("#salesman").empty(); //清空下拉框
+                            $("#salesman").append("<option value=''>请选择</option>");
+                            for (var i = 0; i < datas.length; i++) {
+                                var item = datas[i];
+                                $("#salesman").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                            }
+                        }
+                    } else {
+                        $("#salesman").empty(); //清空下拉框
+                        $("#salesman").append("<option value=''>请创建销售员角色</option>");
+                    }
+                    form.render();
+                },
+                error: function() {
+                    alert("服务器忙……请稍后重试！");
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

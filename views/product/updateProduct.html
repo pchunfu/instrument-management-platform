@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>修改产品信息</title>
+
+  <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+  <style>
+    body {
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="form" class="layui-form" action="">
+    <div class="layui-form-item">
+      <label class="layui-form-label">产品名称</label>
+      <div class="layui-input-inline" style="margin-right: 35px">
+        <!-- 使用隐藏域用于保存编辑项的ID值，便于提交修改 -->
+        <input id="productId" type="hidden" class="id" name="productId">
+        <input id="productName" type="text" name="productName" required lay-verify="required" placeholder="请输入产品名称" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">产品编码</label>
+      <div class="layui-input-inline" style="margin-right: 35px">
+        <input id="productCode" type="text" name="productCode" required lay-verify="required" placeholder="请输入产品编码" autocomplete="off" class="layui-input">
+      </div>
+      <!-- <div class="layui-form-mid layui-word-aux"></div> -->
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">设备</label>
+      <div class="layui-input-inline" style="margin-right: 35px">
+        <select id="equipment" name="equipmentId" lay-filter="equipment" required lay-verify="required">
+          <option value=""></option>
+        </select>
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">产品系列</label>
+      <div class="layui-input-inline" style="margin-right: 35px">
+        <select id="productModel" name="productModelId" required lay-verify="required">
+          <option value="">请选择</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <div class="layui-input-block" style="margin-left: 170px">
+        <button class="layui-btn" lay-submit lay-filter="formDemo">更新</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    //重新设置页面大小
+    resize();
+    layui.use('form', function() {
+      var form = layui.form;
+      loadData();
+      //监听更新
+      form.on('submit(formDemo)', function(data) {
+
+        let productId = data.field.productId;
+        let productName = data.field.productName;
+        let productCode = data.field.productCode;
+        let equipmentId = data.field.equipmentId;
+        let productModelId = data.field.productModelId;
+
+
+        var checkproductName = /^[^\s]*$/;
+        if (checkproductName.test(productName) == false) {
+          alert("产品名称不允许输入空格哦");
+          return false;
+        }
+        var checkproductName = /^.{1,20}$/;
+        if (checkproductName.test(productName) == false) {
+          alert("产品名称最多输入为20位");
+          return false;
+        }
+        var checkproductCode = /^.{1,20}$/;
+        if (checkproductCode.test(productCode) == false) {
+          alert("产品编码最多输入为20位");
+          return false;
+        }
+        var checkproductCode = /^[^\s]*$/;
+        if (checkproductCode.test(productCode) == false) {
+          alert("产品编码不允许输入空格哦");
+          return false;
+        }
+        // var checkproductName = /^[a-zA-Z0-9_\u4E00-\u9FA5]{2,20}$/;
+        // if(checkproductName.test(productName) == false){
+        //   alert("产品名称为2-20位的汉字、数字、字母、下划线");
+        //   return false;
+        // }
+        // var checkproductCode = /^[a-zA-Z0-9_\u4E00-\u9FA5]{2,20}$/;
+        // if(checkproductCode.test(productCode) == false){
+        //   alert("产品编码为2-20位的汉字、数字、字母、下划线");
+        //   return false;
+        // }
+        //获取用户信息
+        var storage = window.localStorage;
+        var json = storage.getItem('userData');
+        var userData = JSON.parse(json);
+        let operatorId = userData.userId;
+
+        $.ajax({
+          url: updateProductUrl(),
+          type: "post", // 采用post方法
+          dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+          contentType: 'application/json; charset=utf-8',
+          async: false,
+          // 获取id=loginForm的form表单中的参数
+          data: JSON.stringify({
+            "productId": productId,
+            "equipmentId": equipmentId,
+            "productModelId": productModelId,
+            "productName": HTMLEncode(productName),
+            "productCode": HTMLEncode(productCode),
+            "operatorId": operatorId
+          }),
+          // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+          success: function(result) {
+            if (result.code == 0) {
+              //关闭图层
+              alert(result.msg);
+              //先取到该子页面在父级页面中的name 值
+              var index = parent.layer.getFrameIndex(Window.name);
+              //然后用该方法关闭
+              parent.layer.closeAll();
+
+            } else {
+              alert(result.msg);
+            }
+
+          },
+          error: function() {
+            alert("服务器忙……请稍后重试！");
+          }
+        });
+
+        return false;
+      });
+
+    });
+
+    function loadData() {
+      $.ajax({
+        url: getAllEquipmentAndProductModelUrl(),
+        type: "get", // 采用get方法
+        dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+        contentType: 'application/json; charset=utf-8',
+        async: true,
+        // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+        success: function(result) {
+          if (result.code == 0) {
+            var datas = result.data;
+            console.log(datas);
+            var key;
+            if (datas.length > 0) {
+              var value = $("#equipment option:selected").val();
+              $("#equipment").empty(); //清空下拉框
+              $("#equipment").append("<option value=''>--请选择--</option>");
+              for (var i = 0; i < datas.length; i++) {
+                var item = datas[i];
+                if (item.equipmentId != value) {
+                  $("#equipment").append("<option value=" + item.equipmentId + ">" + item.equipmentName + "</option>");
+                } else {
+                  $("#equipment").append("<option value=" + item.equipmentId + " selected='selected' >" + item.equipmentName + "</option>");
+                  key = i;
+                }
+              }
+            } else {
+              $("#equipment").empty(); //清空下拉框
+              $("#equipment").append("<option value=''>--请新建设备--</option>");
+            }
+
+            var productModelModels;
+            productModelModels = datas[key].productModelModels;
+
+            if (productModelModels.length > 0) {
+              var value = $("#productModel option:selected").val();
+              $("#productModel").empty(); //清空下拉框
+              $("#productModel").append("<option value=''>--请选择--</option>");
+              for (var i = 0; i < productModelModels.length; i++) {
+                var item = productModelModels[i];
+                if (item.productModelId != value) {
+                  $("#productModel").append("<option value=" + item.productModelId + ">" + item.productModelName + "</option>");
+                } else {
+                  $("#productModel").append("<option value=" + item.productModelId + " selected='selected' >" + item.productModelName + "</option>");
+                }
+              }
+            } else {
+              $("#productModel").empty(); //清空下拉框
+              $("#productModel").append("<option value=''>--请新建产品系列--</option>");
+            }
+
+            layui.use('form', function() {
+              var form = layui.form;
+              form.render(); //注意渲染页面表单，否则不显示数据
+
+              form.on('select(equipment)', function(data) {
+                if (!isEmpty(data.value)) {
+                  var productModelModels;
+                  for (var i = 0; i < datas.length; i++) {
+                    if (datas[i].equipmentId == data.value) {
+                      productModelModels = datas[i].productModelModels;
+                    }
+                  }
+                  if (productModelModels.length > 0) {
+                    $("#productModel").empty(); //清空下拉框
+                    $("#productModel").append("<option value='' selected='selected'>--请选择--</option>");
+                    for (var i = 0; i < productModelModels.length; i++) {
+                      var item = productModelModels[i];
+                      $("#productModel").append("<option value=" + item.productModelId + ">" + item.productModelName + "</option>");
+                    }
+                  } else {
+                    $("#productModel").empty(); //清空下拉框
+                    $("#productModel").append("<option value=''>--请新建产品系列--</option>");
+                  }
+                } else {
+                  $("#productModel").empty(); //清空下拉框
+                }
+                form.render(); //注意渲染页面表单，否则不显示数据
+              });
+            });
+          } else {
+            alert(result.msg);
+          }
+        }
+      });
+    }
+
+    //判断字符是否为空的方法
+    function isEmpty(obj) {
+      if (typeof obj == "undefined" || obj == null || obj == "") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  </script>
+</body>
+
+</html>

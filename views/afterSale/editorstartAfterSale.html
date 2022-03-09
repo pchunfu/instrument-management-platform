@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>修改开始售后服务</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        .layui-form-label {
+            padding: 0;
+            margin-top: 9px;
+            margin-right: 9px;
+        }
+        
+        .layui-textarea {
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:100%">
+        <form id="afterSaleForm1" lay-filter="afterSaleForm1" class="layui-form model-form">
+            <div>
+                <div class="layui-form-item" style="display: inline-block; width: 45%;">
+                    <label class="layui-form-label layui-form-required">服务主题</label>
+                    <div class="layui-input-block">
+                        <select id="afterSaleServiceTopic" lay-verType="tips" lay-verify="required|afterSaleServiceTopic" lay-reqText="请选择服务主题" name="afterSaleServiceTopic" lay-search="" lay-filter="afterSaleServiceTopic">
+              <option value="">请选择</option>
+              <option value="1">安装服务</option>
+              <option value="2">维护服务</option>
+              </select>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 50%;">
+                    <label class="layui-form-label layui-form-required">服务分类</label>
+                    <div class="layui-input-block">
+                        <select id="afterSaleServiceCategory" lay-verType="tips" lay-verify="required|afterSaleServiceCategory" lay-reqText="请选择服务分类" name="afterSaleServiceCategory" lay-search="" lay-filter="afterSaleServiceCategory">
+              <option value="">请选择</option>
+              <option value="1">应用问题</option>
+              <option value="2">产品问题</option>
+              </select>
+                    </div>
+                </div>
+                <div>
+                    <div class="layui-form-item" style="display: inline-block; width: 45%;">
+                        <label class="layui-form-label" style="padding-left: 0;width: 60px;">客户</label>
+                        <div class="layui-input-block" style="margin-left: 110px;">
+                            <select id="clients" lay-verType="tips" lay-verify="required|client" lay-reqText="请选择客户" name="clients" lay-search="" lay-filter="clients">
+                    <option value=""></option>
+                  </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="display: inline-block; width: 50%;">
+                        <label class="layui-form-label layui-form-required">服务产品</label>
+                        <div class="layui-input-block">
+                            <select id="Models" lay-verType="tips" lay-verify="required|productModels" lay-reqText="请选择服务产品" name="productModels" lay-search="" lay-filter="Models">
+                  <option value="">请选择</option>
+                  </select>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="layui-form-item" style="display: inline-block;width: 45%;">
+                        <label class="layui-form-label layui-form-required">联系人</label>
+                        <div class="layui-input-block">
+                            <input id="contacts" name="name" autocomplete="off" placeholder="请输入联系人" lay-reqText="请输入联系人" oninput="if(value.length>5)value=value.slice(0,5)" class="layui-input" lay-verType="tips" lay-verify="required|contacts" required/>
+                            <span style="color:red">(5个字符或5个中文字)</span>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="display: inline-block;width: 50%;">
+                        <label class="layui-form-label layui-form-required">联系电话</label>
+                        <div class="layui-input-block">
+                            <input id="contactNum" type="text" autocomplete="off" name="coding" placeholder="请输入联系电话" lay-reqText="请输入联系电话" oninput="if(value.length>11)value=value.slice(0,11)" class="layui-input" lay-verType="tips" lay-verify="required|phone" required>
+                            <span style="color:red">(只允许输入11位数字)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 45%;">
+                    <label class="layui-form-label layui-form-required">处理人员</label>
+                    <div class="layui-input-block">
+                        <select id="serviceProcessingPersonnelId1" lay-verType="tips" lay-verify="required|serviceProcessingPersonnelId" lay-reqText="请选择处理人员" name="serviceProcessingPersonnelId1" lay-filter="serviceProcessingPersonnelId1">
+                <option value="">请选择</option>
+              </select>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: inline-block; width: 50%;">
+                    <label class="layui-form-label layui-form-required">归属部门</label>
+                    <div class="layui-input-block">
+                        <select id="departments" lay-verType="tips" lay-verify="required|department" lay-reqText="请选择归属部门" name="department" lay-search="" lay-filter="department">
+                <option value=""></option>
+                </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item text-right">
+                <button class="layui-btn" lay-filter="editSubmit" lay-submit>保存</button>
+                <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        //重新设置页面大小
+        // resize();
+        function child(d) {
+            layui.use(['form', 'layedit', 'laydate', 'layer', 'table', 'element', 'admin', 'upload'], function() {
+                var form = layui.form;
+                var element = layui.element;
+                var layer = layui.layer;
+                var layedit = layui.layedit;
+                var laydate = layui.laydate;
+                var table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+                var admin = layui.admin;
+                // 获取本地缓存
+                var storage = window.localStorage;
+                var userData = storage.getItem('userData');
+                userData = JSON.parse(userData);
+                var userId = userData.userId;
+                let operatorId = userId;
+                // 正则验证
+                form.verify({
+                        afterSaleServiceTopic: function(value, item) { //value：表单的值、item：表单的DOM对象
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '不能有特殊字符';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '请选择服务主题!';
+                            }
+                        },
+                        phone: function(value, item) { //value：表单的值、item：表单的DOM对象
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '不能有特殊字符';
+                            }
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '首尾不能出现下划线\'_\'';
+                            }
+                            if (!/^1[34578]\d{9}$/.test(value)) {
+                                return '手机号码为1[3-8]xxxxxxxxx';
+                            }
+                            if (!/^.{1,11}$/.test(value)) {
+                                return '联系电话最多输入11位';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                        },
+                        contacts: function(value) { //value：表单的值、item：表单的DOM对象
+                            if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                                return '不能有特殊字符';
+                            }
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '不能出现下划线\'_\'';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '不能输入空格哦!';
+                            }
+                            if (!/^.{1,10}$/.test(value)) {
+                                return '最多10位哦!';
+                            }
+                        }
+                    })
+                    // 客户初始化
+                $.ajax({
+                    url: initAfterSalesCustomersUrl(),
+                    type: 'post',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        "customerName": ''
+                    }),
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#clients').append(new Option(item.customerName, item.customerId)); //往下拉菜单里添加元素								
+                        });
+                        $("#clients").each(function() {
+                            // this代表的是<option></option>，对option再进行遍历
+                            $(this).children("option").each(function() {
+                                // 判断需要对那个选项进行回显
+                                if (this.text == d.customerName) {
+                                    // 进行回显
+                                    $(this).attr("selected", "selected");
+                                    //产品初始化
+                                    $('#Models').append(new Option(d.productName, d.productId));
+                                    $("#Models").each(function() {
+                                        // this代表的是<option></option>，对option再进行遍历
+                                        $(this).children("option").each(function() {
+                                            // 判断需要对那个选项进行回显
+                                            if (this.text == d.productName) {
+                                                $(this).attr("selected", "selected");
+                                            }
+                                        });
+                                        form.render();
+                                    })
+                                }
+                            });
+                            form.render();
+                        })
+                    }
+                })
+                form.on("select(clients)", function(data) {
+                        $('#Models').empty();
+                        $("#Models").append("<option value=''>请选择</option>");
+                        //产品初始化
+                        $.ajax({
+                            url: getAllProductByName(),
+                            contentType: "application/json",
+                            type: 'post',
+                            data: JSON.stringify({
+                                "productName": '',
+                                "customerId": data.value
+                            }),
+                            success: function(result) {
+                                $.each(result.data, function(index, item) {
+                                    $('#Models').append(new Option(item.productName, item.productId)); //往下拉菜单里添加元素
+                                });
+                                // 关键
+                                form.render();
+                            }
+                        })
+                    })
+                    // 处理人员
+                $.ajax({
+                    url: getAllUserUrl(),
+                    type: 'post',
+                    contentType: "application/json",
+
+                    data: JSON.stringify({
+                        "userName": '',
+                        "sex": '',
+                        'isPage': false,
+                    }),
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#serviceProcessingPersonnelId1').append(new Option(item.userName, item.userId)); //往下拉菜单里添加元素
+
+                            $("#serviceProcessingPersonnelId1").each(function() {
+                                // this代表的是<option></option>，对option再进行遍历
+                                $(this).children("option").each(function() {
+                                    // 判断需要对那个选项进行回显
+                                    if (this.text == d.userName) {
+                                        // 进行回显
+                                        $(this).attr("selected", "selected");
+                                        if (this.value == item.userId) {
+                                            $('#departments').append(new Option(item.departmentName, item.departmentId));
+                                            $('#departments').children("option").attr("selected", "selected");
+                                            form.render();
+                                        }
+                                    }
+                                });
+                                form.render();
+                            })
+                        });
+                        // 归属部门
+                        form.on("select(serviceProcessingPersonnelId1)", function(data) {
+                            if (!isEmpty(data.value)) {
+                                $('#departments').empty();
+                                for (i = 0; i < result.data.length; i++) {
+                                    var item = result.data[i];
+                                    if (data.value == item.userId) {
+                                        $('#departments').append(new Option(item.departmentName, item.departmentId));
+                                    }
+                                }
+                            } else {
+                                $('#departments').empty();
+                                $("#departments").append("<option value=''>请选择</option>");
+                            }
+                            form.render();
+                        })
+                    }
+                })
+                $("#afterSaleServiceTopic").each(function() {
+                    // this代表的是<option></option>，对option再进行遍历
+                    $(this).children("option").each(function() {
+                        // 判断需要对那个选项进行回显
+                        if (this.text == d.afterSaleServiceTopic) {
+                            // 进行回显
+                            $(this).attr("selected", "selected");
+                        }
+                    });
+                    form.render();
+                })
+                $("#afterSaleServiceCategory").each(function() {
+                    // this代表的是<option></option>，对option再进行遍历
+                    $(this).children("option").each(function() {
+                        // 判断需要对那个选项进行回显
+                        if (this.text == d.afterSaleServiceCategory) {
+                            // 进行回显
+                            $(this).attr("selected", "selected");
+                        }
+                    });
+                    form.render();
+                })
+                $(".layui-form-item .layui-input-block .layui-form-select .layui-select-title .layui-edge").css('display', 'none');
+                if (d.processingStatus == "未处理") {
+                    $("input[name='userName']").prop("disabled", false);
+                    $("input[name='departmentName']").prop("disabled", false);
+                    $("input[name='customerName']").prop("disabled", false);
+                    $("#start").remove();
+                    $("#end").remove();
+                } else if (d.processingStatus == "处理中") {
+                    $('#afterSaleForm3 select').attr('disabled', 'disabled');
+                    form.render('select');
+                    $("#end").remove();
+                } else {
+                    $('#afterSaleForm3 select').attr('disabled', 'disabled');
+                    form.render('select');
+                    $("input[name='userName']").prop("disabled", true);
+                    $("input[name='departmentName']").prop("disabled", true);
+                    $("input[name='customerName']").prop("disabled", true);
+                }
+                // 表单提交
+                form.on('submit(editSubmit)', function(data) {
+                    $.ajax({
+                        url: editAfterSalesServiceUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: true,
+                        data: JSON.stringify({
+                            "operatorId": operatorId,
+                            "afterSaleServiceTopic": data.field.afterSaleServiceTopic,
+                            "afterSaleServiceCategory": data.field.afterSaleServiceCategory,
+                            "chargeAmount": '',
+                            "serviceStartTime": "",
+                            "serviceEndTime": '',
+                            "id": d.id,
+                            "customerId": data.field.clients,
+                            "productId": data.field.Models,
+                            "serviceProcessingPersonnelId": data.field.serviceProcessingPersonnelId1,
+                            "contactNum": data.field.contactNum,
+                            "contacts": data.field.contacts
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    layer.close(layer.index); //关闭窗口
+                                    window.parent.location.reload(); //刷新父级窗口
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

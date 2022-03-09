@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>分配权限</title>
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        .ztree * {
+            font-size: 17px !important;
+        }
+        
+        .ztree li {
+            line-height: 25px !important;
+        }
+        
+        #roleAuthTree {
+            padding-left: 25px;
+        }
+        
+        .model-form {
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:100%">
+        <form id="afterSaleForm2" lay-filter="afterSaleForm2" class="layui-form model-form">
+            <ul id="roleAuthTree" class="ztree"></ul>
+            <div class="text-right" style="width: 97%;position: absolute; padding-bottom: 10px;">
+                <button class="layui-btn" lay-filter="formsubmit" lay-submit>保存</button>
+                <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function child(d) {
+            layui.use(['form', 'layer', 'table', 'element', 'admin', 'zTree', ], function() {
+                var form = layui.form;
+                var element = layui.element;
+                var layer = layui.layer;
+                var zTree = layui.zTree;
+                var table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+                var admin = layui.admin;
+                // 获取本地缓存
+                var storage = window.localStorage;
+                var userData = storage.getItem('userData');
+                userData = JSON.parse(userData);
+                var userId = userData.userId;
+                let operatorId = userId;
+                $.get(getRoleAuthoritiesUrl(), {
+                    roleId: d.roleId
+                }, function(res) {
+                    if (0 === res.code) {
+                        $.fn.zTree.init($('#roleAuthTree'), {
+                            check: {
+                                enable: true
+                            },
+                            data: {
+                                simpleData: {
+                                    enable: true
+                                }
+                            }
+                        }, res.data);
+                    } else {
+                        layer.msg(res.msg, {
+                            icon: 2
+                        });
+                    }
+                }, 'json');
+                // 表单提交
+                form.on('submit(formsubmit)', function(data) {
+                    var insTree = $.fn.zTree.getZTreeObj('roleAuthTree');
+                    var checkedRows = insTree.getCheckedNodes(true);
+                    var ids = [];
+                    for (var i = 0; i < checkedRows.length; i++) {
+                        ids.push(checkedRows[i].id);
+                    }
+                    $.ajax({
+                        url: assignAuthoritiesUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            roleId: d.roleId,
+                            permissionIds: ids,
+                            operatorId: operatorId
+                        }),
+                        success: function(res) {
+                            if (res.code == 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() {
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(res.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                    return false;
+                })
+            });
+        }
+    </script>
+</body>
+
+</html>

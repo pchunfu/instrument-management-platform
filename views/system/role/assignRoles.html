@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>配置角色</title>
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <style>
+        #transfer {
+            margin-top: 20px;
+        }
+        
+        .layui-transfer-box {
+            margin-left: 50px;
+        }
+        
+        .layui-form-item {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" class="layui-form" action="">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input id="userId" type="hidden" class="id" name="userId">
+            </div>
+        </div>
+        <div id="transfer" class="layui-form-item"></div>
+        <div class="text-right" style="width: 100%; position: absolute; bottom: 10px;">
+            <button class="layui-btn" lay-filter="formDemo" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" style="margin-right: 20px;" type="button" ew-event="closeDialog">取消</button>
+        </div>
+    </form>
+    <script>
+        layui.use(['form', 'transfer'], function() {
+            var form = layui.form;
+            var transfer = layui.transfer;
+            form.on('submit(formDemo)', function(data) {
+                var roles = transfer.getData('transferData');
+                let userId = data.field.userId;
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                let operatorId = userData.userId;
+                var _list = [];
+                for (var i = 0; i < roles.length; i++) {
+                    var a = {};
+                    a.userId = userId;
+                    a.roleId = roles[i].value;
+                    a.operatorId = operatorId;
+                    _list.push(a);
+                }
+                $.ajax({
+                    url: assignRolesUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: true,
+                    data: JSON.stringify(_list),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            alert(result.msg);
+                            var index = parent.layer.getFrameIndex(Window.name);
+                            parent.layer.closeAll();
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                return false;
+            });
+        });
+
+        function init() {
+            var userId = document.getElementById("userId");
+            $.ajax({
+                url: getUserRoleUrl(),
+                type: "post",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                async: true,
+                data: JSON.stringify({
+                    "userId": userId.value
+                }),
+                success: function(result) {
+                    if (result.code == 0) {
+                        var datas = result.data.roleModels;
+                        var values = result.data.values;
+                        layui.use('transfer', function() {
+                            var transfer = layui.transfer;
+                            transfer.render({
+                                elem: '#transfer',
+                                parseData: function(res) {
+                                    return {
+                                        "value": res.roleId,
+                                        "title": res.roleName,
+                                        "disabled": res.disabled,
+                                        "checked": res.checked
+                                    }
+                                },
+                                data: datas,
+                                value: values,
+                                title: ['未配置角色', '已配置角色'],
+                                height: 300,
+                                id: 'transferData'
+                            })
+                        });
+                    } else {
+                        alert(result.msg);
+                    }
+                },
+                error: function() {
+                    alert("服务器忙……请稍后重试！");
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>修改编号规则</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-form-item {
+            margin-right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="productLineEditForm" lay-filter="productLineEditForm" class="layui-form model-form" style="padding: 0;">
+        <div class="layui-form-item" style="margin-top: 10px;">
+            <label class="layui-form-label layui-form-required" style="width: 100px;">零件名称：</label>
+            <div class="layui-input-block" style="width: 250px; margin-left: 20px;display: inline-block;">
+                <input type="text" id="partName" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 100px;">编号规则：</label>
+            <div class="layui-input-block" style="width: 250px; margin-left: 20px;display: inline-block;">
+                <input type="text" id="drawingCode" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 100px;">创建时间：</label>
+            <div class="layui-input-block" style="width: 250px; margin-left: 20px;display: inline-block;">
+                <input type="text" id="createTime" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 100px;">PDF文件：</label>
+            <div class="layui-input-block" style="width: 250px; margin-left: 20px;display: inline-block;">
+                <input type="text" id="fileName" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 100px;">ZIP文件：</label>
+            <div class="layui-input-block" style="width: 250px; margin-left: 20px;display: inline-block;">
+                <input type="text" id="zipFileName" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 100px;">操作人：</label>
+            <div class="layui-input-block" style="width: 250px; margin-left: 20px;display: inline-block;">
+                <input type="text" id="operatorName" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="text-right">
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog" style="margin-right: 10px;">关闭</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            layui.use(['excel', 'laypage', 'layer', 'table', 'element', 'admin', 'form'], function() {
+                var table = layui.table,
+                    laypage = layui.laypage,
+                    element = layui.element,
+                    excel = layui.ecxel;
+                var admin = layui.admin;
+                var layer = layui.layer;
+                var form = layui.form;
+                $ = layui.jquery;
+                $form = $('form');
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                var userId = userData.userId;
+                let operatorId = userId;
+                //产品线初始化
+                $.ajax({
+                    url: getAllEquipmentAndProductModelUrl(),
+                    type: "get",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    success: function(result) {
+                        if (result.code == 0) {
+                            var arr = result.data;
+                            if (arr.length > 0) {
+                                for (var i = 0; i < arr.length; i++) {
+                                    var item = arr[i];
+                                    $("#productLine").append("<option value=" + item.id + ">" + item.name + "</option>");
+                                }
+                            }
+                        } else {
+                            $("#productLine").empty();
+                            $("#productLine").append("<option value=''>请先创建产品线</option>");
+                        }
+                        form.render();
+                        // 设备初始化   
+                        form.on('select(productLine)', function(data) {
+                            $("#equipments").empty();
+                            $("#productModels").empty();
+                            $("#DialogproductCode").empty();
+                            if (!isEmpty(data.value)) {
+                                var productEquipments;
+                                for (var i = 0; i < arr.length; i++) {
+                                    if (arr[i].id == data.value) {
+                                        productEquipments = arr[i].equipmentModels;
+                                    }
+                                }
+                                if (productEquipments.length > 0) {
+                                    //  $("#equipments").empty(); //清空下拉框
+                                    $("#equipments").append("<option value=''>请选择</option>");
+                                    for (var i = 0; i < productEquipments.length; i++) {
+                                        var item = productEquipments[i];
+                                        $("#equipments").append("<option value=" + item.equipmentId + ">" + item.equipmentName + "</option>");
+                                    }
+                                } else {
+                                    $("#equipments").append("<option value=''>请先创建设备</option>");
+                                }
+                            } else {
+                                $("#equipments").empty();
+                                $("#equipments").append("<option value=''>请先选择产品线</option>");
+                            }
+                            form.render();
+                        });
+                        // 产品系列初始化   
+                        form.on('select(equipments)', function(data) {
+                            $("#productModels").empty();
+                            $("#DialogproductCode").empty();
+                            if (!isEmpty(data.value)) {
+                                var obj = {};
+                                var productSeriesModels;
+                                for (var key in arr) {
+                                    obj[key] = arr[key];
+                                    var productModels = obj[key].equipmentModels;
+                                    var obj1 = {};
+                                    for (var key in productModels) {
+                                        obj1[key] = productModels[key];
+                                        if (obj1[key].equipmentId == data.value) {
+                                            productSeriesModels = obj1[key].productSeriesModels;
+                                            if (productSeriesModels.length > 0) {
+                                                $("#productModels").empty();
+                                                $("#productModels").append("<option value=''>请选择</option>");
+                                                for (var i = 0; i < productSeriesModels.length; i++) {
+                                                    var item = productSeriesModels[i];
+                                                    $("#productModels").append("<option value=" + item.productSeriesId + ">" + item.productSeriesName + "</option>");
+                                                }
+                                            } else {
+                                                $("#productModels").append("<option value=''>请先创建产品系列</option>");
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                $("#productModels").empty();
+                                $("#productModels").append("<option value=''>请先选择设备类型</option>");
+                            }
+                            form.render();
+                            // 产品型号初始化   
+                            form.on('select(productModels)', function(data) {
+                                $("#DialogproductCode").empty();
+                                if (!isEmpty(data.value)) {
+                                    var productCode;
+                                    var obj = {};
+                                    for (var key in arr) {
+                                        obj[key] = arr[key];
+                                        var productModels = obj[key].equipmentModels;
+                                        var obj1 = {};
+                                        for (var key in productModels) {
+                                            obj1[key] = productModels[key];
+                                            var array = obj1[key].productSeriesModels;
+                                            var obj2 = {};
+                                            for (var key in array) {
+                                                obj2[key] = array[key];
+                                                if (obj2[key].productSeriesId == data.value) {
+                                                    productCode = obj2[key].productModelModelList;
+                                                    if (productCode.length > 0) {
+                                                        $("#DialogproductCode").empty();
+                                                        $("#DialogproductCode").append("<option value='' selected='selected'>请选择</option>");
+                                                        for (var i = 0; i < productCode.length; i++) {
+                                                            var item = productCode[i];
+                                                            $("#DialogproductCode").append("<option value=" + item.productModelId + ">" + item.productModelName +
+                                                                "</option>");
+                                                        }
+                                                    } else {
+                                                        $("#DialogproductCode").append("<option value=''>请先创建产品编号</option>");
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else {
+                                    $("#DialogproductCode").empty();
+                                    $("#DialogproductCode").append("<option value=''>请先选择产品系列</option>");
+                                }
+                                form.render();
+                            });
+                        });
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                // 表单提交
+                form.on('submit(productSubmit)', function(data) {
+                    let productName = data.field.DialogproductName;
+                    let productCode = data.field.coding;
+                    let productModelId = data.field.productModelId;
+                    let equipmentId = data.field.equipmentId;
+                    let productSeriesId = data.field.productSeriesId;
+                    let productLineId = data.field.productLineId;
+                    let operatorId = userId;
+                    $.ajax({
+                        url: addProductUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "equipmentId": equipmentId,
+                            "productModelId": productModelId,
+                            "productName": HTMLEncode(productName),
+                            "productCode": productCode,
+                            'productLineId': productLineId,
+                            'productSeriesId': productSeriesId,
+                            'operatorId': operatorId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

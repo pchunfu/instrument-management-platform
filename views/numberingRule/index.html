@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>机械编号管理</title>
+    <!-- <link type="text/css" rel="stylesheet" href="layui/css/layui.css" rel="external nofollow" /> -->
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/element.js?v=318"></script>
+    <style>
+        form {
+            min-width: 1100px;
+        }
+        
+        .laytable-cell-checkbox .layui-disabled.layui-form-checked i {
+            background: #fff !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 选项卡 -->
+    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li data-status='' class="layui-this">产品系列代号</li>
+            <li data-status='1'>产品系列版本代号</li>
+            <li data-status='2'>零件类型</li>
+            <li data-status='3'>生成编号规则</li>
+            <li data-status='4'>查询正式编号规则</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                <form id="indexForm" lay-filter="indexForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 60px;">产品名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" autocomplete="off" name="DialogproductName" id="DialogproductName" placeholder="请输入产品系列名称" class="layui-input">
+                        </div>
+                    </div>
+                    <button class="layui-btn" style="margin-left: 30px;" lay-filter="MechanicsProductSearch" lay-submit data-type="reload">搜索</button>
+                    <div>
+                        <table class="layui-table" id="productTable" lay-filter="productTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="TbBar">
+                        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="add">
+                        <a class="layui-btn layui-btn" lay-event="add">添加</a>
+                        <span style="margin-left: 50%; text-align: center;font-size: 18px;">产品系列名称和代号对应表</span>
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <form id="versionsForm" lay-filter="versionsForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 90px;">产品系列名称</label>
+                        <div class="layui-input-inline">
+                            <select id="productCodeId" name="productCodeId" lay-search="" lay-filter="productCodeId">
+                              <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="layui-btn" style="margin-left: 30px;" lay-filter="MechanicsProductCodeVersionSearch" lay-submit data-type="reload">搜索</button>
+                    <div>
+                        <table class="layui-table" id="versionsTable" lay-filter="versionsTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="TbBarversions">
+                        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="addversions">
+                        <a class="layui-btn layui-btn" lay-event="addversions">添加</a>
+                        <span style="margin-left: 50%; text-align: center;font-size: 18px;">产品系列名称和产品系列版本代号对应表</span>
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <form id="typeForm" lay-filter="typeForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 90px;">产品系列名称</label>
+                        <div class="layui-input-inline">
+                            <select id="PartTypes" name="PartTypes" lay-search="" lay-filter="PartTypes">
+                              <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="width: 90px;">零件类型名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="partTypeName" name="partTypeName" autocomplete="off" placeholder="请输入零件类型名称" class="layui-input">
+                        </div>
+                    </div>
+                    <button class="layui-btn" style="margin-left: 30px;" lay-filter="PartTypesSearch" lay-submit data-type="reload">搜索</button>
+                    <div>
+                        <table class="layui-table" id="typeTable" lay-filter="typeTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="type">
+                        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="addtype">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='169' ){ }} <a class="layui-btn layui-btn" lay-event="addtype">添加</a> {{# } }} {{# if(l_ist[i]=='146' ){ }}
+                            <a class="layui-btn layui-btn" lay-event="initial">初始值</a>{{# } }} {{# } }}
+                            <span style="margin-left: 50%; text-align: center;font-size: 18px;">零件类型和代号对应表</span>
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <form id="indexForm" lay-filter="indexForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;margin-left: 0;">零件名称</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="partName" id="partName" placeholder="请输入零件名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;">图纸编号</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="numberingRuleName" id="numberingRuleName" placeholder="请输入图纸编号" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;">操作人</label>
+                        <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                            <select id="operatorId" name="operatorId" lay-search="" lay-filter="operatorId">
+                              <option value="">搜索选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 100px;">产品系列代号</label>
+                        <div class="layui-input-block" style="width: 100px; margin-left: 0px;display: inline-block;">
+                            <select id="drawingproductCodeId" name="drawingproductCodeId" lay-search="" lay-filter="drawingproductCodeId">
+                              <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="layui-input-block" style="width: 100px; margin-left: 10px;display: inline-block;">
+                            <select id="equipments" name="equipmentId" lay-search="" lay-filter="equipments">
+                                <option value=""></option>
+                             </select>
+                        </div>
+                    </div>
+                    <button class="layui-btn layui-btn-sm" style="margin-left: 0px;" lay-filter="drawingCodeSearch" lay-submit data-type="reload">查询</button>
+                    <a class="layui-btn form-search-expand" search-expand>
+                        展开 <i class="layui-icon layui-icon-down"></i></a>
+                    <div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">零件类型</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="partType" name="partType" lay-search="" lay-filter="partType">
+                                        <option value="">请选择</option>
+                                     </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">版本代号</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="version" name="version" lay-search="" lay-filter="version">
+                                      <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">后缀说明</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="suffix" name="suffix" lay-search="" lay-filter="suffix">
+                                      <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <table class="layui-table" id="numberingRuleTable" lay-filter="numberingRuleTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <script type="text/html" id="checkbd">
+                        {{# if (d.isTransferred ==false){ }}
+                        <input type="checkbox" name="siam_one" title="" lay-skin="primary" mid={{d.id}} version={{d.version}}> {{# } }}
+                    </script>
+                    <!-- 有效无效-->
+                    <script type="text/html" id="valid">
+                        <input type="checkbox" name="isValidity" mid={{d.id}} version={{d.version}} lay-filter="isValidity" value="{{d.isValidity}}" lay-skin="switch" lay-text="有效|无效" {{d.isValidity==true ? 'checked' : '' }}>
+                    </script>
+                    <script type="text/html" id="file">
+                        <button id="btn" class="layui-btn layui-btn-primary layui-border-blue" onclick="openPdf('{{d.id}}','{{d.fileName}}')">{{d.fileName}} </button>
+                    </script>
+                    <script type="text/html" id="ZipFile">
+                        <button id="handout_wrap_inner" class="layui-btn layui-btn-primary layui-border-blue" onclick="openZip('{{d.id}}','{{d.zipFileName}}')">{{d.zipFileName}} </button>
+                    </script>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="numberingRuleTbBar">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var userId = userData.userId;var l_ist = userData.permissionId;}} {{# if(userId== d.operatorId ){ }} <a class="layui-btn layui-btn-xs"
+                            lay-event="edit">修改</a>{{# } }}{{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='163' ){ }}<a class="layui-btn layui-btn-xs" lay-event="upload">PDF上传</a>{{# } }} {{# if(l_ist[i]=='164' ){ }} <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="uploadZip">压缩上传</a>{{# } }} {{# } }}
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="addnumberingRule">
+                        <a class="layui-btn layui-btn" lay-event="addnumberingRule">添加</a>
+                        <a class="layui-btn layui-btn" lay-event="conversion">转化</a>
+                        <span style="margin-left: 50%; text-align: center;font-size: 18px;">编号规则和代号对应表</span>
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <form id="indexForm" lay-filter="indexForm" class="layui-form model-form" style="margin: 0; padding: 0;">
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;margin-left: 0;">零件名称</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="QuerypartName" id="QuerypartName" placeholder="请输入零件名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;">图纸编号</label>
+                        <div class="layui-input-inline" style="width: 120px;">
+                            <input type="text" autocomplete="off" name="QuerynumberingRuleName" id="QuerynumberingRuleName" placeholder="请输入图纸编号" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 60px;">操作人</label>
+                        <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                            <select id="QueryoperatorId" name="QueryoperatorId" lay-search="" lay-filter="QueryoperatorId">
+                              <option value="">搜索选择</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="margin: 10px 0 10px 0;">
+                        <label class="layui-form-label" style="width: 100px;">产品系列代号</label>
+                        <div class="layui-input-block" style="width: 100px; margin-left: 0px;display: inline-block;">
+                            <select id="QuerydrawingproductCodeId" name="QuerydrawingproductCodeId" lay-search="" lay-filter="QuerydrawingproductCodeId">
+                              <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="layui-input-block" style="width: 100px; margin-left: 10px;display: inline-block;">
+                            <select id="Queryequipments" name="Queryequipments" lay-search="" lay-filter="Queryequipments">
+                                <option value=""></option>
+                             </select>
+                        </div>
+                    </div>
+                    <button class="layui-btn layui-btn-sm" style="margin-left: 0px;" lay-filter="QueryDrawingCodeSearch" lay-submit data-type="reload">查询</button>
+                    <a class="layui-btn form-search-expand" search-expand>
+                        展开 <i class="layui-icon layui-icon-down"></i></a>
+                    <div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">零件类型</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="QuerypartType" name="QuerypartType" lay-search="" lay-filter="QuerypartType">
+                                        <option value="">请选择</option>
+                                     </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">版本代号</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="Queryversion" name="Queryversion" lay-search="" lay-filter="Queryversion">
+                                      <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item form-search-show-expand" style="display: inline-block;">
+                            <label class="layui-form-label" style="width: 60px;margin-left: 0;">后缀说明</label>
+                            <div class="layui-input-block" style="width: 120px; margin-left: 0px;display: inline-block;">
+                                <select id="Querysuffix" name="Querysuffix" lay-search="" lay-filter="Querysuffix">
+                                      <option value="">请选择</option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <table class="layui-table" id="SearchnumberingRuleTable" lay-filter="SearchnumberingRuleTable" lay-data="{id:'idTest'}"></table>
+                    </div>
+                    <!-- 有效无效-->
+                    <script type="text/html" id="QueryValid">
+                        <input type="checkbox" name="QueryValidisValidity" mid={{d.id}} version={{d.version}} lay-filter="QueryValidisValidity" value="{{d.isValidity}}" lay-skin="switch" lay-text="有效|无效" {{d.isValidity==true ? 'checked' : '' }}>
+                    </script>
+                    <script type="text/html" id="queryfile">
+                        <button id="159" class="layui-btn layui-btn-primary layui-border-blue" onclick="queryOpenPdf('{{d.id}}','{{d.fileName}}')">{{d.fileName}} </button>
+                    </script>
+                    <script type="text/html" id="queryZipFile">
+                        <button class="layui-btn layui-btn-primary layui-border-blue" onclick="queryOpenZip('{{d.id}}','{{d.zipFileName}}')">{{d.zipFileName}} </button>
+                    </script>
+                    <!-- 表格操作列 -->
+                    <script type="text/html" id="SearchnumberingRuleTbBar">
+                        <a class="layui-btn layui-btn layui-btn-xs" lay-event="detail">查看详情</a>
+                    </script>
+                    <!-- 表格添加按钮 -->
+                    <script type="text/html" id="SearchaddnumberingRule">
+
+                        <span style="margin-left: 50%; text-align: center;font-size: 18px;">编号规则和代号对应表</span>
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var l_ist = userData.permissionId;
+        //文件预览下载
+        function openPdf(id, fileName) {
+            for (var i = 0; i < l_ist.length; i++) {
+                if (l_ist[i] == '159') {
+                    if (fileName == '') {
+                        layer.msg('请先上传文件');
+                        return;
+                    } else {
+                        window.open(downloadMechanicsFileUrl() + id + '?type=' + 1);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function openZip(id, zipFileName) {
+            for (var i = 0; i < l_ist.length; i++) {
+                if (l_ist[i] == '160') {
+                    if (zipFileName == '') {
+                        layer.msg('请先上传文件');
+                        return;
+                    } else {
+                        window.open(downloadMechanicsZipFileUrl() + id + '?type=' + 1);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function queryOpenPdf(id, fileName) {
+            for (var i = 0; i < l_ist.length; i++) {
+                if (l_ist[i] == '161') {
+                    if (fileName == '') {
+                        layer.msg('请先上传文件');
+                        return;
+                    } else {
+                        window.open(downloadMechanicsFileUrl() + id + '?type=' + 2);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function queryOpenZip(id, zipFileName) {
+            for (var i = 0; i < l_ist.length; i++) {
+                if (l_ist[i] == '162') {
+                    if (zipFileName == '') {
+                        layer.msg('请先上传文件');
+                        return;
+                    } else {
+                        window.open(downloadMechanicsZipFileUrl() + id + '?type=' + 2);
+                        return;
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        layui.use(['excel', 'laypage', 'layer', 'table', 'element', 'admin', 'form'], function() {
+            var table = layui.table,
+                laypage = layui.laypage,
+                element = layui.element,
+                excel = layui.ecxel;
+            var admin = layui.admin;
+            var layer = layui.layer;
+            var form = layui.form;
+            $ = layui.jquery;
+            $form = $('form');
+            //获取用户信息
+            var storage = window.localStorage;
+            var json = storage.getItem('userData');
+            var userData = JSON.parse(json);
+            var userId = userData.userId;
+            let operatorId = userId;
+            element.on('tab(docDemoTabBrief)', function(data) {
+                    var status = $(this).attr('data-status');
+                    if (status == 1) {
+                        $("#productCodeId").empty();
+                        $("#productCodeId").append("<option value=''>请选择</option>");
+                        //产品系列代号初始化
+                        $.ajax({
+                            url: getAllMechanicsProductCodesUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#productCodeId").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#productCodeId").empty();
+                                    $("#productCodeId").append("<option value=''>请先创建产品系列代号</option>");
+                                }
+                                form.render();
+
+                            }
+                        });
+                    } else if (status == 2) {
+                        $("#PartTypes").empty();
+                        $("#PartTypes").append("<option value=''>请选择</option>");
+                        //产品系列代号初始化
+                        $.ajax({
+                            url: getAllMechanicsProductCodesUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#PartTypes").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#PartTypes").empty();
+                                    $("#PartTypes").append("<option value=''>请先创建产品系列代号</option>");
+                                }
+                                form.render();
+
+                            }
+                        });
+                    } else if (status == 3) {
+                        $("#drawingproductCodeId").empty();
+                        $("#drawingproductCodeId").append("<option value=''>请选择</option>");
+                        $("#equipments").empty();
+                        $("#partType").empty();
+                        $("#partType").append("<option value=''>请选择</option>");
+                        $("#suffix").empty();
+                        $("#suffix").append("<option value=''>请选择</option>");
+                        $("#version").empty();
+                        $("#version").append("<option value=''>请选择</option>");
+                        //实现方法一：循环赋值
+                        var arr1 = new Array(10);
+                        for (var i = 1; i < arr1.length; i += 0.1) {
+                            arr1[i] = i;
+                            var item = arr1[i].toFixed(1);
+                            $("#version").append("<option value=" + item + ">" + item + "</option>");
+
+                        }
+                        var arr = [{
+                            suffixid: 'Y',
+                            suffixName: '研发中零件'
+                        }, {
+                            suffixid: 'L',
+                            suffixName: '临时图纸'
+                        }, {
+                            suffixid: 'G',
+                            suffixName: '工装零件'
+                        }, {
+                            suffixid: 'C',
+                            suffixName: '产品零件'
+                        }, {
+                            suffixid: 'Q',
+                            suffixName: '其余零件'
+                        }];
+                        for (var i = 0; i < arr.length; i++) {
+                            var item = arr[i];
+                            $("#suffix").append("<option value=" + item.suffixid + ">" + item.suffixName + "</option>");
+                        }
+                        //零件类型初始化
+                        $.ajax({
+                            url: getAllMechanicsPartTypesUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#partType").append("<option value=" + item.id + ">" + item.partTypeName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#partType").empty();
+                                    $("#partType").append("<option value=''>请先创建产品系列代号</option>");
+                                }
+                                form.render();
+                            }
+                        });
+                        //操作人初始化
+                        $.ajax({
+                            url: getAllUserUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#operatorId").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#operatorId").empty();
+                                    $("#operatorId").append("<option value=''>没有选项</option>");
+                                }
+                                form.render();
+                            }
+                        });
+                        //产品系列版本代号初始化
+                        $.ajax({
+                            url: getAllMechanicsProductCodesUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#drawingproductCodeId").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#drawingproductCodeId").empty();
+                                    $("#drawingproductCodeId").append("<option value=''>请先创建产品系列代号</option>");
+                                }
+                                form.render();
+                                // 设备初始化   
+                                form.on('select(drawingproductCodeId)', function(data) {
+                                    $("#equipments").empty();
+                                    $("#equipments").append("<option value=''>请选择</option>");
+                                    if (!isEmpty(data.value)) {
+                                        var productCodeVersionModels;
+                                        for (var i = 0; i < arr.length; i++) {
+                                            if (arr[i].id == data.value) {
+                                                let productCodeVersionModels = arr[i].productCodeVersionModels;
+
+                                                if (productCodeVersionModels.length > 0) {
+                                                    for (var j = 0; j < productCodeVersionModels.length; j++) {
+
+                                                        if (productCodeVersionModels[j].id == null) {
+                                                            $("#equipments").empty();
+                                                            $("#equipments").append("<option value=''>请选择</option>");
+                                                        } else {
+                                                            $("#equipments").append("<option value=" + productCodeVersionModels[j].id + ">" + productCodeVersionModels[j].productVersionName + "</option>");
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        $("#equipments").empty();
+                                        $("#equipments").append("<option value=''>请先选择产品系列</option>");
+                                    }
+                                    form.render();
+                                });
+                            }
+                        });
+
+                    } else if (status == 4) {
+                        table.reload("SearchnumberingRuleTable", {
+                            page: {
+                                curr: $("#SearchnumberingRuleTable .layui-laypage-em").next().html()
+                            },
+                            url: getAllMechanicsFormalDrawingCodesUrl(),
+                            method: "post",
+                            contentType: 'application/json; charset=utf-8',
+                            where: {
+                                isPage: true
+                            },
+                            done: function(res, curr, count) {}
+                        });
+                        $("#QuerydrawingproductCodeId").empty();
+                        $("#QuerydrawingproductCodeId").append("<option value=''>请选择</option>");
+                        $("#Queryequipments").empty();
+                        $("#QuerypartType").empty();
+                        $("#QuerypartType").append("<option value=''>请选择</option>");
+                        $("#Querysuffix").empty();
+                        $("#Querysuffix").append("<option value=''>请选择</option>");
+                        $("#Queryversion").empty();
+                        $("#Queryversion").append("<option value=''>请选择</option>");
+                        //实现方法一：循环赋值
+                        var arr1 = new Array(10);
+                        for (var i = 1; i < arr1.length; i += 0.1) {
+                            arr1[i] = i;
+                            var item = arr1[i].toFixed(1);
+                            $("#Queryversion").append("<option value=" + item + ">" + item + "</option>");
+
+                        }
+                        var arr = [{
+                            suffixid: 'Y',
+                            suffixName: '研发中零件'
+                        }, {
+                            suffixid: 'L',
+                            suffixName: '临时图纸'
+                        }, {
+                            suffixid: 'G',
+                            suffixName: '工装零件'
+                        }, {
+                            suffixid: 'C',
+                            suffixName: '产品零件'
+                        }, {
+                            suffixid: 'Q',
+                            suffixName: '其余零件'
+                        }];
+                        for (var i = 0; i < arr.length; i++) {
+                            var item = arr[i];
+                            $("#Querysuffix").append("<option value=" + item.suffixid + ">" + item.suffixName + "</option>");
+                        }
+                        //零件类型初始化
+                        $.ajax({
+                            url: getAllMechanicsPartTypesUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#QuerypartType").append("<option value=" + item.id + ">" + item.partTypeName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#QuerypartType").empty();
+                                    $("#QuerypartType").append("<option value=''>请先创建产品系列代号</option>");
+                                }
+                                form.render();
+                            }
+                        });
+                        //操作人初始化
+                        $.ajax({
+                            url: getAllUserUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#QueryoperatorId").append("<option value=" + item.userId + ">" + item.userName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#QueryoperatorId").empty();
+                                    $("#QueryoperatorId").append("<option value=''>没有选项</option>");
+                                }
+                                form.render();
+                            }
+                        });
+                        //产品系列版本代号初始化
+                        $.ajax({
+                            url: getAllMechanicsProductCodesUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify({
+                                isPage: false
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    var arr = result.data;
+                                    if (arr.length > 0) {
+                                        for (var i = 0; i < arr.length; i++) {
+                                            var item = arr[i];
+                                            $("#QuerydrawingproductCodeId").append("<option value=" + item.id + ">" + item.productName + "</option>");
+                                        }
+                                    }
+                                } else {
+                                    $("#QuerydrawingproductCodeId").empty();
+                                    $("#QuerydrawingproductCodeId").append("<option value=''>请先创建产品系列代号</option>");
+                                }
+                                form.render();
+                                // 设备初始化   
+                                form.on('select(QuerydrawingproductCodeId)', function(data) {
+                                    $("#Queryequipments").empty();
+                                    $("#Queryequipments").append("<option value=''>请选择</option>");
+                                    if (!isEmpty(data.value)) {
+                                        var productCodeVersionModels;
+                                        for (var i = 0; i < arr.length; i++) {
+                                            if (arr[i].id == data.value) {
+                                                let productCodeVersionModels = arr[i].productCodeVersionModels;
+                                                if (productCodeVersionModels.length > 0) {
+                                                    for (var j = 0; j < productCodeVersionModels.length; j++) {
+                                                        if (productCodeVersionModels[j].id == null) {
+                                                            $("#Queryequipments").empty();
+                                                            $("#Queryequipments").append("<option value=''>请选择</option>");
+                                                        } else {
+                                                            $("#Queryequipments").append("<option value=" + productCodeVersionModels[j].id + ">" + productCodeVersionModels[j].productVersionName + "</option>");
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        $("#Queryequipments").empty();
+                                        $("#Queryequipments").append("<option value=''>请先选择产品系列</option>");
+                                    }
+                                    form.render();
+                                });
+                            }
+                        });
+
+                    }
+                })
+                /*-------------产品系列名称和代号对应表----------------------*/
+            table.render({
+                elem: '#productTable',
+                id: 'productTable',
+                title: '产品系列代号和名称对应表',
+                page: true,
+                toolbar: '#add',
+                defaultToolbar: [],
+                where: {
+                    isPage: true,
+                },
+                contentType: 'application/json; charset=utf-8',
+                url: getAllMechanicsProductCodesUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'productName',
+                        title: '产品系列名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productCode',
+                        title: '产品系列代号',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '15%',
+                        align: 'center',
+                        toolbar: '#TbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function() {},
+            });
+            /* 添加产品系列代号*/
+            table.on('toolbar(productTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'add':
+                        layer.open({
+                            type: 2,
+                            title: '添加产品系列代号',
+                            skin: 'layui-layer-rim',
+                            area: ['40%', '320px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./addProductline.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("productTable", {
+                                    page: {
+                                        curr: $("#productTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsProductCodesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            /* 修改产品系列代号 */
+            table.on('tool(productTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改产品系列代号',
+                        skin: 'layui-layer-rim',
+                        area: ['40%', '320px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editProductline.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#productCode", index);
+                            roleId.val(data.productCode);
+                            var roleId = layer.getChildFrame("#productName", index);
+                            roleId.val(data.productName);
+                            var roleId = layer.getChildFrame("#description", index);
+                            roleId.val(data.description);
+                        },
+                        end: function() {
+                            table.reload("productTable", {
+                                page: {
+                                    curr: $("#productTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllMechanicsProductCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'del') {
+                    deleteMechanics(obj);
+                }
+            });
+            /* 删除产品系列代号*/
+            function deleteMechanics(obj) {
+                layer.confirm('要删除选中的产品系列代号吗？', {
+                        btn: ['确定', '取消']
+                    },
+                    function(index) {
+                        $.ajax({
+                            url: deleteMechanicsProductCodeUrl(),
+                            type: "post",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            async: false,
+                            data: JSON.stringify({
+                                "productName": obj.data.productName,
+                                "productCode": obj.data.productCode,
+                                'description': obj.data.description,
+                                'operatorId': operatorId,
+                                'id': obj.data.id
+                            }),
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    layer.msg(result.msg, {
+                                        icon: 1
+                                    });
+                                    obj.del();
+                                    layer.close(index);
+                                    table.reload('productTable', {
+                                        page: {
+                                            curr: $("#productTable .layui-laypage-em").next().html()
+                                        },
+                                        url: getAllMechanicsProductCodesUrl(),
+                                        method: "post",
+                                        contentType: 'application/json; charset=utf-8',
+                                        where: {
+                                            isPage: true
+                                        }
+                                    });
+                                    window.parent.location.reload();
+                                } else {
+                                    layer.msg(result.msg, {
+                                        icon: 2
+                                    });
+                                }
+                            },
+                            error: function() {
+                                alert("服务器忙……请稍后重试！");
+                            }
+                        });
+                    },
+                    function(index) {
+                        layer.close(index);
+                    }
+                );
+            }
+            // 搜索
+            form.on('submit(MechanicsProductSearch)', function(data) {
+                let productName = data.field.DialogproductName;
+                // 去空格
+                var s = $('#DialogproductName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#DialogproductName').val(result);
+                table.reload('productTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllMechanicsProductCodesUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        productName: productName,
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+
+            /*----------------产品系列版本代号------------------*/
+            //产品系列版本名称和代号对应表
+            table.render({
+                elem: '#versionsTable',
+                id: 'versionsTable',
+                title: '产品系列代号和名称对应表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#addversions',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllMechanicsProductCodeVersionUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'productName',
+                        title: '产品系列名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productVersionName',
+                        title: '产品系列版本名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'productVersionCode',
+                        title: '产品系列版本代号',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '15%',
+                        align: 'center',
+                        toolbar: '#TbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function(data) {},
+            });
+            /* 添加产品系列版本代号*/
+            table.on('toolbar(versionsTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'addversions':
+                        layer.open({
+                            type: 2,
+                            title: '添加产品系列版本代号',
+                            skin: 'layui-layer-rim',
+                            area: ['40%', '380px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./addversions.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("versionsTable", {
+                                    page: {
+                                        curr: $("#versionsTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsProductCodeVersionUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                };
+            });
+            /* 修改产品系列版本代号 */
+            table.on('tool(versionsTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改产品系列版本代号',
+                        skin: 'layui-layer-rim',
+                        area: ['40%', '380px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editversions.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#productVersionCode", index);
+                            roleId.val(data.productVersionCode);
+                            var roleId = layer.getChildFrame("#productVersionName", index);
+                            roleId.val(data.productVersionName);
+                            var roleId = layer.getChildFrame("#description", index);
+                            roleId.val(data.description);
+                        },
+                        end: function() {
+                            table.reload("versionsTable", {
+                                page: {
+                                    curr: $("#versionsTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllMechanicsProductCodeVersionUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'del') {
+                    deleteMechanicsProductCodeVersion(obj);
+                }
+            });
+            /* 删除产品系列版本代号*/
+            function deleteMechanicsProductCodeVersion(obj) {
+                layer.confirm('要删除选中的产品系列版本代号吗？', {
+                    btn: ['确定', '取消']
+                }, function(index) {
+                    obj.del();
+                    layer.close(index);
+                    $.ajax({
+                        url: deleteMechanicsProductCodeVersionUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "productCodeId": obj.data.productCodeId,
+                            'productVersionCode': obj.data.productVersionCode,
+                            'description': obj.data.description,
+                            'operatorId': operatorId,
+                            'id': obj.data.id
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1
+                                });
+                                table.reload('versionsTable', {
+                                    page: {
+                                        curr: $("#versionsTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsProductCodeVersionUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    }
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                                table.reload('versionsTable', {
+                                    page: {
+                                        curr: $("#versionsTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsProductCodeVersionUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    }
+                                });
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    }, function(index) {
+                        layer.close(index);
+                    });
+                });
+            }
+            // 搜索
+            form.on('submit(MechanicsProductCodeVersionSearch)', function(data) {
+                let productCodeId = data.field.productCodeId;
+                table.reload('versionsTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllMechanicsProductCodeVersionUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        productCodeId: productCodeId,
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+
+            /*----------------零件类型-----------------------*/
+            //零件类型和代号对应表
+            table.render({
+                elem: '#typeTable',
+                id: 'typeTable',
+                title: '零件类型和代号对应表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#addtype',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllMechanicsPartTypesUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'partTypeName',
+                        title: '零件名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'partTypeCode',
+                        title: '零件代号',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'updateTime',
+                        title: '更新时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '15%',
+                        align: 'center',
+                        toolbar: '#type',
+                        unresize: true
+                    }]
+                ],
+                done: function(data) {},
+            });
+            /* 添加零件类型*/
+            table.on('toolbar(typeTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'addtype':
+                        layer.open({
+                            type: 2,
+                            title: '添加零件类型',
+                            skin: 'layui-layer-rim',
+                            area: ['40%', '380px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./addType.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("typeTable", {
+                                    page: {
+                                        curr: $("#typeTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsPartTypesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'initial':
+                        layer.open({
+                            type: 2,
+                            title: '初始值',
+                            skin: 'layui-layer-rim',
+                            area: ['450px', '380px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: ["./initialType.html", 'no'],
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                        });
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            /* 修改零件类型*/
+            table.on('tool(typeTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改零件类型',
+                        skin: 'layui-layer-rim',
+                        area: ['40%', '380px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editType.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#partTypeCode", index);
+                            roleId.val(data.partTypeCode);
+                            var roleId = layer.getChildFrame("#partTypeName", index);
+                            roleId.val(data.partTypeName);
+                            var roleId = layer.getChildFrame("#description", index);
+                            roleId.val(data.description);
+                        },
+                        end: function() {
+                            table.reload("typeTable", {
+                                page: {
+                                    curr: $("#typeTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllMechanicsPartTypesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'del') {
+                    typedoDel2(obj);
+                }
+            });
+            /* 删除零件类型*/
+            function typedoDel2(obj) {
+                var productId = obj.data.productId;
+                var productModelId = obj.data.productModelId;
+                layer.confirm('要删除选中的零件类型吗？', function(index) {
+                    obj.del();
+                    layer.close(index);
+                    $.ajax({
+                        url: deleteProductUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            "productModelId": productModelId,
+                            "productId": productId,
+                            'operatorId': userId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                layer.msg(result.msg, {
+                                    icon: 1
+                                });
+                                table.reload('typeTable', {
+                                    page: {
+                                        curr: $("#typeTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsPartTypesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    }
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                                table.reload('typeTable', {
+                                    page: {
+                                        curr: $("#typeTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsPartTypesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    }
+                                });
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                });
+            }
+            // 搜索
+            form.on('submit(PartTypesSearch)', function(data) {
+                let PartTypes = data.field.PartTypes;
+                // 去空格
+                var s = $('#partTypeName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#partTypeName').val(result);
+                table.reload('typeTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllMechanicsPartTypesUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "productCodeId": PartTypes,
+                        'partTypeName': data.field.partTypeName,
+                        'operatorId': operatorId
+                    },
+                    done: function(res, curr, count) {}
+                });
+                return false;
+            });
+
+            /*----------------生成编号规则-----------------------*/
+            form.on("checkbox(siam_all)", function() {
+                var status = $(this).prop("checked");
+                $.each($("input[name=siam_one]"), function(i, value) {
+                    $(this).prop("checked", status);
+                });
+                form.render();
+            });
+            //编号规则对应表
+            table.render({
+                elem: '#numberingRuleTable',
+                id: 'numberingRuleTable',
+                title: '编号规则表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#addnumberingRule',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllMechanicsDrawingCodesUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        fixed: 'left',
+                        templet: "#checkbd",
+                        title: "<input type='checkbox' name='siam_all' title='' lay-skin='primary' lay-filter='siam_all'> ",
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'partName',
+                        title: '零件名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'drawingCode',
+                        title: '编号规则',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'fileName',
+                        title: 'PDF文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#file'
+                    }, {
+                        field: 'zipFileName',
+                        title: 'ZIP文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#ZipFile'
+                    }, {
+                        field: 'isValidity',
+                        title: '有效无效',
+                        templet: '#valid',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'operatorName',
+                        title: '操作人',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '20%',
+                        align: 'center',
+                        toolbar: '#numberingRuleTbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function(res) {},
+            });
+            //开关事件
+            form.on('switch(isValidity)', function(obj) {
+                var id = $(this).attr('mid');
+                var version = $(this).attr('version');
+                var isValidity = obj.elem.checked ? "true" : "false";
+                $.ajax({
+                    url: updateMechanicsDrawingCodeUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    data: JSON.stringify({
+                        'version': version,
+                        'isValidity': isValidity,
+                        'operatorId': operatorId,
+                        'id': id
+                    }),
+                    success: function(result) {
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2
+                            });
+                        }
+                    }
+
+                })
+            });
+            /* 添加编号规则*/
+            table.on('toolbar(numberingRuleTable)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'addnumberingRule':
+                        layer.open({
+                            type: 2,
+                            title: '生成编号规则',
+                            skin: 'layui-layer-rim',
+                            area: ['450px', '420px'],
+                            offset: 'auto',
+                            maxmin: false,
+                            skin: 'layerdemo',
+                            resize: false,
+                            content: "./addnumberingRule.html",
+                            success: function(layero, index) {
+                                var data = obj.data;
+                                var iframe = window['layui-layer-iframe' + index];
+                                iframe.child(data);
+                                layer.style(index, {
+                                    top: (layui.$(window).height() - layui.$(layero).height()) / 2
+                                })
+                            },
+                            end: function() {
+                                table.reload("numberingRuleTable", {
+                                    page: {
+                                        curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsDrawingCodesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            }
+                        });
+                        break;
+                    case 'conversion':
+                        // var checkStatus = table.checkStatus(obj.config.id),
+                        //     data = checkStatus.data;
+                        var ids = [];
+                        $.each($("input[name=siam_one]:checked"), function(i, value) {
+                            ids[i] = $(this).attr("mid");
+                        });
+                        if (ids.length === 0) {
+                            layer.msg('请选择要转化的数据', {
+                                icon: 2
+                            });
+                            return;
+                        }
+                        doDel({
+                            ids: ids
+                        });
+                        break;
+                };
+            });
+            /* 修改编号规则 */
+            table.on('tool(numberingRuleTable)', function(obj) {
+                if (obj.event === 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: '修改编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '420px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./editnumberingRule.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#inputCodeId", index);
+                            roleId.val(obj.data.productCode);
+                            var roleId = layer.getChildFrame("#inputVersionId", index);
+                            roleId.val(obj.data.productVersionCode);
+                            var roleId = layer.getChildFrame("#inputpartType", index);
+                            roleId.val(obj.data.partTypeCode);
+                            var roleId = layer.getChildFrame("#suffixInput", index);
+                            roleId.val(obj.data.suffix);
+                            var roleId = layer.getChildFrame("#partName", index);
+                            roleId.val(obj.data.partName);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllMechanicsDrawingCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'upload') {
+                    layer.open({
+                        type: 2,
+                        title: '上传PDF编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '280px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./uploadProductline.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllMechanicsDrawingCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                } else if (obj.event === 'uploadZip') {
+                    layer.open({
+                        type: 2,
+                        title: '上传Zip编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '320px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./ZipUploadProductline.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                        },
+                        end: function() {
+                            table.reload("numberingRuleTable", {
+                                page: {
+                                    curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                },
+                                url: getAllMechanicsDrawingCodesUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                }
+            });
+            /* 后缀说明转化 */
+            function doDel(obj) {
+                layer.confirm('确定要转化选中数据吗？', {
+                    skin: 'layui-layer-admin',
+                    shade: .1
+                }, function(i) {
+                    layer.close(i);
+                    var loadIndex = layer.load(2);
+                    $.ajax({
+                        url: transferredMechanicsDrawingCodeUrl() + '?operatorId=' + operatorId,
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: true,
+                        data: JSON.stringify(
+                            obj.ids
+                        ),
+                        success: function(res) {
+                            layer.close(loadIndex);
+                            if (res.code === 0) {
+                                layer.msg(res.msg, {
+                                    icon: 1
+                                });
+                                table.reload("numberingRuleTable", {
+                                    page: {
+                                        curr: $("#numberingRuleTable .layui-laypage-em").next().html()
+                                    },
+                                    url: getAllMechanicsDrawingCodesUrl(),
+                                    method: "post",
+                                    contentType: 'application/json; charset=utf-8',
+                                    where: {
+                                        isPage: true
+                                    },
+                                    done: function(res, curr, count) {}
+                                });
+                            } else {
+                                layer.msg(res.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                        error: function() {
+                            alert("服务器忙……请稍后重试！");
+                        }
+                    });
+                });
+            }
+            // 搜索
+            form.on('submit(drawingCodeSearch)', function(data) {
+                // 去空格
+                var s = $('#numberingRuleName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#numberingRuleName').val(result);
+                table.reload('numberingRuleTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllMechanicsDrawingCodesUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "productCodeId": data.field.drawingproductCodeId,
+                        "productVersionId": data.field.equipmentId,
+                        "partTypeId": data.field.partType,
+                        'partName': data.field.partName,
+                        'suffix': data.field.suffix,
+                        'version': data.field.version,
+                        'drawingCode': data.field.numberingRuleName,
+                        'operatorId': data.field.operatorId
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            /*----------------查询编号规则-----------------------*/
+            //查询编号规则表
+            table.render({
+                elem: '#SearchnumberingRuleTable',
+                id: 'SearchnumberingRuleTable',
+                title: '编号规则表',
+                page: true,
+                where: {
+                    isPage: true,
+                },
+                toolbar: '#SearchaddnumberingRule',
+                defaultToolbar: [],
+                contentType: 'application/json; charset=utf-8',
+                url: getAllMechanicsFormalDrawingCodesUrl(),
+                async: true,
+                dataType: "JSON",
+                method: 'post',
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left',
+                        width: '5%',
+                        unresize: true
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: '5%',
+                        fixed: 'left'
+                    }, {
+                        field: 'partName',
+                        title: '零件名称',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'drawingCode',
+                        title: '编号规则',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'fileName',
+                        title: 'PDF文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#queryfile'
+                    }, {
+                        field: 'zipFileName',
+                        title: 'ZIP文件',
+                        align: 'center',
+                        unresize: true,
+                        templet: '#queryZipFile'
+                    }, {
+                        field: 'isValidity',
+                        title: '有效无效',
+                        templet: '#QueryValid',
+                        align: 'center',
+                        unresize: true,
+                    }, {
+                        field: 'operatorName',
+                        title: '操作人',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        width: '15%',
+                        align: 'center',
+                        toolbar: '#SearchnumberingRuleTbBar',
+                        unresize: true
+                    }]
+                ],
+                done: function(res) {},
+
+            });
+            //开关事件
+            form.on('switch(QueryValidisValidity)', function(obj) {
+                var id = $(this).attr('mid');
+                var version = $(this).attr('version');
+                var isValidity = obj.elem.checked ? "true" : "false";
+                $.ajax({
+                    url: updateMechanicsFormalDrawingCodesUrl(),
+                    type: "post",
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    data: JSON.stringify({
+                        'version': version,
+                        'isValidity': isValidity,
+                        'operatorId': operatorId,
+                        'id': id
+                    }),
+                    success: function(result) {
+                        console.log(result);
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2
+                            });
+                        }
+                    }
+
+                })
+            });
+            /* 查看详情编号规则 */
+            table.on('tool(SearchnumberingRuleTable)', function(obj) {
+                if (obj.event === 'detail') {
+                    layer.open({
+                        type: 2,
+                        title: '查看详情编号规则',
+                        skin: 'layui-layer-rim',
+                        area: ['450px', '420px'],
+                        offset: 'auto',
+                        maxmin: false,
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: ["./detailnumberingRule.html", 'no'],
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#partName", index);
+                            roleId.val(obj.data.partName);
+                            var roleId = layer.getChildFrame("#drawingCode", index);
+                            roleId.val(obj.data.drawingCode);
+                            var roleId = layer.getChildFrame("#createTime", index);
+                            roleId.val(obj.data.createTime);
+                            var roleId = layer.getChildFrame("#fileName", index);
+                            roleId.val(obj.data.fileName);
+                            var roleId = layer.getChildFrame("#zipFileName", index);
+                            roleId.val(obj.data.zipFileName);
+                            var roleId = layer.getChildFrame("#operatorName", index);
+                            roleId.val(obj.data.operatorName);
+                        },
+                    });
+                }
+            });
+            // 搜索
+            form.on('submit(QueryDrawingCodeSearch)', function(data) {
+                var s = $('#QuerynumberingRuleName').val();
+                var result = s.replace(/\s+/g, "");
+                $('#QuerynumberingRuleName').val(result);
+                table.reload('SearchnumberingRuleTable', {
+                    page: {
+                        curr: 1
+                    },
+                    url: getAllMechanicsFormalDrawingCodesUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "productCodeId": data.field.QuerydrawingproductCodeId,
+                        "productVersionId": data.field.QueryequipmentId,
+                        "partTypeId": data.field.QuerypartType,
+                        'partName': data.field.QuerypartName,
+                        'suffix': data.field.Querysuffix,
+                        'version': data.field.Queryversion,
+                        'drawingCode': data.field.QuerynumberingRuleName,
+                        'operatorId': data.field.QueryoperatorId
+                    },
+                    done: function(res, curr, count) {}
+                });
+                return false;
+            });
+        });
+    </script>
+</body>
+
+</html>

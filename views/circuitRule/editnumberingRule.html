@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>修改编号规则</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-form-item {
+            margin-right: 20px;
+        }
+        
+        .layui-textarea {
+            resize: none;
+            min-height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="productLineEditForm" lay-filter="productLineEditForm" class="layui-form model-form" style="padding: 0;">
+        <div class="layui-form-item" style="margin-top: 10px;">
+            <label class="layui-form-label layui-form-required" style="width: 105px;">版本代号：</label>
+            <div class="layui-input-block" style="width: 500px; margin-left: 20px;">
+                <input type="text" id="version1" style="width: 100px;margin-left: 20px;display: inline;font-size: 20px;" placeholder="A" autocomplete="off" class="layui-input" disabled>
+                <span style="width: 50px;height: 20px;">=======></span>
+                <input type="text" id="version2" style="width: 100px;display: inline;font-size: 20px;" placeholder="B" autocomplete="off" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 115px;">零件中文名称：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 25px;display: inline-block;">
+                <input type="text" style="width: 200px;" autocomplete="off" id="Productname" name="Productname" placeholder="只允许输入中文" oninput="if(value.length>20)value=value.slice(0,20)" class="layui-input" lay-verType="tips" lay-reqText="请输入零件中文名称" lay-verify="required|Productname"
+                    required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 115px;">零件英文名称：</label>
+            <div class="layui-input-block" style="width: 150px; margin-left: 25px;display: inline-block;">
+                <input type="text" style="width: 200px;" autocomplete="off" id="EnglishProductname" name="EnglishProductname" placeholder="只允许输入26个英文字母" oninput="if(value.length>20)value=value.slice(0,20)" class="layui-input" lay-verType="tips" lay-reqText="请输入零件英文名称"
+                    lay-verify="required|EnglishProductname" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required" style="width: 105px;">版本修改说明:</label>
+            <div class="layui-input-block" style="margin-left: 150px;">
+                <textarea name="description" lay-reqText="请输入版本修改说明" oninput="if(value.length>51)value=value.slice(0,51)" lay-verType="tips" lay-verify="required|description" lay-filter="description" placeholder="请输入版本修改说明" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="margin-top: 10px;">
+            <label class="layui-form-label layui-form-required" style="width: 110px;">电路编号规则：</label>
+            <div class="layui-input-block" style="width: 300px; margin-left: 145px;">
+                <input type="text" id="drawingCode" style="width: 280px;font-weight: 700; font-size: 20px;" autocomplete="off" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="text-right">
+            <button class="layui-btn" lay-filter="productSubmit" id="productSubmit" lay-submit>修改</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog" style="margin-right: 10px;">取消</button>
+        </div>
+    </form>
+    <script>
+        function child(d) {
+            layui.use(['excel', 'laypage', 'layer', 'table', 'element', 'admin', 'form'], function() {
+                var table = layui.table,
+                    laypage = layui.laypage,
+                    element = layui.element,
+                    excel = layui.ecxel;
+                var admin = layui.admin;
+                var layer = layui.layer;
+                var form = layui.form;
+                $ = layui.jquery;
+                $form = $('form');
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var userData = JSON.parse(json);
+                var userId = userData.userId;
+                let operatorId = userId;
+                $("#version1").val(d.version);
+                if (d.version == 'A') {
+                    $("#version2").val('B');
+                }
+                if (d.version == 'B') {
+                    $("#version2").val('C');
+                }
+                if (d.version == 'C') {
+                    $("#version2").val('D');
+                }
+                if (d.version == 'D') {
+                    $("#version2").val('E');
+                }
+                if (d.version == 'E') {
+                    $("#version2").val('F');
+                }
+                if (d.version == 'F') {
+                    $("#version2").val('G');
+                }
+                if (d.version == 'G') {
+                    $("#version2").val('H');
+                }
+                if (d.version == 'H') {
+                    $("#version2").val('I');
+                }
+                if (d.version == 'I') {
+                    $("#version2").val('J');
+                }
+                if (d.version == 'J') {
+                    $("#version2").val('K');
+                }
+                if (d.version == 'K') {
+                    $("#version2").val('L');
+                }
+                if (d.version == 'L') {
+                    $("#version2").val('M');
+                }
+                if (d.version == 'M') {
+                    $("#version2").val('N');
+                }
+                if (d.version == 'N') {
+                    $("#version2").val('O');
+                }
+                if (d.version == 'O') {
+                    $("#version2").val('P');
+                }
+                if (d.version == 'P') {
+                    $("#version2").val('Q');
+                }
+                if (d.version == 'Q') {
+                    $("#version2").val('S');
+                }
+                if (d.version == 'R') {
+                    $("#version2").val('B');
+                }
+                if (d.version == 'S') {
+                    $("#version2").val('T');
+                }
+                if (d.version == 'T') {
+                    $("#version2").val('U');
+                }
+                if (d.version == 'U') {
+                    $("#version2").val('V');
+                }
+                if (d.version == 'V') {
+                    $("#version2").val('W');
+                }
+                if (d.version == 'W') {
+                    $("#version2").val('X');
+                }
+                if (d.version == 'X') {
+                    $("#version2").val('Y');
+                }
+                if (d.version == 'Y') {
+                    $("#version2").val('Z');
+                }
+                if (d.version == 'Z') {
+                    $("#version2").val('Z');
+                }
+                // 正则验证
+                form.verify({
+                        description: function(value, item) {
+                            if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                                return '版本修改说明首尾不能出现下划线\'_\'';
+                            }
+                            if (/^\d+\d+\d$/.test(value)) {
+                                return '版本修改说明不能全为数字';
+                            }
+                            if (!/^.{1,50}$/.test(value)) {
+                                return '版本修改说明最多输入50位';
+                            }
+                            if (!/^[^\s]*$/.test(value)) {
+                                return '版本修改说明不能输入空格哦!';
+                            }
+                        }
+                    })
+                    // 表单提交
+                form.on('submit(productSubmit)', function(data) {
+                    let version = $("#version2").val();
+                    $.ajax({
+                        url: updateHardwareCircuitBoardDrawingCodeUrl(),
+                        type: "post",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: JSON.stringify({
+                            'id': d.id,
+                            "description": data.field.description,
+                            'drawingCode': d.drawingCode,
+                            'version': version,
+                            'partChineseName': data.field.Productname,
+                            'partEnglishName': data.field.EnglishProductname,
+                            'operatorId': operatorId
+                        }),
+                        success: function(result) {
+                            if (result.code == 0) {
+                                $('#productSubmit').css('display', 'none');
+                                $('#drawingCode').val(result.data);
+                                form.render();
+                                layer.msg(result.msg, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() { //延时跳转并提示
+                                    //先取到该子页面在父级页面中的name 值
+                                    var index = parent.layer.getFrameIndex(Window.name);
+                                    //然后用该方法关闭
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2
+                                });
+                            }
+                        },
+                    });
+                    return false;
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

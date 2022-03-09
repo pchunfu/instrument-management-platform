@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>用户基本资料</title>
+
+    <link rel="stylesheet" href="../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/config.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../assets/js/url.js?v=318"></script>
+    <!-- <script type="text/javascript" src="../assets/js/addUserInfo.js?v=318"></script> -->
+
+    <style>
+        .left,
+        .right {
+            height: 100%;
+        }
+        
+        .left {
+            float: left;
+            width: 50%;
+            background-color: #b0b2b4;
+            height: 470px;
+        }
+        
+        .right {
+            float: left;
+            margin-top: 30px
+        }
+        
+        #loginPic {
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+        }
+        
+        div input {
+            margin-left: 20px;
+        }
+        
+        .text-right {
+            text-align: right;
+            position: absolute;
+            bottom: 0;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <form class="layui-form" id="form">
+        <div class="left">
+            <div style="margin: 70px 0 0 80px;height: 250px">
+                <img src="../assets/images/logo.png" width="210" height="110">
+            </div>
+            <div class="layui-form-item" style="margin-left: 110px">
+                <img id="loginPic" src="../assets/images/pic.gif">
+                <a id="aname" style="margin-top: 10px;margin-left: 5px;font-size:28px;color: #f5f5f5;"></a>
+            </div>
+        </div>
+        <div class="right">
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-required">用&nbsp;&nbsp;户&nbsp;名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userName" required lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input" id="userName">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-required">性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label>
+                <div class="layui-input-block" style="margin-left: 160px">
+                    <input type="radio" name="sex" value="男" title="男" id="man" lay-verify="required">
+                    <input type="radio" name="sex" value="女" title="女" id="women" lay-verify="required">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-required">生&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" placeholder="请选择日期" lay-reqText="请选择日期" lay-verType="tips" lay-verify="required|serviceStartTime" autocomplete="off" id="birthday" name="birthday" lay-filter="birthday">
+                </div>
+            </div>
+            <!-- <div class="layui-form-item">
+                <label class="layui-form-label">生&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="birthday" title="请选择日期。" required lay-verify="required" placeholder="请选择日期" autocomplete="off" class="layui-input" id="birthday">
+                </div>
+            </div> -->
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-required">手机号码</label>
+                <div class="layui-input-inline">
+                    <input type="tel" name="phoneNum" id="phoneNum" lay-verify="required|phone" autocomplete="off" class="layui-input" required placeholder="请输入手机号">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">部门</label>
+                <div class="layui-input-inline">
+                    <input type=" text" name="department" id="department" class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">岗位</label>
+                <div class="layui-input-inline">
+                    <input type=" text" name="post" id="post" class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item text-right">
+                <button class="layui-btn" lay-filter="formDemo" lay-submit>保存</button>
+                <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+            </div>
+        </div>
+    </form>
+    <script>
+        function closePage() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index); //再执行关闭
+            return true;
+        }
+
+        var url = getUrl();
+        layui.use(['form', 'layedit', 'laydate', 'table', 'layer'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                table = layui.table,
+                $ = layui.$;
+            //日期   
+            var nowTime = new Date();
+            var startTime = laydate.render({
+                    elem: '#birthday',
+                    // type:'datetime',
+                    format: 'yyyy-MM-dd',
+                    trigger: 'click',
+                    max: 'nowTime', //默认最大值为当前日期
+                })
+                // //日历控件初始化
+                // lay('#birthday').on('click', function(e) { //假设 test1 是一个按钮
+                //     laydate.render({
+                //         elem: '#birthday',
+                //         showBottom: false //不显示
+                //             ,
+                //         trigger: 'click'
+                //             // ,closeStop: '#select'
+                //     });
+                // });
+            var storage = window.localStorage;
+            var data = storage.getItem('userData');
+            var userData = JSON.parse(data);
+            var userId = userData.userId;
+            //页面数据初始化
+            // alert(data)
+            document.getElementById('aname').innerHTML = userData.userName;
+            $('#userName').val(userData.userName);
+            if (userData.sex == $('#man').val()) {
+                $('#women').removeAttr('checked');
+                $('#man').attr('checked', 'checked');
+                form.render('radio');
+            } else {
+                $('#man').removeAttr('checked');
+                $('#women').attr('checked', 'checked');
+                form.render('radio');
+            }
+            $('#birthday').val(userData.birthday);
+            $('#phoneNum').val(userData.phoneNum);
+            $('#department').val(userData.departmentName);
+            $('#post').val(userData.postName);
+            //监听提交
+            form.on('submit(formDemo)', function(data) {
+                let userName = data.field.userName;
+                let sex = data.field.sex;
+                let birthday = data.field.birthday;
+                let phoneNum = data.field.phoneNum;
+                let department = data.field.departmentId;
+                let post = data.field.postId;
+                //正则验证
+                var checkuserName = /^([a-zA-Z0-9_\u4E00-\u9FA5]){2,10}$/s;
+                if (checkuserName.test(userName) == false) {
+                    alert("用户名称为2-10位的汉字、数字、字母、下划线");
+                    return false;
+                }
+                // var checkaddress = /^[a-zA-Z0-9_\u4E00-\u9FA5]{2,40}$/;
+                // if(checkaddress.test(department) == false){
+                //   alert("部门为2-40位的汉字、数字、字母、下划线");
+                //   return false;
+                // }
+                // var checkaddress = /^[a-zA-Z0-9_\u4E00-\u9FA5]{2,40}$/;
+                // if(checkaddress.test(post) == false){
+                //   alert("岗位为2-40位的汉字、数字、字母、下划线");
+                //   return false;
+                // }
+                //更新数据库数据
+                var updateUserInfoUrl = url + "user/updateUserInfo";
+                $.ajax({
+                    url: updateUserInfoUrl,
+                    type: "post", // 采用post方法
+                    dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                    contentType: 'application/json; charset=utf-8',
+                    async: true,
+                    // 获取id=loginForm的form表单中的参数
+                    data: JSON.stringify({
+                        "userName": userName,
+                        "sex": sex,
+                        "birthday": birthday,
+                        "phoneNum": phoneNum,
+                        // "homeAddress": address,
+                        "department": department,
+                        "POST": post,
+                        "userId": userId
+                    }),
+                    // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                    success: function(result) {
+                        //更新浏览器端数据
+                        var loginURL = url + "user/getUserData"; //Tomcat中服务的地址和接口
+                        var userName = userData.userName;
+                        var userPassword = userData.userPassword;
+                        $.ajax({
+                            url: loginURL,
+                            type: "post", // 采用post方法
+                            dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                            contentType: 'application/json; charset=utf-8',
+                            async: false,
+                            // 获取id=loginForm的form表单中的参数
+                            data: JSON.stringify({
+                                "userId": userId
+                            }),
+                            // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                            success: function(result) {
+                                if (result.code == 0) {
+                                    if (window.localStorage) {
+                                        var storage = window.localStorage;
+                                        storage.setItem('userData', JSON.stringify(result.data));
+                                    } else {
+                                        alert("浏览器不支持localStorage,请选择其他浏览器！");
+                                    }
+                                } else {
+                                    alert(result.msg);
+                                }
+                            },
+                            error: function() {
+                                alert("服务器忙……请稍后重试！");
+                            }
+                        });
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1,
+                                time: 1000
+                            }, function() { //延时跳转并提示
+                                //先取到该子页面在父级页面中的name 值
+                                var index = parent.layer.getFrameIndex(Window.name);
+                                //然后用该方法关闭
+                                parent.layer.closeAll();
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2
+                            });
+                        }
+
+                    },
+                    error: function() {
+                        alert("服务器忙……请稍后重试！");
+                    }
+                });
+                return false;
+            })
+        });
+    </script>
+</body>
+
+</html>

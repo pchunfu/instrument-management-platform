@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>添加权限</title>
+
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../assets/js/htmlUtil.js?v=318"></script>
+
+    <style>
+        .layui-textarea {
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" class="layui-form" action="" style="margin-right: 35px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">客户列表</label>
+            <div class="layui-input-inline">
+                <select lay-filter="customer" lay-reqText="请选择客户列表" lay-verType="tips" lay-verify="required|customer" id="customer" name="customer" required lay-verify="required" placeholder="请输入">
+          <option value=""></option>
+        </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label layui-form-required">任务描述</label>
+            <div class="layui-input-block">
+                <textarea id="description" name="description" lay-reqText="请输入任务描述" oninput="if(value.length>50)value=value.slice(0,50)" lay-verType="tips" lay-verify="required|description" placeholder="请输入描述" class="layui-textarea" title="请填写此字段"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">日期选择</label>
+            <div class="layui-input-inline">
+                <input type="text" id="dateChoose" lay-reqText="请选择日期" lay-verType="tips" lay-verify="required|dateChoose" name="dateChoose" class="layui-input" lay-verify="required" readonly placeholder="请选择" required lay-verify="required"></div>
+        </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="formDemo" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        </div>
+
+    </form>
+
+    <script>
+        //Demo
+        $("#customer").focus();
+        var url = getUrl();
+        layui.use(['form', 'layedit', 'laydate', 'table', 'layer'], function() {
+            var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                table = layui.table,
+                $ = layui.$;
+
+            lay('#dateChoose').on('click', function(e) { //假设 test1 是一个按钮
+                laydate.render({
+                    elem: '#dateChoose',
+                    show: true //直接显示
+                        ,
+                    trigger: 'click',
+                    btns: ['clear', 'now']
+                });
+            });
+
+            //监听提交
+            form.on('submit(formDemo)', function(data) {
+                // alert(JSON.stringify(data));
+                var assignTaskUrl = url + "sale/assignTask";
+
+                //获取用户信息
+                var storage = window.localStorage;
+                var json = storage.getItem('userData');
+                var salesManId = storage.getItem('salesManId');
+                salesManId = JSON.parse(salesManId);
+                // alert(salesManId);
+                var userData = JSON.parse(json);
+                let operatorId = userData.userId;
+                // alert(operatorId);
+
+                let array = [];
+                let obj = new Object;
+                obj.customerId = data.field.customer;
+                obj.taskDescription = data.field.description;
+                obj.date = data.field.dateChoose;
+                array.push(obj);
+
+                $.ajax({
+                    url: assignTaskUrl,
+                    type: "post", // 采用post方法
+                    dataType: "json", // 请求和返回的参数格式；如果是非json格式需要使用text格式
+                    contentType: 'application/json; charset=utf-8',
+                    async: false,
+                    // 获取id=loginForm的form表单中的参数
+                    data: JSON.stringify({
+                        "userId": salesManId,
+                        "tasks": array,
+                        "operatorId": operatorId
+                    }),
+                    // 当接口调用成功时，执行success中的方法，result参数指的是接口返回的信息
+                    success: function(result) {
+                        if (result.code == 0) {
+                            layer.msg(result.msg, {
+                                icon: 1,
+                                time: 1000
+                            }, function() { //延时跳转并提示
+                                layer.close(layer.index); //关闭窗口
+                                window.parent.location.reload(); //刷新父级窗口
+                            });
+                        } else {
+                            layer.msg(result.msg);
+                        }
+                    },
+                    error: function() {
+                        layer.msg("服务器忙……请稍后重试！");
+                    }
+                });
+                // console.log(JSON.stringify(array));
+                return false;
+            });
+
+            var customerInfo = url + "customer/getAllCustomerLocationMsg";
+            //js
+            $.ajax({
+                url: customerInfo,
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#customer').append(new Option(item.customerName, item.customerId)); //往下拉菜单里添加元素
+                    });
+                    // 关键
+                    form.render();
+                }
+            })
+
+        });
+    </script>
+</body>
+
+</html>

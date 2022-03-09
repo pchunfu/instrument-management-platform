@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>添加国标</title>
+
+  <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+  <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+  <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+  <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+  <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+
+  <style>
+    body{margin: 10px;}
+  </style>
+
+</head>
+
+<body>
+  <form id="form" class="layui-form" action="">
+    <div class="layui-form-item" style="margin-top: 40px">
+      <label class="layui-form-label">国标编号</label>
+      <div class="layui-input-inline">
+        <input type="text" name="countryStandardName" required lay-verify="required" autocomplete="off" placeholder="" value="" class="layui-input" id="counname">
+      </div>
+      <button type="button" class="layui-btn layui-btn-sm" id="uploadFile" style="margin-top: 4px;margin-left: 10px"><i class="layui-icon"></i>上传文档</button>
+    </div>
+
+    <div class="layui-form-item">
+      <div class="layui-input-block" style="margin: 40px 180px">
+        <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1" id="counst">更新</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    resize();
+    var storage = window.localStorage;
+    var json = storage.getItem('standardNameData');
+    var countryStandardData = JSON.parse(json);
+    document.getElementById('counname').value = HTMLDecode(countryStandardData);
+    var url = getUrl();
+    layui.use(['form', 'table', 'upload'], function() {
+      var form = layui.form,
+        upload = layui.upload,
+        layer = layui.layer;
+      upload.render({
+        elem: '#uploadFile',
+        url: uploadFileUrl(),
+        accept: 'file' //普通文件
+          ,
+        exts: 'pdf',
+        acceptMime: '.pdf',
+        done: function(res) {
+          // alert(JSON.stringify(res));
+          var storage = window.localStorage;
+          storage.setItem('standardData', JSON.stringify(res));
+          layer.msg(res.msg);
+        }
+      });
+
+      form.on('submit(demo1)', function(data) {
+        let fileName;
+        let filePath;
+        let name = data.field.countryStandardName;
+        name = name.trim();
+        var checkName = /^.{1,20}$/;
+        if (checkName.test(name) == false) {
+          alert("国标编号名称不超过20个字符");
+          return false;
+        }
+        var checkName = /^\S*$/;
+        if (checkName.test(name) == false) {
+          alert("国标编号不能输入空格");
+          return false;
+        }
+        var storage = window.localStorage;
+        var index = storage.getItem('trIndex');
+        var json = storage.getItem('standardData');
+        var data = JSON.parse(json);
+        if (data == null) {
+          //拿到countryStandardData中的文件名和路径
+          var oldJson = storage.getItem('countryStandardData');
+          var oldData = JSON.parse(oldJson);
+          fileName = oldData.data[index].fileName;
+          filePath = oldData.data[index].filePath;
+          var id = oldData.data[index].id;
+        } else {
+          fileName = data.data.fileName;
+          filePath = data.data.filePath;
+          var oldJson = storage.getItem('countryStandardData');
+          var oldData = JSON.parse(oldJson);
+          var id = oldData.data[index].id;
+        }
+        var jso = storage.getItem('userData');
+        var dat = JSON.parse(jso);
+        let userId = dat.userId;
+
+        $.ajax({
+          type: "post",
+          contentType: 'application/json; charset=utf-8',
+          url: updateCountryStandardUrl(),
+          async: false,
+          dataType: "JSON",
+          data: JSON.stringify({
+            "id": id,
+            "countryStandardName": HTMLEncode(name),
+            "fileName": HTMLEncode(fileName),
+            "filePath": HTMLEncode(filePath),
+            "operatorId": HTMLEncode(userId)
+          }),
+          success: function(res) {
+            storage.setItem('standardData', null);
+            alert(res.msg);
+            if (res.code == 0) {
+              parent.layer.closeAll();
+              location.reload();
+            }
+          },
+          error: function() {
+            alert('服务器忙......请稍后重试');
+          }
+        });
+      });
+
+      layui.$('#counst').on('click', function() {
+        var data = form.val('coun');
+        // alert(JSON.stringify(data));
+      });
+    });
+  </script>
+</body>
+
+</html>

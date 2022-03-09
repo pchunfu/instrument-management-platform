@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>创想仪器</title>
+    <link rel="stylesheet" href="assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="./assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="./assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="./assets/js/config.js?v=318"></script>
+    <script type="text/javascript" src="./assets/js/util.js?v=318"></script>
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">
+                <img src="assets/images/logo.png" />
+                <cite>&nbsp;创想仪器业务管理平台&nbsp;</cite></div>
+            <ul class="layui-nav layui-layout-left">
+                <li class="layui-nav-item" lay-unselect>
+                    <a ew-event="flexible" title="侧边伸缩"><i class="layui-icon layui-icon-shrink-right"></i></a>
+                </li>
+                <li class="layui-nav-item" lay-unselect>
+                    <a ew-event="refresh" title="刷新"><i class="layui-icon layui-icon-refresh-3"></i></a>
+                </li>
+            </ul>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                        <b class="userName" id="userName"></b>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:void(0)" onClick="toInfoPage()">基本资料</a></dd>
+                        <dd><a href="javascript:void(0)" onClick="toSafePage()">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="javascript:;" onclick="back()">退出</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <!-- 左侧垂直导航区域-->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item" id="1">
+                        <a><i class="layui-icon layui-icon-template"></i>&emsp;<cite>日志管理</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="1" data-title="查看日志" id="8" data-url="./views/log/viewLog.html" class="site-demo-active" data-type="tabAdd">查看日志</a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item" id="2">
+                        <a><i class="layui-icon layui-icon-auz"></i>&emsp;<cite>销售管理</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="2" data-title="任务分配" id="9" data-url="./views/sale/assignTask.html" class="site-demo-active" data-type="tabAdd">任务分配</a>
+                            </dd>
+                            <dd><a href="javascript:;" data-id="3" data-title="签到管理" id="10" data-url="./views/sale/signManager.html" class="site-demo-active" data-type="tabAdd">签到管理</a>
+                            </dd>
+                            <dd><a href="javascript:;" data-id="4" data-title="报备系统" id="11" data-url="./views/sale/reportManager.html" class="site-demo-active" data-type="tabAdd">报备系统</a>
+                            </dd>
+                            <dd><a href="javascript:;" data-id="5" data-title="审核系统" id="12" data-url="./views/sale/auditManager.html" class="site-demo-active" data-type="tabAdd">审核系统</a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item" id="3">
+                        <a><i class="layui-icon layui-icon-location"></i>&emsp;<cite>客户管理</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="7" data-title="客户地理信息录入" id="14" data-url="./views/customer/inputCustomerLocationMsg.html" class="site-demo-active" data-type="tabAdd">客户地理信息录入</a>
+                            </dd>
+                            <dd><a href="javascript:;" data-id="8" data-title="客户列表" id="15" data-url="./views/customer/customerList.html" class="site-demo-active" data-type="tabAdd">客户列表</a>
+                            </dd>
+                            <dd><a href="javascript:;" data-id="6" data-title="客户展示" id="13" data-url="./views/customer/customerShow.html" class="site-demo-active" data-type="tabAdd">客户展示</a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item" id="4">
+                        <a class="site-demo-active" href="javascript:;" data-id="9" data-title="产品管理" data-url="./views/product/productManager.html" data-type="tabAdd"><i class="layui-icon layui-icon-template-1"></i>&emsp;<cite>产品管理</cite></a>
+                    </li>
+                    <li class="layui-nav-item" id="5">
+                        <a href="javascript:;">版本控制</a>
+                    </li>
+                    <li class="layui-nav-item" id="6">
+                        <a><i class="layui-icon layui-icon-set"></i>&emsp;<cite>系统122管理</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="10" data-title="用户管理" id="16" data-url="./views/system/user/userManager.html" class="site-demo-active" data-type="tabAdd">用户管理</a></dd>
+                            <dd><a href="javascript:;" data-id="11" data-title="角色管理" id="17" data-url="./views/system/role/roleManager.html" class="site-demo-active" data-type="tabAdd">角色管理</a></dd>
+                            <dd><a href="javascript:;" data-id="12" data-title="权限管理" id="18" data-url="./views/system/permission/permissionManager.html" class="site-demo-active" data-type="tabAdd">权限管理</a></dd>
+                            <dl />
+                    </li>
+                    <li class="layui-nav-item" id="7">
+                        <a><i class="layui-icon layui-icon-read"></i>&emsp;<cite>知识库</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="13" data-title="样品库" id="19" data-url="./views/knowledge/sample/sampleLibrary.html" class="site-demo-active" data-type="tabAdd">样品库</a></dd>
+                            <dd><a href="javascript:;" data-id="14" data-title="牌号库" id="20" data-url="./views/knowledge/brand/brandLibrary.html" class="site-demo-active" data-type="tabAdd">牌号库</a></dd>
+                            <dd><a href="javascript:;" data-id="15" data-title="国标库" id="21" data-url="./views/knowledge/countryStandard/countryStandardManage.html" class="site-demo-active" data-type="tabAdd">国标库</a></dd>
+                            <dd><a href="javascript:;" data-id="16" data-title="知识库管理" id="22" data-url="./views/knowledge/manage/libraryManage.html" class="site-demo-active" data-type="tabAdd">知识库管理</a></dd>
+                            <!-- <dd><a href="javascript:;" data-id="28" data-title="知识库管理" id="28" data-url="views/select/sample/elementQuery.html" class="site-demo-active" data-type="tabAdd">元素查询测试</a></dd> -->
+                            <dl />
+                    </li>
+                    <li class="layui-nav-item" id="23">
+                        <a><i class="layui-icon layui-icon-rmb"></i>&emsp;<cite>个人财务</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="24" data-title="个人报销" id="24" data-url="./views/personalFinance/personalReimbursement.html" class="site-demo-active" data-type="tabAdd">个人报销</a></dd>
+                            <dl />
+                    </li>
+                    <li class="layui-nav-item" id="25">
+                        <a><i class="layui-icon layui-icon-rmb"></i>&emsp;<cite>财务管理</cite></a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;" data-id="26" data-title="报销管理" id="26" data-url="./views/financeManage/financeReimbursement.html" class="site-demo-active" data-type="tabAdd">报销管理</a></dd>
+                            <dl />
+                    </li>
+                    <li class="layui-nav-item" id="27">
+                        <a class="site-demo-active" href="javascript:;" data-id="27" data-title="售后服务" data-url="./views/afterSale/afterSale.html" data-type="tabAdd"><i class="layui-icon layui-icon-chat"></i>&emsp;<cite>售后服务</cite></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            <div id="adminTab" class="layui-tab" lay-filter="adminTab" lay-allowclose="true">
+                <ul class="layui-tab-title"></ul>
+                <div class="layui-tab-content"></div>
+            </div>
+        </div>
+
+        <div class="layui-footer" style="text-align: center;">
+            <!-- 底部固定区域 -->
+            © www.chxyq.com 创想仪器业务管理平台
+        </div>
+    </div>
+</body>
+<script>
+    //重新设置页面大小
+    resize();
+
+    function toInfoPage() {
+        layui.layer.open({
+            type: 2,
+            title: "基本资料",
+            // skin: 'layui-layer-rim', //加上边框
+            area: ['720px', '520px'], //宽高
+            // offset: '20px',
+            resize: false,
+            content: "./views/basicInfo.html", //调到新的界面
+            end: function() {
+                location.reload();
+            }
+        });
+    }
+
+    function toSafePage() {
+        layui.layer.open({
+            type: 2,
+            title: "密码修改",
+            area: ['550px', '400px'], //宽高
+            resize: false,
+            content: "./views/securitySetting.html", //调到新的界面
+            end: function() {
+                location.reload();
+            }
+        });
+    }
+
+    var url = getUrl();
+    layui.use(['element', 'layer', 'jquery'], function() {
+        var element = layui.element;
+        // var layer = layui.layer;
+        var $ = layui.$;
+        var storage = window.localStorage;
+        var json = storage.getItem('userData');
+        if (json != '' && json != null) {
+            var userData = JSON.parse(json);
+            var id = userData.userId;
+
+            // $.ajax({
+            //   contentType: 'application/json; charset=utf-8',
+            //   type: 'get',
+            //   url: url + 'api/v1/glmy/movephone/sale/isOverTime',
+            //   success: function() {},
+            //   error: function() {
+            //     alert('服务器忙......请稍后重试');
+            //   },
+            // });
+
+            //用户权限判断
+            $('#1').hide();
+            $('#2').hide();
+            $('#3').hide();
+            $('#4').hide();
+            $('#5').hide();
+            $('#6').hide();
+            $('#7').hide();
+            $('#8').hide();
+            $('#9').hide();
+            $('#10').hide();
+            $('#11').hide();
+            $('#12').hide();
+            $('#13').hide();
+            $('#14').hide();
+            $('#15').hide();
+            $('#16').hide();
+            $('#17').hide();
+            $('#18').hide();
+            $('#19').hide();
+            $('#20').hide();
+            $('#21').hide();
+            $('#22').hide();
+            $('#23').hide();
+            $('#24').hide();
+            $('#25').hide();
+            $('#26').hide();
+            $('#27').hide();
+
+            var l_ist = userData.permissionId;
+            // alert(l_ist);
+            for (var i = 0; i < l_ist.length; i++) {
+                $('#' + l_ist[i]).show();
+            }
+            $('#5').hide();
+            $('#userName').text(userData.userName);
+        } else {
+            window.location.href = "../views/login.html"
+        }
+
+        var lastTime = new Date().getTime();
+        var currentTime = new Date().getTime();
+        var timeOut = 30 * 60 * 1000; //设置超时时间： 30分
+
+        $(function() {
+            /* 鼠标移动事件 */
+            $(document).mouseover(function() {
+                lastTime = new Date().getTime(); //更新操作时间
+
+            });
+        });
+
+        // 配置tab实践在下面无法获取到菜单元素
+        $('.site-demo-active').on('click', function() {
+            var dataid = $(this);
+            //这时会判断右侧.layui-tab-title属性下的有lay-id属性的li的数目，即已经打开的tab项数目
+            if ($(".layui-tab-title li[lay-id]").length <= 0) {
+                //如果比零小，则直接打开新的tab项
+                active.tabAdd(dataid.attr("data-url"), dataid.attr("data-id"), dataid.attr("data-title"));
+            } else {
+                //否则判断该tab项是否以及存在
+                var isData = false; //初始化一个标志，为false说明未打开该tab项 为true则说明已有
+                $.each($(".layui-tab-title li[lay-id]"), function() {
+                    //如果点击左侧菜单栏所传入的id 在右侧tab项中的lay-id属性可以找到，则说明该tab项已经打开
+                    if ($(this).attr("lay-id") == dataid.attr("data-id")) {
+                        isData = true;
+                    }
+                })
+                if (isData == false) {
+                    //标志为false 新增一个tab项
+                    active.tabAdd(dataid.attr("data-url"), dataid.attr("data-id"), dataid.attr("data-title"));
+                }
+            }
+            //最后不管是否新增tab，最后都转到要打开的选项页面上
+            active.tabChange(dataid.attr("data-id"));
+        });
+
+        var active = {
+
+            //在这里给active绑定几项事件，后面可通过active调用这些事件
+            tabAdd: function(url, id, name) {
+                //新增一个Tab项 传入三个参数，分别对应其标题，tab页面的地址，还有一个规定的id，是标签中data-id的属性值
+                //关于tabAdd的方法所传入的参数可看layui的开发文档中基础方法部分
+                element.tabAdd('adminTab', {
+                    title: name,
+                    content: '<iframe data-frameid="' + id + '" scrolling="auto" frameborder="0" src="' + url +
+                        '" style="width:100%;height:100%;"></iframe>',
+                    id: id //规定好的id
+                })
+                FrameWH(); //计算ifram层的大小
+            },
+            tabChange: function(id) {
+                //切换到指定Tab项
+                element.tabChange('adminTab', id); //根据传入的id传入到指定的tab项
+                //刷新iframe
+                var othis = $('.layui-tab-title').find('>li[lay-id="' + id + '"]'),
+                    index = othis.parent().children('li').index(othis),
+                    parents = othis.parents('.layui-tab').eq(0),
+                    item = parents.children('.layui-tab-content').children('.layui-tab-item'),
+                    src = item.eq(index).find('iframe').attr("src");
+                item.eq(index).find('iframe').attr("src", src);
+            },
+            tabDelete: function(id) {
+                element.tabDelete("adminTab", id); //删除
+            }
+        };
+
+        function FrameWH() {
+            // var h = $(window).height();
+            // var h = $('.layui-body').height();
+            $("iframe").css("height", "100%");
+        }
+
+        element.on('tab(adminTab)', function(data) {
+            var lay_id = $(this).attr("lay-id");
+            var nav_tree = $(".layui-nav-tree");
+            //移除其他选中
+            nav_tree.find("a[data-id]").parent().removeClass("layui-this");
+            //选中点击的
+            var kv = "a[data-id='" + lay_id + "']";
+            nav_tree.find(kv).parent().addClass("layui-this");
+
+            //切换完成后刷新页面
+            //刷新iframe
+            var othis = $('.layui-tab-title').find('>li[lay-id="' + lay_id + '"]'),
+                index = othis.parent().children('li').index(othis),
+                parents = othis.parents('.layui-tab').eq(0),
+                item = parents.children('.layui-tab-content').children('.layui-tab-item'),
+                src = item.eq(index).find('iframe').attr("src");
+            item.eq(index).find('iframe').attr("src", src);
+        });
+        //
+        // $(".left_navigation").click(function(){
+        //        var type="tabAdd";
+        //        var othis = $(this);
+        //        active[type] ? active[type].call(this, othis) : '';
+        //    });
+    });
+
+
+    function back() {
+        var storage = window.localStorage;
+        storage.removeItem("userData");
+        window.location.href = "../views/login.html"
+    }
+</script>
+
+</html>

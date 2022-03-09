@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>样品库元素查看详情</title>
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/element.js?v=318"></script>
+    <style>
+        /* #layui-layer1 {
+            position: relative;
+        } */
+        
+        html {
+            width: 100%;
+            height: 100%;
+        }
+        
+        body {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .paper-info-group {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .text-right {
+            position: absolute;
+            bottom: 10px;
+            right: 0;
+        }
+        
+        .layui-input {
+            width: 100px;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 100px;
+            margin-right: 40px;
+        }
+        
+        .layui-form-label {
+            text-align: center;
+        }
+        
+        .layui-form-item {
+            margin-left: 50px;
+        }
+        
+        .paper-info-group ul li {
+            float: left;
+            margin-left: 30px;
+        }
+        
+        .h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="paper-info-group">
+        <h2 style="text-align: center;">样品信息</h3>
+            <form id="userEditForm" lay-filter="userEditForm" class="layui-form model-form"></form>
+            <ul>
+                <li>
+                    <label class="">样品类型</label>
+                    <input class="layui-input" id="sampleType" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">二级分类</label>
+                    <input class="layui-input" id="sampleTwoLevelType" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">国别</label>
+                    <input class="layui-input" id="countryType" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">样品状态</label>
+                    <input class="layui-input" id="sampleStatus1" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">价格</label>
+                    <input class="layui-input" id="price" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">样品编号</label>
+                    <input class="layui-input" id="sampleCode" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">牌号及名称</label>
+                    <input class="layui-input" id="brandName" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">单点或套标</label>
+                    <input class="layui-input" id="sampleUnit1" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">样品规格</label>
+                    <input class="layui-input" id="sampleSpec" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">销售说明</label>
+                    <input class="layui-input" id="saleInfo" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">证书</label>
+                    <input class="layui-input" id="certificate1" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+                <li>
+                    <label class="">制造商</label>
+                    <input class="layui-input" id="manufacturer1" autocomplete="off" type="text" disabled placeholder="">
+                </li>
+            </ul>
+            </form>
+
+            <hr style="margin-top: 130px;">
+            <!-- 元素表 -->
+            <div class="list-container" id="list-container" style="width: 90%;margin-left: 20px;">
+            </div>
+            <div class="layui-form-item text-right" id="text-right">
+                <button class="layui-btn" type="button" style="margin-right: 10px;" ew-event="closeDialog">关闭</button>
+            </div>
+
+
+    </div>
+
+    <script>
+        function child(d) {
+            console.log('==========d', d);
+            var elements = getElements();
+            var storage = window.localStorage;
+            var updateModel = storage.getItem('elemData');
+            updateModel = JSON.parse(updateModel);
+            var url = getUrl();
+            layui.use(['layer', 'form', 'util', 'admin', 'laytpl', 'zTree', 'layedit', 'laydate', 'table'], function() {
+                var form = layui.form,
+                    layer = layui.layer,
+                    laytpl = layui.laytpl,
+                    layedit = layui.layedit,
+                    laydate = layui.laydate,
+                    util = layui.util,
+                    admin = layui.admin,
+                    table = layui.table;
+                $ = layui.jquery;
+                $form = $('form');
+
+                // 元素表
+                var arr = [];
+                var titles = ['编号', 'Fe', 'Cd', 'Zn', 'Al', 'Sn', 'Mo', 'Co', 'Ag', 'Si', 'Mn', 'Au', 'Sb', 'Pb', 'Ti', 'Ni', 'S', 'P', 'Bi',
+                    'V', 'W', 'Mg', 'N', 'Se', 'B', 'C', 'Cu', 'Zr', 'La', 'Sr', 'Nb', 'As', 'Ga', 'Te', 'Cr', 'Be', 'Ce', 'Ca'
+                ];
+                var datas = [{
+                    "sampleCode": d.sampleCode,
+                    "fe": JSON.stringify(d.elemInfoModelList[0].fe),
+                    "cd": JSON.stringify(d.elemInfoModelList[0].cd),
+                    "zn": JSON.stringify(d.elemInfoModelList[0].zn),
+                    "al": JSON.stringify(d.elemInfoModelList[0].al),
+                    "sn": JSON.stringify(d.elemInfoModelList[0].sn),
+                    "mo": JSON.stringify(d.elemInfoModelList[0].mo),
+                    "co": JSON.stringify(d.elemInfoModelList[0].co),
+                    "ag": JSON.stringify(d.elemInfoModelList[0].ag),
+                    "si": JSON.stringify(d.elemInfoModelList[0].si),
+                    "mn": JSON.stringify(d.elemInfoModelList[0].mn),
+                    "au": JSON.stringify(d.elemInfoModelList[0].au),
+                    "sb": JSON.stringify(d.elemInfoModelList[0].sb),
+                    "pb": JSON.stringify(d.elemInfoModelList[0].pb),
+                    "ti": JSON.stringify(d.elemInfoModelList[0].ti),
+                    "ni": JSON.stringify(d.elemInfoModelList[0].ni),
+                    "s": JSON.stringify(d.elemInfoModelList[0].s),
+                    "p": JSON.stringify(d.elemInfoModelList[0].p),
+                    "bi": JSON.stringify(d.elemInfoModelList[0].bi),
+                    "v": JSON.stringify(d.elemInfoModelList[0].v),
+                    "w": JSON.stringify(d.elemInfoModelList[0].w),
+                    "mg": JSON.stringify(d.elemInfoModelList[0].mg),
+                    "n": JSON.stringify(d.elemInfoModelList[0].n),
+                    "se": JSON.stringify(d.elemInfoModelList[0].se),
+                    "b": JSON.stringify(d.elemInfoModelList[0].b),
+                    "c": JSON.stringify(d.elemInfoModelList[0].c),
+                    "cu": JSON.stringify(d.elemInfoModelList[0].cu),
+                    "zr": JSON.stringify(d.elemInfoModelList[0].zr),
+                    "la": JSON.stringify(d.elemInfoModelList[0].la),
+                    "sr": JSON.stringify(d.elemInfoModelList[0].sr),
+                    "nb": JSON.stringify(d.elemInfoModelList[0].nb),
+                    "as": JSON.stringify(d.elemInfoModelList[0].as),
+                    "ga": JSON.stringify(d.elemInfoModelList[0].ga),
+                    "te": JSON.stringify(d.elemInfoModelList[0].te),
+                    "cr": JSON.stringify(d.elemInfoModelList[0].cr),
+                    "be": JSON.stringify(d.elemInfoModelList[0].be),
+                    "ce": JSON.stringify(d.elemInfoModelList[0].ce),
+                    "ca": JSON.stringify(d.elemInfoModelList[0].ca)
+                }]
+
+                var fields = ['sampleCode', 'fe', 'cd', 'zn', 'al', 'sn', 'mo', 'co', 'ag', 'si', 'mn', 'au', 'sb', 'pb', 'ti', 'ni', 's', 'p', 'bi',
+                    'v', 'w', 'mg', 'n', 'se', 'b', 'c', 'cu', 'zr', 'la', 'sr', 'nb', 'as', 'ga', 'te', 'cr', 'be', 'ce', 'ca'
+                ];
+
+                // 元素判断是否大于0
+                if (d.sampleCode != "fsfjasfhajkghaokm") {
+                    arr.push({
+                        field: fields[0],
+                        title: titles[0],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].fe) > 0) {
+                    arr.push({
+                        field: fields[1],
+                        title: titles[1],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].cd) > 0) {
+                    arr.push({
+                        field: fields[2],
+                        title: titles[2],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].zn) > 0) {
+                    arr.push({
+                        field: fields[3],
+                        title: titles[3],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].al) > 0) {
+                    arr.push({
+                        field: fields[4],
+                        title: titles[4],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].sn) > 0) {
+                    arr.push({
+                        field: fields[5],
+                        title: titles[5],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].mo) > 0) {
+                    arr.push({
+                        field: fields[6],
+                        title: titles[6],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].co) > 0) {
+                    arr.push({
+                        field: fields[7],
+                        title: titles[7],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].ag) > 0) {
+                    arr.push({
+                        field: fields[8],
+                        title: titles[8],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].si) > 0) {
+                    arr.push({
+                        field: fields[9],
+                        title: titles[9],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].mn) > 0) {
+                    arr.push({
+                        field: fields[10],
+                        title: titles[10],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].au) > 0) {
+                    arr.push({
+                        field: fields[11],
+                        title: titles[11],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].sb) > 0) {
+                    arr.push({
+                        field: fields[12],
+                        title: titles[12],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].pb) > 0) {
+                    arr.push({
+                        field: fields[13],
+                        title: titles[13],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].ti) > 0) {
+                    arr.push({
+                        field: fields[14],
+                        title: titles[14],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].ni) > 0) {
+                    arr.push({
+                        field: fields[15],
+                        title: titles[15],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].s) > 0) {
+                    arr.push({
+                        field: fields[16],
+                        title: titles[16],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].p) > 0) {
+                    arr.push({
+                        field: fields[17],
+                        title: titles[17],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].bi) > 0) {
+                    arr.push({
+                        field: fields[18],
+                        title: titles[18],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].v) > 0) {
+                    arr.push({
+                        field: fields[19],
+                        title: titles[19],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].w) > 0) {
+                    arr.push({
+                        field: fields[20],
+                        title: titles[20],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].mg) > 0) {
+                    arr.push({
+                        field: fields[21],
+                        title: titles[21],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].n) > 0) {
+                    arr.push({
+                        field: fields[22],
+                        title: titles[22],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].se) > 0) {
+                    arr.push({
+                        field: fields[23],
+                        title: titles[23],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].b) > 0) {
+                    arr.push({
+                        field: fields[24],
+                        title: titles[24],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].c) > 0) {
+                    arr.push({
+                        field: fields[25],
+                        title: titles[25],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].cu) > 0) {
+                    arr.push({
+                        field: fields[26],
+                        title: titles[26],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].zr) > 0) {
+                    arr.push({
+                        field: fields[27],
+                        title: titles[27],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].la) > 0) {
+                    arr.push({
+                        field: fields[28],
+                        title: titles[28],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].sr) > 0) {
+                    arr.push({
+                        field: fields[29],
+                        title: titles[29],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].nb) > 0) {
+                    arr.push({
+                        field: fields[30],
+                        title: titles[30],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].as) > 0) {
+                    arr.push({
+                        field: fields[31],
+                        title: titles[31],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].ga) > 0) {
+                    arr.push({
+                        field: fields[32],
+                        title: titles[32],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].te) > 0) {
+                    arr.push({
+                        field: fields[33],
+                        title: titles[33],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].cr) > 0) {
+                    arr.push({
+                        field: fields[34],
+                        title: titles[34],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].be) > 0) {
+                    arr.push({
+                        field: fields[35],
+                        title: titles[35],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].ce) > 0) {
+                    arr.push({
+                        field: fields[36],
+                        title: titles[36],
+                        unresize: true
+                    });
+                }
+                if (JSON.stringify(d.elemInfoModelList[0].ca) > 0) {
+                    arr.push({
+                        field: fields[37],
+                        title: titles[37],
+                        unresize: true
+                    });
+                }
+                var index = Math.floor(arr.length / 10);
+                index = index + 1;
+                let htmllet = "";
+                for (var i = 0; i < index; i++) {
+                    htmllet += '<table id=\"dem' + i + '\"' + ' class=\"layui-table\" lay-filter=\"test\" lay-data=\"{id:\'idTest\'}\"> </table>';
+                }
+                document.getElementById("list-container").innerHTML = htmllet;
+                for (var i = 0; i < index; i++) {
+                    table.render({
+                        elem: '#dem' + i,
+                        cols: [arr.slice(i * 10, i * 10 + 10)],
+                        even: true,
+                        data: datas
+                    });
+                }
+
+            })
+        }
+    </script>
+</body>
+
+</html>

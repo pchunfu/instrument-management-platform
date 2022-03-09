@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>样品库</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" />
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/util.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/url.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/htmlUtil.js?v=318"></script>
+    <script type="text/javascript" src="../../../assets/js/element.js?v=318"></script>
+    <style>
+        .layui-input {
+            width: 100px;
+        }
+        
+        .layui-form-item .layui-input-block {
+            display: inline-block;
+            width: 10%;
+            margin-right: 40px;
+            margin-left: 0;
+        }
+        
+        .layui-form-item .layui-input-inline {
+            width: 90%;
+        }
+        
+        .layui-input {
+            width: 100%;
+        }
+        
+        .layui-form-label {
+            text-align: center;
+        }
+        
+        .layui-form-item {
+            margin-left: 50px;
+        }
+        
+        #chongzhi {
+            position: absolute;
+            top: 20px;
+            display: inline-block;
+        }
+        
+        .paper-info-group ul li {
+            float: left;
+            margin-left: 30px;
+        }
+        
+        .h2 {
+            text-align: center;
+        }
+        
+        #organizationUserEditDialog .layui-form-item {
+            margin-left: 10px;
+        }
+        
+        .layui-table-view {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 选项卡 -->
+    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">元素查询</li>
+            <li>编号查询</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                <!-- 元素查询内容页面 -->
+                <form class="layui-form" action="">
+                    <div class="layui-form-item" style="position: relative;">
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">元素</label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" id="elem" name="elem" autocomplete="off" class="layui-input" placeholder="请输入元素">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">最小值</label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" id="min" name="min" autocomplete="off" class="layui-input" placeholder="请输入最小值">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">最大值</label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" id="max" name="max" autocomplete="off" class="layui-input" placeholder="请输入最大值">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">国别</label>
+                            <div class="layui-input-inline">
+                                <select name="countryId" id="country">
+                    <option value="0"></option>
+                  </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">样品类型</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleTypeId" id="sampleTypeId" lay-filter="sampleTypeId">
+                    <option value="0"></option>
+                  </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label" id="sampleTwoLevelTypeLabel">二级分类</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleTwoLevelTypeId" id="sampleTwoLevelTypeId">
+                    <option value="0"></option>
+                  </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <div class="layui-input-inline">
+                                <button type="submit" id="demo1" class="layui-btn" lay-submit="" lay-filter="demo1">查询</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="position: relative;">
+                        <div class="layui-input-block">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" id="elem2" name="elem2" autocomplete="off" class="layui-input" placeholder="请输入元素">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" id="min2" name="min2" autocomplete="off" class="layui-input" placeholder="请输入最小值">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" id="max2" name="max2" autocomplete="off" class="layui-input" placeholder="请输入最大值">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">制造商</label>
+                            <div class="layui-input-inline">
+                                <select name="manufacturerId" id="manufacturer">
+                    <option value="0"></option>
+                  </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">样品状态</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleStatusId" id="sampleStatus">
+                    <option value="0"></option>
+                  </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">单点或套标</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleUnitId" id="sampleUnit">
+                    <option value="0"></option>
+                  </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <div class="layui-input-inline">
+                                <button type="reset" class="layui-btn layui-btn-normal">重置</button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- 样品表表格 -->
+                    <div>
+                        <h2 class="h2">元素查询表</h2>
+                        <table id="demo" class="layui-table" lay-filter="test" lay-data="{id:'idTest'}">
+                        </table>
+                    </div>
+                    <script type="text/html" id="barDemo">
+                        {{# var storage = window.localStorage; var data = storage.getItem('userData'); var userData = JSON.parse(data); var l_ist = userData.permissionId;}} {{# for(var i = 0;i
+                        < l_ist.length;i ++){ }} {{# if(l_ist[i]=='54' ){ }} <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="detail">查看详情</a>{{# } }} {{# if(l_ist[i]=='120' ){ }}
+                            <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a> {{# } }} {{# } }}
+                    </script>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <!-- 编号查询内容页面 -->
+                <form class="layui-form" id="layuiform" action="" lay-filter="example">
+                    <div class="layui-form-item" style="position: relative;">
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">编号查询</label>
+                            <div class="layui-input-inline">
+                                <input type="text/number" oninput="if(value.length>20)value=value.slice(0,20)" id="sampleBrandName" name="sampleBrandName" autocomplete="off" class="layui-input" placeholder="样品编号/牌号及名称">
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">国别</label>
+                            <div class="layui-input-inline">
+                                <select name="countryId" id="country1">
+                                <option value="0"></option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+
+                            <label class="layui-form-label">样品类型</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleTypeId" id="sampleTypeId" lay-filter="sampleTypeId">
+                                <option value="0"></option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label" id="sampleTwoLevelTypeLabel">二级分类</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleTwoLevelTypeId" id="sampleTwoLevelTypeId">
+                                    <option value="0"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">证书</label>
+                            <div class="layui-input-inline">
+                                <select name="certificateId" id="certificate">
+                                <option value="0"></option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">制造商</label>
+                            <div class="layui-input-inline">
+                                <select name="manufacturerId" id="manufacturer2">
+                                <option value="0"></option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">样品状态</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleStatusId" id="sampleStatus2">
+                                <option value="0"></option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label">单点或套标</label>
+                            <div class="layui-input-inline">
+                                <select name="sampleUnitId" id="sampleUnit2">
+                                    <option value="0"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="layui-input-block" style="position: absolute;top: 118px;">
+                            <button id="121" type="submit" class="layui-btn" lay-submit="" lay-filter="demo2">查询</button>
+                        </div>
+                        <div class="layui-input-block" style="position: absolute;top: 118px; margin: 0;margin-left: 100px;">
+                            <button type="reset" id="btn1" class="layui-btn layui-btn-normal">重置</button>
+                        </div>
+                    </div>
+                    <!-- 样品表表格 -->
+                    <div class="numbertable">
+                        <h2 class="h2">编号查询表</h2>
+                        <table id="demo2" class="layui-table" lay-filter="test" lay-data="{id:'idTest'}"></table>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        var storage = window.localStorage;
+        var data = storage.getItem('userData');
+        var userData = JSON.parse(data);
+        var json = storage.getItem('auth');
+        var authData = JSON.parse(json);
+        //用户权限判断
+        $('#121').hide();
+        $('#demo1').hide();
+        var l_ist = userData.permissionId;
+        for (var i = 0; i < l_ist.length; i++) {
+            var item = l_ist[i];
+            if (l_ist[i] == 121) {
+                $('#121').show();
+                $('#demo1').show();
+
+            }
+
+        }
+        layui.use(['layer', 'form', 'element', 'util', 'admin', 'laytpl', 'zTree', 'layedit', 'laydate', 'table'], function() {
+            var element = layui.element;
+            var form = layui.form,
+                layer = layui.layer,
+                laytpl = layui.laytpl,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                util = layui.util,
+                admin = layui.admin,
+                table = layui.table;
+            $ = layui.jquery;
+            $form = $('form');
+            // 正则验证
+            form.verify({
+                    sampleCon: function(value, item) {
+                        if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                            return '浓度为正整数、不能有空格、最多保留两位小数';
+                        }
+                        if (!/^[^\s]*$/.test(value)) {
+                            return '不能输入空格哦!';
+                        }
+                    },
+                    sampleSpec: function(value, item) {
+                        if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                            return '规格正整数、不能有空格、最多保留两位小数';
+                        }
+                    },
+                    sampleCode: function(value) {
+                        if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                            return '编号为正整数、不能有空格、最多保留两位小数';
+                        }
+                    },
+                    samplePrice: function(value) {
+                        if (!/((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/.test(value)) {
+                            return '价格为正整数、不能有空格、最多保留两位小数';
+                        }
+                    }
+                })
+                // 元素表格渲染
+            table.render({
+                elem: '#demo',
+                id: 'demo',
+                title: '样品表',
+                toolbar: '#add',
+                method: "post",
+                url: selectSampleUrl(),
+                async: true,
+                dataType: "JSON",
+                contentType: 'application/json; charset=utf-8',
+                defaultToolbar: ['filter', {
+                    title: '导出',
+                    layEvent: 'DIY_EXPORT',
+                    icon: 'layui-icon-export'
+                }],
+                where: {
+                    isPage: true,
+                },
+                page: true,
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left'
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: 40
+                    }, {
+                        field: 'id',
+                        title: 'ID',
+                        width: '5%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleCode',
+                        title: '样品编号',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleBrandName',
+                        title: '牌号及名称',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleStatus',
+                        title: '样品状态',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'concentration',
+                        title: '浓度',
+                        width: '7%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleSpec',
+                        title: '规格',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'saleInfo',
+                        title: '销售说明',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleUnit',
+                        title: '单位',
+                        width: '7%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'price',
+                        title: '价格',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        title: '操作',
+                        toolbar: '#barDemo',
+                        align: 'center',
+                        unresize: true
+                    }]
+                ],
+                done: function(res, curr, count) {
+
+                }
+            });
+            // 编号表格渲染
+            table.render({
+                elem: '#demo2',
+                id: 'demo2',
+                title: '样品表',
+                toolbar: '#add',
+                method: "post",
+                url: selectSampleUrl(),
+                async: true,
+                dataType: "JSON",
+                contentType: 'application/json; charset=utf-8',
+                defaultToolbar: ['filter', {
+                    title: '导出',
+                    layEvent: 'DIY_EXPORT',
+                    icon: 'layui-icon-export'
+                }],
+                where: {
+                    isPage: true,
+                },
+                page: true,
+                totalRow: false,
+                loading: true,
+                cols: [
+                    [{
+                        type: 'checkbox',
+                        fixed: 'left'
+                    }, {
+                        type: 'numbers',
+                        title: '序号',
+                        width: 40
+                    }, {
+                        field: 'id',
+                        title: 'ID',
+                        width: '5%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleCode',
+                        title: '样品编号',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleBrandName',
+                        title: '牌号及名称',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleStatus',
+                        title: '样品状态',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'concentration',
+                        title: '浓度',
+                        width: '7%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleSpec',
+                        title: '规格',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'saleInfo',
+                        title: '销售说明',
+                        width: '10%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'sampleUnit',
+                        title: '单位',
+                        width: '7%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        field: 'price',
+                        title: '价格',
+                        width: '8%',
+                        align: 'center',
+                        unresize: true
+                    }, {
+                        title: '操作',
+                        toolbar: '#barDemo',
+                        align: 'center',
+                        unresize: true
+                    }]
+                ],
+                done: function(res, curr, count) {
+
+                }
+            });
+            //元素查询监听提交
+            form.on('submit(demo1)', function(data) {
+                var sampleTypeId = data.field.sampleTypeId.split('_')[0];
+                var elements = [];
+                var max = data.field.max;
+                var min = data.field.min;
+                var elem = data.field.elem;
+                var max2 = data.field.max2;
+                var min2 = data.field.min2;
+                var elem2 = data.field.elem2;
+                // 输入框验证
+                if (min != '' && max != '' && (elem === null || elem === '')) {
+                    alert("元素不能为空");
+                    return false;
+                }
+                if (elem != '' && (min === '' || max === '')) {
+                    alert("元素" + elem + "的最大值和最小值不能为空！");
+                    return false;
+                }
+                if (elem != '' && max <= 0 || max > 100) {
+                    alert("元素" + elem + "的最大值必须大于0小于等于100");
+                    return false;
+                }
+                if (elem != '' && min < 0 || min >= 100) {
+                    alert("元素" + elem + "的最小值必须大于等于0小于100");
+                    return false;
+                }
+                if (elem != '' && max <= min) {
+                    alert("元素" + elem + "的最小值必须小于最大值");
+                    return false;
+                }
+                //第一条数据验证结束
+                elements.push({
+                    "elem": HTMLEncode(data.field.elem),
+                    "max": HTMLEncode(data.field.max),
+                    "min": HTMLEncode(data.field.min)
+                });
+
+                if (min2 != '' && max2 != '' && (elem2 === null || elem2 === '')) {
+                    alert("元素不能为空");
+                    return false;
+                }
+                if (elem2 != '' && (min2 === '' || max2 === '')) {
+                    alert("元素" + elem2 + "的最大值和最小值不能为空！");
+                    return false;
+                }
+                if (elem2 != '' && max2 <= 0 || max2 > 100) {
+                    alert("元素" + elem2 + "的最大值必须大于0小于等于100");
+                    return false;
+                }
+                if (elem2 != '' && min2 < 0 || min2 >= 100) {
+                    alert("元素" + elem2 + "的最小值必须大于等于0小于100");
+                    return false;
+                }
+                if (elem2 != '' && max2 <= min2) {
+                    alert("元素" + elem2 + "的最小值必须小于最大值");
+                    return false;
+                }
+                //第二条数据验证结束
+                elements.push({
+                    "elem": HTMLEncode(data.field.elem2),
+                    "max": HTMLEncode(data.field.max2),
+                    "min": HTMLEncode(data.field.min2)
+                });
+                table.reload('demo', {
+                    page: {
+                        curr: 1
+                    },
+                    url: selectSampleUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "countryId": data.field.countryId,
+                        "sampleTypeId": sampleTypeId,
+                        "sampleTwoLevelTypeId": data.field.sampleTwoLevelTypeId,
+                        "element": elements,
+                        "manufacturerId": data.field.manufacturerId,
+                        "sampleStatusId": data.field.sampleStatusId,
+                        "sampleUnitId": data.field.sampleUnitId
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            var area = [];
+            if (window.screen.width > 1360 && window.screen.width < 1920) {
+                area = ['80%', '80%'];
+            } else if (window.screen.width >= 1920) {
+                area = ['895px', '530px'];
+            }
+            // 弹框按钮点击事件
+            table.on('tool(test)', function(obj) {
+                var data = obj.data;
+                var layEvent = obj.event;
+                var storage = window.localStorage;
+                storage.setItem('elemData', JSON.stringify(data));
+                if (layEvent === 'detail') {
+                    layer.open({
+                        type: 2,
+                        title: "查看详情",
+                        skin: 'layui-layer-rim',
+                        area: ['80%', '80%'],
+                        offset: 'auto',
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: "./detailelement.html",
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#sampleType", index);
+                            roleId.val(obj.data.sampleType);
+                            var roleId = layer.getChildFrame("#sampleTwoLevelType", index);
+                            roleId.val(obj.data.sampleTwoType);
+                            var roleId = layer.getChildFrame("#countryType", index);
+                            roleId.val(obj.data.countryType);
+                            var roleId = layer.getChildFrame("#sampleStatus1", index);
+                            roleId.val(obj.data.sampleStatus);
+                            var roleId = layer.getChildFrame("#sampleCode", index);
+                            roleId.val(obj.data.sampleCode);
+                            var roleId = layer.getChildFrame("#sampleCon", index);
+                            roleId.val(obj.data.concentration);
+                            var roleId = layer.getChildFrame("#sampleSpec", index);
+                            roleId.val(obj.data.sampleSpec);
+                            var roleId = layer.getChildFrame("#price", index);
+                            roleId.val(obj.data.price);
+                            var roleId = layer.getChildFrame("#brandName", index);
+                            roleId.val(obj.data.sampleBrandName);
+                            var roleId = layer.getChildFrame("#sampleUnit1", index);
+                            roleId.val(obj.data.sampleUnit);
+                            var roleId = layer.getChildFrame("#saleInfo", index);
+                            roleId.val(obj.data.saleInfo);
+                            var roleId = layer.getChildFrame("#certificate1", index);
+                            roleId.val(obj.data.certificate);
+                            var roleId = layer.getChildFrame("#manufacturer1", index);
+                            roleId.val(obj.data.manufacturer);
+
+                        },
+                    });
+                } else if (layEvent == 'edit') {
+                    layer.open({
+                        type: 2,
+                        title: "修改样品表",
+                        skin: 'layui-layer-rim',
+                        area: area,
+                        offset: 'auto',
+                        skin: 'layerdemo',
+                        resize: false,
+                        content: "./editorelementView.html",
+                        success: function(layero, index) {
+                            var data = obj.data;
+                            var iframe = window['layui-layer-iframe' + index];
+                            iframe.child(data);
+                            var roleId = layer.getChildFrame("#sampleCode", index);
+                            roleId.val(obj.data.sampleCode);
+                            var roleId = layer.getChildFrame("#sampleCon", index);
+                            roleId.val(obj.data.concentration);
+                            var roleId = layer.getChildFrame("#sampleSpec", index);
+                            roleId.val(obj.data.sampleSpec);
+                            var roleId = layer.getChildFrame("#samplePrice", index);
+                            roleId.val(obj.data.price);
+                        },
+                        end: function() {
+                            table.reload("demo", {
+                                page: {
+                                    curr: $("#demo .layui-laypage-em").next().html()
+                                },
+                                url: selectSampleUrl(),
+                                method: "post",
+                                contentType: 'application/json; charset=utf-8',
+                                where: {
+                                    isPage: true
+                                },
+                                done: function(res, curr, count) {}
+                            });
+                        }
+                    });
+                }
+            });
+
+            //编号查询监听提交 
+            form.on('submit(demo2)', function(data) {
+                var sampleTypeId = data.field.sampleTypeId.split('_')[0];
+                table.reload('demo2', {
+                    page: {
+                        curr: 1
+                    },
+                    url: selectSampleUrl(),
+                    method: "post",
+                    contentType: 'application/json; charset=utf-8',
+                    where: {
+                        "countryId": data.field.countryId,
+                        "sampleTypeId": sampleTypeId,
+                        "sampleTwoLevelTypeId": data.field.sampleTwoLevelTypeId,
+                        "certificateId": data.field.certificateId,
+                        "manufacturerId": data.field.manufacturerId,
+                        "sampleStatusId": data.field.sampleStatusId,
+                        "sampleUnitId": data.field.sampleUnitId,
+                        "sampleBrandName": HTMLEncode(data.field.sampleBrandName)
+                    },
+                    done: function(res, curr, count) {
+
+                    }
+                });
+                return false;
+            });
+            //  表格数据导出
+            table.on('toolbar(test)', function(obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data;
+                switch (obj.event) {
+                    case 'add':
+                        location.href = "./addSample.html";
+                        break;
+                    case 'DIY_EXPORT':
+                        if (data.length <= 0) {
+                            alert("请选择至少一条记录进行导出");
+                        } else {
+                            table.exportFile(obj.config.id, data, 'xls');
+                        }
+                        break;
+                };
+            });
+            layui.$('#LAY-component-form-getval').on('click', function() {
+                var data = form.val('example');
+            });
+            /*===============编号查询初始化===============*/
+            //初始化国别信息
+            $.ajax({
+                    url: initCountryUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#country1').append(new Option(item.countryName, item.countryId));
+                        });
+                        form.render();
+                    }
+                })
+                //初始化样品单点或套标信息
+            $.ajax({
+                    url: initSampleUnitUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#sampleUnit2').append(new Option(item.sampleUnitName, item.sampleUnitId));
+                        });
+                        form.render();
+                    }
+                })
+                // 初始化制造商信息
+            $.ajax({
+                    url: initManufacturerUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#manufacturer2').append(new Option(item.manufacturerName, item.manufacturerId));
+                        });
+                        form.render();
+                    }
+                })
+                //初始化样品状态信息
+            $.ajax({
+                    url: initSampleStatusUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#sampleStatus2').append(new Option(item.sampleStatusName, item.sampleStatusId));
+                        });
+                        form.render();
+                    }
+                })
+                //编号样品类型数据
+            function loadSampleType(result) {
+                var samHtml = '';
+                for (var i = 0; i < result.data.length; i++) {
+                    samHtml += '<option value="' + result.data[i].sampleTypeId + '_' + result.data[i].sampleTwoLevelTypeModels.length + '_' + i + '">' + result.data[i].sampleTypeName + '</option>';
+                }
+                $form.find('select[name=sampleTypeId]').append(samHtml);
+
+                form.on('select(sampleTypeId)', function(data) {
+                    var value = data.value;
+                    if (value != '') {
+                        var d = value.split('_');
+                        var id = d[0];
+                        var count = d[1];
+                        var index = d[2];
+                        if (count > 0) {
+                            loadTwoLevelType(result.data[index].sampleTwoLevelTypeModels);
+                        } else {
+                            $form.find('select[name=sampleTwoLevelTypeId]').parent().hide();
+                            $form.find('label[id=sampleTwoLevelTypeLabel]').hide();
+                        }
+                    } else {
+                        $form.find('select[name=sampleTwoLevelTypeId]').parent().hide();
+                        $form.find('label[id=sampleTwoLevelTypeLabel]').hide();
+                    }
+                });
+            }
+
+            function loadTwoLevelType(sampleTwoLevelTypeModels) {
+                var sampleTwoLevelTypeHtml = '';
+                sampleTwoLevelTypeHtml += '<option value=""> 全部 </option>';
+                for (var i = 0; i < sampleTwoLevelTypeModels.length; i++) {
+                    sampleTwoLevelTypeHtml += '<option value="' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeId + '">' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeName + '</option>';
+                }
+                $form.find('label[id=sampleTwoLevelTypeLabel]').show();
+                $form.find('select[name=sampleTwoLevelTypeId]').html(sampleTwoLevelTypeHtml).parent().show();
+                form.render();
+            }
+            /*===============元素查询初始化===============*/
+            //初始化国别信息
+            $.ajax({
+                    url: initCountryUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#country').append(new Option(item.countryName, item.countryId));
+                        });
+                        form.render();
+                    }
+                })
+                //初始化样品类型
+            $.ajax({
+                url: initSampleTypeUrl(),
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    loadSampleType(result);
+                    form.render();
+                }
+            });
+            //样品类型数据
+            function loadSampleType(result) {
+                var samHtml = '';
+                for (var i = 0; i < result.data.length; i++) {
+                    samHtml += '<option value="' + result.data[i].sampleTypeId + '_' + result.data[i].sampleTwoLevelTypeModels.length + '_' + i + '">' + result.data[i].sampleTypeName + '</option>';
+                }
+                $form.find('select[name=sampleTypeId]').append(samHtml);
+                form.on('select(sampleTypeId)', function(data) {
+                    var value = data.value;
+                    if (value != '') {
+                        var d = value.split('_');
+                        var id = d[0];
+                        var count = d[1];
+                        var index = d[2];
+                        if (count > 0) {
+                            loadTwoLevelType(result.data[index].sampleTwoLevelTypeModels);
+                        } else {
+                            $form.find('select[name=sampleTwoLevelTypeId]').parent().hide();
+                            $form.find('label[id=sampleTwoLevelTypeLabel]').hide();
+                        }
+                    } else {
+                        $form.find('select[name=sampleTwoLevelTypeId]').parent().hide();
+                        $form.find('label[id=sampleTwoLevelTypeLabel]').hide();
+                    }
+                });
+            }
+
+            function loadTwoLevelType(sampleTwoLevelTypeModels) {
+                var sampleTwoLevelTypeHtml = '';
+                sampleTwoLevelTypeHtml += '<option value=""> 全部 </option>';
+                for (var i = 0; i < sampleTwoLevelTypeModels.length; i++) {
+                    sampleTwoLevelTypeHtml += '<option value="' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeId + '">' + sampleTwoLevelTypeModels[i].sampleTwoLevelTypeName + '</option>';
+                }
+                $form.find('label[id=sampleTwoLevelTypeLabel]').show();
+                $form.find('select[name=sampleTwoLevelTypeId]').html(sampleTwoLevelTypeHtml).parent().show();
+                form.render();
+            }
+            //初始化证书信息
+            $.ajax({
+                    url: initCertificateUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#certificate').append(new Option(item.certificateTypeName, item.certificateTypeId));
+                        });
+                        form.render();
+                    }
+                })
+                //初始化制造商信息
+            $.ajax({
+                    url: initManufacturerUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#manufacturer').append(new Option(item.manufacturerName, item.manufacturerId));
+                        });
+                        form.render();
+                    }
+                })
+                //初始化样品状态信息
+            $.ajax({
+                    url: initSampleStatusUrl(),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function(result) {
+                        $.each(result.data, function(index, item) {
+                            $('#sampleStatus').append(new Option(item.sampleStatusName, item.sampleStatusId));
+                        });
+                        form.render();
+                    }
+                })
+                //初始化单点或套标信息
+            $.ajax({
+                url: initSampleUnitUrl(),
+                dataType: 'json',
+                type: 'get',
+                success: function(result) {
+                    $.each(result.data, function(index, item) {
+                        $('#sampleUnit').append(new Option(item.sampleUnitName, item.sampleUnitId));
+                    });
+                    form.render();
+                }
+            })
+
+        });
+    </script>
+
+
+</body>
+
+</html>
